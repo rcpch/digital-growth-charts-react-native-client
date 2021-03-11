@@ -1,26 +1,21 @@
 import React from 'react';
-import {SafeAreaView, StyleSheet, StatusBar, View} from 'react-native';
-import theme from './src/config/theme';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import {NavigationContainer} from '@react-navigation/native';
 
-import {VictoryPlaceholder} from './src/components';
+// import {VictoryPlaceholder} from './src/components';
+import AppNavigator from './src/navigation/AppNavigator';
+import {GlobalStatsProvider} from './src/components';
 
 const App = () => {
   return (
-    <React.Fragment>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView style={styles.main}>
-        <View style={theme.button} />
-      </SafeAreaView>
-    </React.Fragment>
+    <SafeAreaProvider>
+      <GlobalStatsProvider>
+        <NavigationContainer>
+          <AppNavigator />
+        </NavigationContainer>
+      </GlobalStatsProvider>
+    </SafeAreaProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  main: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-  },
-});
 
 export default App;

@@ -23,6 +23,8 @@ target 'RCPCHGrowth' do
   end
 end
 
+pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
 target 'RCPCHGrowth-tvOS' do
   # Pods for RCPCHGrowth-tvOS
 

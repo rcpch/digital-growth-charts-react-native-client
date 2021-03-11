@@ -1,13 +1,12 @@
-//these are all wrong.....
-
 const colors = {
-  heading: '#0d0d58',
-  navBlue1: '#1B469C',
-  navBlue2: '#3366cc',
-  rcpchBlue: '#131111',
-  rcpchPink: '#e0e0e0',
-  rcpchRed: '#005f20',
-  rcpchDarkGrey: '#c8cacc',
+  black: '#000',
+  white: '#fff',
+  light: '#c4c4c4',
+  medium: '#828282',
+  darkMedium: '#686868',
+  dark: '#4f4f4f',
+  darkest: '#3b3b3b',
+  danger: '#ff5252',
 };
 
 export default colors;
