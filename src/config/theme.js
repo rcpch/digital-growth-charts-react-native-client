@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     color: 'white',
     flexDirection: 'row',
-    height: windowWidth > 375 ? 57 : 50,
+    height: windowWidth > 350 ? 57 : 50,
     margin: 5,
     paddingLeft: 8,
   },
@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: 'Montserrat-Regular',
-    fontSize: windowWidth > 375 ? 20 : 16,
+    fontSize: windowWidth > 350 ? 19 : 16,
     color: colors.white,
   },
   modal: {

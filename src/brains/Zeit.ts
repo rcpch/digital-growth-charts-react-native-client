@@ -2,22 +2,28 @@
 
 import {formatDate} from './oddBits';
 
-const addDays = (date, moreDays) => {
+const addDays = (date: Date, moreDays: number): Date => {
   const result = new Date(date);
   result.setDate(result.getDate() + moreDays);
   return result;
 };
 class Zeit {
+  from: Date;
+  until: Date;
+  birthGestationInDays: number;
+  fromObjectCorrected: Date;
+  msDifferenceCorrected: number;
+  msDifferenceRaw: number;
   constructor(
-    from, // furthest away date / time in the interval
-    until, // closest date / time in the interval
+    from: Date | null, // furthest away date / time in the interval
+    until: Date | null, // closest date / time in the interval
     birthGestationInDays = 280, // self-explanatory (default is 40 weeks)
   ) {
     if (!from) {
       throw new Error('Zeit requires a from date');
     }
-    let fromDate = from;
-    let untilDate = until || new Date();
+    let fromDate: Date = from;
+    let untilDate: Date = until || new Date();
     const msDifference = untilDate.getTime() - fromDate.getTime();
     // 14 days in milliseconds:
     if (msDifference > 1209600000) {
@@ -36,7 +42,7 @@ class Zeit {
     this.msDifferenceRaw = this.until.getTime() - this.from.getTime();
   }
   calculate(
-    units, // for output, must be specified
+    units: string, // for output, must be specified
     correct = true, // correct for gestation
     integer = true, // returns an integer age or not
     digitalClockOutput = false, // returns output for used for resuscitation, units must be set to string
@@ -50,19 +56,12 @@ class Zeit {
     const exactYears = 365.25;
     let millisecondDifference = this.msDifferenceRaw;
     let from = this.from;
-    if (correct) {
-      const tempDays = Math.floor(
-        this.msDifferenceRaw / (milliseconds * seconds * minutes * hours),
-      );
-      if (
-        (tempDays <= 366 && this.birthGestationInDays < 259) ||
-        (tempDays <= 731 && this.birthGestationInDays < 224)
-      ) {
-        millisecondDifference = this.msDifferenceCorrected;
-        from = this.fromObjectCorrected;
-      }
+    if (correct && this.birthGestationInDays < 259) {
+      millisecondDifference = this.msDifferenceCorrected;
+      from = this.fromObjectCorrected;
     }
-    const rawValues = {
+
+    const rawValues: {[index: string]: Function} = {
       seconds: function () {
         return millisecondDifference / milliseconds;
       },
@@ -154,7 +153,7 @@ class Zeit {
           : (outputSeconds = `${intAges.remainderSeconds}`);
         return `${outputHours}:${outputMinutes}:${outputSeconds}`;
       }
-      const plurals = {
+      const plurals: {[index: string]: string} = {
         seconds: '',
         remainderSeconds: '',
         minutes: '',

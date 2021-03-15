@@ -82,6 +82,10 @@ const proformaTemplate = {
     nullable: {
       param: true,
     },
+    isRequired: {
+      param: true,
+      message: "↑ We'll need a birth gestation",
+    },
   },
   weight: {
     inputType: {

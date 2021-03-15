@@ -90,7 +90,8 @@ const errorsObject: {[index: string]: string} = {
     "The server responded with 'Not authorised'. Please check your API key.",
   '422':
     'The server was unable to process the measurements. This is probably a bug in dotKid.',
-  '500': 'The server encountered a problem.',
+  '500':
+    'The server encountered an error. The measurements may have been incompatible with the calculator.',
   'Network request failed':
     'The request to the server failed. Please check your internet connection.',
   'Timeout exceeded': 'Request to the server timed out.',
@@ -118,13 +119,15 @@ const getSingleCentileData = async (
   }
   const apiArgument = makeApiArgument(inputObject, measurementType);
   try {
+    const options = {
+      method: 'POST',
+      headers: headersObject,
+      body: JSON.stringify(apiArgument),
+      redirect: 'follow',
+    };
     const serverResponse: serverResponseType = await timeoutForFetch(
-      6000,
-      fetch(singleMeasurementUrl, {
-        method: 'POST',
-        headers: headersObject,
-        body: JSON.stringify(apiArgument),
-      }),
+      4000,
+      fetch(singleMeasurementUrl, options),
     );
     if (!serverResponse.ok) {
       throw new Error(serverResponse.status);

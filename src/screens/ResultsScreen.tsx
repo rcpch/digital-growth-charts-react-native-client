@@ -1,78 +1,72 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
 
-import {Screen, AppText} from '../components';
-import AgeButton from '../components/AgeButton';
-import CentileOutputRCPCH from '../components/CentileOutputRCPCH';
+import {Screen, AppText, AgeButton, CentileOutput} from '../components';
 import {colors, theme} from '../config';
+import {useRcpchApi} from '../hooks/';
 
-function makeRefresh() {
-  const returnObj: {[index: string]: string} = {
-    weight: 'try',
-    height: 'try',
-    bmi: 'try',
-    ofc: 'try',
-  };
-  return returnObj;
-}
+const centileMeasurements = ['weight', 'height', 'bmi', 'ofc'];
 
 function ResultsScreen() {
-  const [refresh, setRefresh] = useState(makeRefresh());
-  const [showRefresh, setShowRefresh] = useState(false);
-  const navigation = useNavigation();
-
-  const refreshState = [refresh, setRefresh];
+  const [isLoading, setIsLoading] = useState(true);
+  const {
+    getMultipleCentileResults,
+    centileResults,
+    errors,
+    globalState,
+  } = useRcpchApi('local');
 
   const reset = () => {
-    setRefresh((old) => {
-      const mutable = {...old};
-      for (const [key, value] of Object.entries(old)) {
-        if (value === 'fail') {
-          mutable[key] = 'try';
-        }
-      }
-      return mutable;
-    });
+    setIsLoading(true);
   };
 
-  const goBack = () => navigation.goBack();
+  const showRefresh = errors.serverErrors ? true : false;
 
   useEffect(() => {
-    let failure = false;
-    for (const value of Object.values(refresh)) {
-      if (value === 'fail') {
-        failure = true;
-        break;
-      }
+    let recordAnswer = true;
+    if (isLoading) {
+      getMultipleCentileResults(recordAnswer).then(() => setIsLoading(false));
     }
-    failure ? setShowRefresh(true) : setShowRefresh(false);
-  }, [refresh, showRefresh]);
+    return () => {
+      recordAnswer = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
+
+  const centileOutputs = centileMeasurements.map((item) => {
+    let measurementProvided = false;
+    if (
+      globalState[item]?.value ||
+      (item === 'bmi' && globalState.weight.value && globalState.height.value)
+    ) {
+      measurementProvided = true;
+    }
+    return (
+      <CentileOutput
+        measurementProvided={measurementProvided}
+        measurementType={item}
+        centileResults={centileResults}
+        errors={errors}
+        isLoading={isLoading}
+        key={item}
+      />
+    );
+  });
 
   return (
-    <Screen>
-      <AgeButton />
-      <TouchableOpacity style={styles.backButton} onPress={goBack}>
-        <AppText style={styles.backButtonText}>← Calculate Again</AppText>
-      </TouchableOpacity>
+    <Screen renderBack>
+      <AgeButton
+        centileResults={centileResults}
+        errors={errors}
+        isLoading={isLoading}
+      />
       {showRefresh && (
         <TouchableOpacity style={styles.refreshButton} onPress={reset}>
-          <AppText>Refresh</AppText>
+          <AppText>Try again</AppText>
         </TouchableOpacity>
       )}
       <ScrollView>
-        <View style={styles.resultsContainer}>
-          <CentileOutputRCPCH
-            measurement="weight"
-            refreshState={refreshState}
-          />
-          <CentileOutputRCPCH
-            measurement="height"
-            refreshState={refreshState}
-          />
-          <CentileOutputRCPCH measurement="bmi" refreshState={refreshState} />
-          <CentileOutputRCPCH measurement="ofc" refreshState={refreshState} />
-        </View>
+        <View style={styles.resultsContainer}>{centileOutputs}</View>
       </ScrollView>
     </Screen>
   );

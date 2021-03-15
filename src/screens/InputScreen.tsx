@@ -5,24 +5,17 @@ import {useNavigation} from '@react-navigation/native';
 
 import {
   BinarySelector,
+  DateInputButton,
+  TextInputButton,
+  GestationInputButton,
+  SubmitOrReset,
   ValidatorProvider,
   proformaTemplate,
   Screen,
   GlobalStateContext,
 } from '../components';
-import DateInputButton from '../components/pickers/DateInputButton';
-import TextInputButton from '../components/pickers/TextInputButton';
-import SubmitOrReset from '../components/SubmitOrReset';
-import Zeit from '../brains/Zeit';
 
-const validationProforma = {
-  sex: proformaTemplate.sex,
-  dob: proformaTemplate.dob,
-  dom: proformaTemplate.dom,
-  weight: proformaTemplate.weight,
-  height: proformaTemplate.height,
-  ofc: proformaTemplate.ofc,
-};
+import Zeit from '../brains/Zeit';
 
 const ChildCentile = () => {
   const navigation = useNavigation();
@@ -56,12 +49,13 @@ const ChildCentile = () => {
     }
   };
   return (
-    <Screen>
+    <Screen title="Enter Measurements:">
       <ValidatorProvider
-        validationProforma={validationProforma}
+        validationProforma={proformaTemplate}
         customSubmitFunction={submitFunction}>
         <KeyboardAwareScrollView>
           <DateInputButton dateName="dob" />
+          <GestationInputButton />
           <BinarySelector
             name="sex"
             userLabel="Sex"

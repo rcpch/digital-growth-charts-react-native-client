@@ -31,7 +31,7 @@ const list = {
   height: {workingValue: ''},
   weight: {workingValue: ''},
   ofc: {workingValue: ''},
-  gestationInDays: {workingValue: 280},
+  gestationInDays: {workingValue: 0},
   sex: {workingValue: ''},
   dob: {workingValue: null},
   dom: {workingValue: null},

@@ -1,7 +1,5 @@
 import React from 'react';
-import {StyleSheet, View, TouchableOpacity} from 'react-native';
 
-import AppIcon from '../AppIcon';
 import UnitsSwitcher from '../UnitsSwitcher';
 import PickerButton from '../PickerButton';
 

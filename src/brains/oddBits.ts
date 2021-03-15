@@ -1,7 +1,7 @@
 import {Alert} from 'react-native';
 
 // input a number and outputs a string with ordinal suffix attached
-const addOrdinalSuffix = (inputNumber) => {
+const addOrdinalSuffix = (inputNumber: number): string => {
   const answerNumber = inputNumber;
   let workingNumber = Number(inputNumber);
   if (Number.isInteger(workingNumber) === false) {
@@ -26,25 +26,12 @@ const addOrdinalSuffix = (inputNumber) => {
 };
 
 // as it says on the tin. Kept separate for simplicity
-const calculateBMI = (weight, heightInCm) => {
+const calculateBMI = (weight: number, heightInCm: number) => {
   if (!weight || !heightInCm) {
     throw new Error('BMI calc did not receive valid arguments');
   }
   const height = heightInCm / 100;
   return weight / (height * height);
-};
-
-// simple check neonatal fluid values are at default (could've done JSON.stringify but only discovered this later)
-const checkDefault = (values) => {
-  if (
-    values.day1 === '60' &&
-    values.day2 === '80' &&
-    values.day3 === '100' &&
-    values.day4 === '120' &&
-    values.day5 === '150'
-  ) {
-    return true;
-  }
 };
 
 // check timestamps of measurements from global state. Can change how many mins old the threshold is
@@ -67,7 +54,7 @@ const checkTimeStamps = (globalObject, initialFormikValues, minsAgo = 2) => {
 };
 
 // simple is number plural or not
-const decidePluralSuffix = (inputNumber) => {
+const decidePluralSuffix = (inputNumber: number) => {
   if (inputNumber === 1) {
     return '';
   } else {
@@ -76,9 +63,13 @@ const decidePluralSuffix = (inputNumber) => {
 };
 
 // format date object to date DD/MM/YY, can also do to YYYY
-const formatDate = (inputDate, fullYear = false, standardised = false) => {
+const formatDate = (
+  inputDate: Date,
+  fullYear = false,
+  standardised = false,
+): string => {
   if (!inputDate) {
-    return null;
+    throw new Error('Input date is required for formatDate function');
   }
   const date = new Date(inputDate);
   let month = '' + (date.getMonth() + 1);
@@ -101,7 +92,7 @@ const formatDate = (inputDate, fullYear = false, standardised = false) => {
 };
 
 // format date object to time to hh:mm
-const formatTime = (inputTime, accurate = false) => {
+const formatTime = (inputTime: Date, accurate = false) => {
   if (!inputTime) {
     return null;
   }
@@ -185,14 +176,13 @@ const handleOldValues = (
   }
 };
 
-const timeout = (ms) => {
+const timeout = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 export {
   addOrdinalSuffix,
   calculateBMI,
-  checkDefault,
   decidePluralSuffix,
   formatDate,
   formatTime,

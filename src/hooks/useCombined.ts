@@ -2,10 +2,10 @@ import {useContext} from 'react';
 import {
   GlobalStateContext,
   initialState,
-  ValidatorContext,
-  validMeasurementInputTypes,
   globalStateType,
-} from '../components/';
+  validMeasurementInputTypes,
+} from '../components/GlobalStateContext';
+import {ValidatorContext} from '../components/Validator';
 
 export type globalSubStateType = {
   showPicker?: boolean;

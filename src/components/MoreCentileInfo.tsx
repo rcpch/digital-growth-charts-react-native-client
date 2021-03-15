@@ -5,18 +5,62 @@ import AppText from './AppText';
 import {colors} from '../config';
 import AppIcon from './AppIcon';
 import AppModal from './AppModal';
+import {addOrdinalSuffix} from '../brains';
 
 type propTyes = {
-  exactCentile: string;
-  sds?: number;
+  specificResults: any;
+  correctionApplied: boolean;
 };
 
-const MoreCentileInfo = ({exactCentile, sds}: propTyes) => {
+const parseExactCentile = (exact: number) => {
+  if (typeof exact === 'number') {
+    if (exact > 99.9) {
+      return '>99.9th';
+    } else if (exact < 0.1) {
+      return '<0.1st';
+    } else {
+      return addOrdinalSuffix(exact);
+    }
+  } else {
+    return 'N/A';
+  }
+};
+
+const MoreCentileInfo = ({specificResults, correctionApplied}: propTyes) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const modalHeading1 = `Centile: ${exactCentile}`;
-  const modalHeading2 = sds ? `Z score: ${sds.toFixed(3)}` : 'Z score: N/A';
-  const modalMessage =
-    'The default answer follows RCPCH guidelines based on major centile lines (50th, 75th etc.): \n\n If a centile measurement is within 1/4 of the distance between 2 major centile lines, the measurement is considered to lie on or near the nearest major centile line. Otherwise it is either considered to lie between, above or below.';
+  const centileCorrected =
+    specificResults?.measurement_calculated_values.corrected_centile || '';
+  const centileChronological =
+    specificResults?.measurement_calculated_values.chronological_centile || '';
+  const sdsCorrected =
+    specificResults?.measurement_calculated_values.corrected_sds || '';
+  const sdsChronological =
+    specificResults?.measurement_calculated_values.chronological_sds || '';
+
+  const noCorrectionMessage = !correctionApplied
+    ? 'Child born at term, no gestational correction applied.\n\n'
+    : '';
+
+  const centileCorrectedAnswer = `Centile: ${parseExactCentile(
+    centileCorrected,
+  )}`;
+
+  const sdsCorrectedAnswer =
+    typeof sdsCorrected === 'number'
+      ? `Z score: ${sdsCorrected.toFixed(3)}`
+      : 'Z score: N/A';
+
+  const centileChronologicalAnswer = `Centile: ${parseExactCentile(
+    centileChronological,
+  )}`;
+
+  const sdsChronologicalAnswer =
+    typeof sdsChronological === 'number'
+      ? `Z score: ${sdsChronological.toFixed(3)}`
+      : 'Z score: N/A';
+
+  const modalMessage = `${noCorrectionMessage}The default answer follows RCPCH guidelines based on major centile lines (50th, 75th etc.): \n\n If a centile measurement is within 1/4 of the distance between 2 major centile lines, the measurement is considered to lie on or near the nearest major centile line. Otherwise it is either considered to lie between, above or below.`;
+
   return (
     <React.Fragment>
       <TouchableOpacity
@@ -34,11 +78,31 @@ const MoreCentileInfo = ({exactCentile, sds}: propTyes) => {
           setModalVisible(!modalVisible);
         }}
         modalVisible={modalVisible}>
-        <View style={styles.modalTextHeadingWrapper}>
-          <AppText style={styles.modalTextHeadings}>{modalHeading1}</AppText>
-        </View>
-        <View style={styles.modalTextHeadingWrapper}>
-          <AppText style={styles.modalTextHeadings}>{modalHeading2}</AppText>
+        <View style={styles.infoContainer}>
+          <View style={styles.modalTextHeadingWrapper}>
+            {correctionApplied ? (
+              <AppText style={styles.modalTextHeadings}>Corrected:</AppText>
+            ) : null}
+            <AppText style={styles.modalTextInfo}>
+              {centileCorrectedAnswer}
+            </AppText>
+            <AppText style={styles.modalTextInfo}>{sdsCorrectedAnswer}</AppText>
+          </View>
+          {correctionApplied && (
+            <React.Fragment>
+              <View style={styles.modalTextHeadingWrapper}>
+                <AppText style={styles.modalTextHeadings}>
+                  Chronological:
+                </AppText>
+                <AppText style={styles.modalTextInfo}>
+                  {centileChronologicalAnswer}
+                </AppText>
+                <AppText style={styles.modalTextInfo}>
+                  {sdsChronologicalAnswer}
+                </AppText>
+              </View>
+            </React.Fragment>
+          )}
         </View>
         <AppText style={styles.modalTextParagraph}>{modalMessage}</AppText>
       </AppModal>
@@ -56,29 +120,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
+  infoContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
   modalTextHeadings: {
     textAlign: 'center',
     flexWrap: 'wrap',
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '500',
     color: colors.white,
+    marginBottom: 10,
+    //backgroundColor: 'yellow',
+  },
+  modalTextInfo: {
+    textAlign: 'center',
+    flexWrap: 'wrap',
+    fontSize: 16,
+    fontWeight: '400',
+    color: colors.white,
+    marginBottom: 5,
     //backgroundColor: 'yellow',
   },
   modalTextHeadingWrapper: {
     borderRadius: 5,
     marginTop: 0,
-    marginBottom: 20,
+    marginBottom: 10,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.dark,
-    padding: 5,
-    paddingLeft: 5,
-    paddingRight: 5,
+    padding: 10,
     margin: 8,
   },
   modalTextParagraph: {
     color: colors.black,
+    marginTop: 10,
     marginBottom: 5,
     textAlign: 'center',
     flexWrap: 'wrap',
