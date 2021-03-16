@@ -1,8 +1,10 @@
 import {useState, useContext} from 'react';
+import {Platform} from 'react-native';
 
 import {
   API_CALC,
-  API_LOCAL_BASE,
+  API_LOCAL_BASE_ANDROID,
+  API_LOCAL_BASE_IOS,
   API_LAN_BASE,
   API_REAL_BASE,
   API_KEY,
@@ -16,6 +18,10 @@ type serverResponseType = {
   status: 'string';
   text: Function;
 };
+
+if (!API_CALC) {
+  console.error('No calc environment variable found. Is your .env file OK?');
+}
 
 //parses measurements object into format recognised by the api
 const makeApiArgument = (
@@ -92,6 +98,7 @@ const timeoutForFetch = async (
 const errorsObject: {[index: string]: string} = {
   '401':
     "The server responded with 'Not authorised'. Please check your API key.",
+  '404': "The server responded with '404 not found'",
   '422':
     'The server was unable to process the measurements. This is probably a bug in the app.',
   '500':
@@ -103,7 +110,9 @@ const errorsObject: {[index: string]: string} = {
 
 // urls in use
 const urlObjectCalculate: {[index: string]: string} = {
-  local: `${API_LOCAL_BASE}${API_CALC}`,
+  local: `${
+    Platform.OS === 'ios' ? API_LOCAL_BASE_IOS : API_LOCAL_BASE_ANDROID
+  }${API_CALC}`,
   lan: `${API_LAN_BASE}${API_CALC}`,
   real: `${API_REAL_BASE}${API_CALC}`,
 };
@@ -111,7 +120,7 @@ const urlObjectCalculate: {[index: string]: string} = {
 const getSingleCentileData = async (
   inputObject: globalStateType,
   measurementType: string,
-  workingErrorsObject: {[key: string]: any},
+  workingErrorsObject: {[key: string]: string | boolean},
   url: string = 'local',
 ) => {
   // look for error message corresponding to measurement type, only proceed if no error message:

@@ -5,7 +5,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 
 import {colors, containerWidth} from '../../config';
 import {formatDate} from '../../brains';
-import {globalSubStateType, useCombined} from '../../hooks';
+import {globalSubStateType} from '../../hooks/useCombined';
+import useCombined from '../../hooks/useCombined';
 import AcceptCancel from '../AcceptCancel';
 import PickerButton from '../PickerButton';
 import AppModal from '../AppModal';

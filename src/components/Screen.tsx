@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'flex-start',
-    paddingBottom: 15,
+    paddingBottom: 10,
   },
   view: {
     flex: 1,

@@ -1,7 +1,7 @@
 import React from 'react';
 import {StyleSheet, View, TextInput} from 'react-native';
 
-import {useCombined} from '../../hooks';
+import useCombined from '../../hooks/useCombined';
 import PickerButton from '../PickerButton';
 import {containerWidth, theme, colors} from '../../config';
 

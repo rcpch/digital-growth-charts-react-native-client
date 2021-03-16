@@ -3,7 +3,7 @@ import {Platform, StyleSheet, View, TouchableOpacity} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 
 import {colors, theme} from '../../config';
-import {useCombined} from '../../hooks';
+import useCombined from '../../hooks/useCombined';
 import PickerButton from '../PickerButton';
 import AppModal from '../AppModal';
 import AppIcon from '../AppIcon';

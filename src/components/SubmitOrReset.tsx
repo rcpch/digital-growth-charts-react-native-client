@@ -1,7 +1,7 @@
 import React from 'react';
 import {Alert, StyleSheet, TouchableOpacity} from 'react-native';
 import {colors, theme} from '../config';
-import {useCombined} from '../hooks';
+import useCombined from '../hooks/useCombined';
 import AppText from './AppText';
 
 type propTypes = {

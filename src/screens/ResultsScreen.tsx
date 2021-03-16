@@ -73,11 +73,6 @@ function ResultsScreen() {
 }
 
 const styles = StyleSheet.create({
-  backButton: {
-    ...theme.button,
-    justifyContent: 'center',
-    backgroundColor: colors.light,
-  },
   refreshButton: {
     ...theme.button,
     justifyContent: 'center',

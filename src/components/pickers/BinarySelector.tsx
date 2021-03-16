@@ -3,7 +3,7 @@ import React from 'react';
 import UnitsSwitcher from '../UnitsSwitcher';
 import PickerButton from '../PickerButton';
 
-import {useCombined} from '../../hooks';
+import useCombined from '../../hooks/useCombined';
 import {colors} from '../../config';
 import AcceptCancel from '../AcceptCancel';
 
