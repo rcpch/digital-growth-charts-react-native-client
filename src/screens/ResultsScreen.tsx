@@ -51,9 +51,9 @@ function ResultsScreen() {
   if (globalState.reference.value === 'uk-who') {
     referenceTitle = 'UK-WHO';
   } else if (globalState.reference.value === 'turner') {
-    referenceTitle = 'Turner Syndrome';
+    referenceTitle = "Turner's Syndrome";
   } else {
-    referenceTitle = 'Down Syndrome';
+    referenceTitle = "Down's Syndrome";
   }
 
   return (

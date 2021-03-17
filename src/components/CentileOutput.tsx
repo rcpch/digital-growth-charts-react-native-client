@@ -18,7 +18,7 @@ type propTypes = {
   measurementProvided: boolean;
   measurementType: string;
   centileResults: {[key: string]: Measurement | null};
-  errors: {[key: string]: string | null};
+  errors: {[key: string]: string | boolean};
   isLoading: boolean;
 };
 

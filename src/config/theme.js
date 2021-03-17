@@ -14,7 +14,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     color: 'white',
     flexDirection: 'row',
-    height: windowWidth > 350 ? 57 : 50,
+    height: windowWidth > 350 ? 54 : 50,
     margin: 5,
     paddingLeft: 8,
   },
