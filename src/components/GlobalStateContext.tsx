@@ -1,22 +1,12 @@
 import React, {useState} from 'react';
-
-export type validMeasurementInputTypes = null | string | Date | number;
-
-type blankTypes = {
-  showPicker: boolean;
-  value: validMeasurementInputTypes;
-  timeStamp: null | Date;
-  workingValue: validMeasurementInputTypes;
-};
-
-export type globalStateType = {[key: string]: blankTypes};
+import {globalStateType} from '../interfaces/GlobalState';
 
 type propTypes = {
   children: React.ReactNode;
 };
 
 const blankContext: {
-  globalState: globalStateType;
+  globalState: any;
   setGlobalState: Function;
   setSingleGlobalState: Function;
 } = {
@@ -30,11 +20,13 @@ const GlobalStateContext = React.createContext(blankContext);
 const list = {
   height: {workingValue: ''},
   weight: {workingValue: ''},
+  bmi: {workingValue: 0},
   ofc: {workingValue: ''},
-  gestationInDays: {workingValue: 0},
+  gestationInDays: {workingValue: 280},
   sex: {workingValue: ''},
   dob: {workingValue: null},
   dom: {workingValue: null},
+  reference: {workingValue: 'uk-who'},
 };
 const blank = {
   showPicker: false,
@@ -42,7 +34,7 @@ const blank = {
 };
 
 function MakeInitialState() {
-  const workingObject: globalStateType = {};
+  const workingObject: any = {};
   for (const [key, subValue] of Object.entries(list)) {
     workingObject[key] = {
       ...blank,
@@ -59,12 +51,12 @@ const GlobalStatsProvider = ({children}: propTypes) => {
   const [globalState, setGlobalState] = useState(MakeInitialState());
 
   const setSingleGlobalState = (
-    name: string,
-    value: blankTypes['value'],
+    name: keyof globalStateType,
+    value: any,
     timeStamp = 'add',
   ): void => {
-    setGlobalState((oldState) => {
-      const mutableState: globalStateType = {...oldState};
+    setGlobalState((oldState: globalStateType) => {
+      const mutableState = {...oldState};
       mutableState[name].value = value;
       if (timeStamp === 'add') {
         mutableState[name].timeStamp = new Date();

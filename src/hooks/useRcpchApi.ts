@@ -2,16 +2,17 @@ import {useState, useContext} from 'react';
 import {Platform} from 'react-native';
 
 import {
-  API_CALC,
   API_LOCAL_BASE_ANDROID,
   API_LOCAL_BASE_IOS,
   API_LAN_BASE,
   API_REAL_BASE,
   API_KEY,
 } from '@env';
-import {calculateBMI, formatDate} from '../brains/oddBits';
-import {GlobalStateContext, globalStateType} from '../components';
+import {formatDate} from '../brains/oddBits';
+import {GlobalStateContext} from '../components';
 import Zeit from '../brains/Zeit';
+
+import {globalStateType} from '../interfaces/GlobalState';
 
 type serverResponseType = {
   ok: boolean;
@@ -19,31 +20,23 @@ type serverResponseType = {
   text: Function;
 };
 
-if (!API_CALC) {
-  console.error('No calc environment variable found. Is your .env file OK?');
+type measurementTypes = 'weight' | 'height' | 'bmi' | 'ofc';
+
+if (!API_LOCAL_BASE_ANDROID || !API_LOCAL_BASE_IOS) {
+  console.error(
+    'No environment variable found for local server running. Please check the environment variables needed in useRcpchApi',
+  );
 }
 
 //parses measurements object into format recognised by the api
 const makeApiArgument = (
   inputObject: globalStateType,
-  measurementType: string,
+  measurementType: keyof globalStateType,
 ) => {
   let measurement = inputObject[measurementType]?.value;
   if (!measurement) {
-    if (measurementType === 'bmi') {
-      try {
-        measurement = calculateBMI(
-          inputObject.weight.value,
-          inputObject.height.value,
-        );
-      } catch (error) {
-        throw new Error('No measurements found for bmi');
-      }
-    } else {
-      throw new Error('No valid measurement found');
-    }
+    throw new Error('No valid measurement found');
   }
-
   let dob, gestationInDays, sex;
   if (inputObject.dob?.value) {
     dob = inputObject.dob.value;
@@ -109,28 +102,28 @@ const errorsObject: {[index: string]: string} = {
 };
 
 // urls in use
-const urlObjectCalculate: {[index: string]: string} = {
+const urlLookup: {[index: string]: string} = {
   local: `${
     Platform.OS === 'ios' ? API_LOCAL_BASE_IOS : API_LOCAL_BASE_ANDROID
-  }${API_CALC}`,
-  lan: `${API_LAN_BASE}${API_CALC}`,
-  real: `${API_REAL_BASE}${API_CALC}`,
+  }`,
+  lan: `${API_LAN_BASE}`,
+  real: `${API_REAL_BASE}`,
 };
 
 const getSingleCentileData = async (
   inputObject: globalStateType,
-  measurementType: string,
+  measurementType: keyof globalStateType,
   workingErrorsObject: {[key: string]: string | boolean},
-  url: string = 'local',
+  urlBase: string = 'local',
 ) => {
   // look for error message corresponding to measurement type, only proceed if no error message:
   if (!workingErrorsObject[measurementType]) {
-    const calculateUrl = urlObjectCalculate[url];
+    const finalUrl = `${urlLookup[urlBase]}/${inputObject.reference.value}/calculation`;
     const headersObject: {[index: string]: string} = {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache',
     };
-    if (url === 'real') {
+    if (urlBase === 'real') {
       headersObject['Primary-Subscription-Key'] = API_KEY;
     }
     const apiArgument = makeApiArgument(inputObject, measurementType);
@@ -143,7 +136,7 @@ const getSingleCentileData = async (
     try {
       const serverResponse: serverResponseType = await timeoutForFetch(
         5000,
-        fetch(calculateUrl, options),
+        fetch(finalUrl, options),
       );
       if (!serverResponse.ok) {
         throw new Error(serverResponse.status);
@@ -164,9 +157,8 @@ const getSingleCentileData = async (
 };
 
 const checkRequestWillWork = (
-  measurementType: string,
+  measurementType: keyof globalStateType,
   globalState: globalStateType,
-  dataSet = 'ukWho',
 ): string => {
   const ageObject = new Zeit(
     globalState.dob.value,
@@ -175,77 +167,98 @@ const checkRequestWillWork = (
   );
   const ageInDaysCorrected = ageObject.calculate('days');
   const decimalAgeInYears = ageObject.calculate('years', true, false);
-  if (
-    ageInDaysCorrected > 0 &&
-    ageInDaysCorrected < 14 &&
-    globalState.gestationInDays.value >= 259
-  ) {
-    return 'Term infants can only be plotted at birth or from 2 weeks of age.';
-  }
-  if (globalState.gestationInDays.value < 161) {
-    return 'UK-WHO data does not exist below 23 weeks gestation.';
+  const reference = globalState.reference.value;
+  if (!globalState[measurementType]?.value) {
+    return 'No measurement given.';
   }
   if (decimalAgeInYears > 20) {
     return 'No data exists for any measurements after 20 years of age.';
   }
-  if (!globalState[measurementType]?.value) {
+  if (reference === 'uk-who') {
     if (
-      !(
-        globalState.height.value &&
-        globalState.weight.value &&
-        measurementType === 'bmi'
-      )
+      ageInDaysCorrected > 0 &&
+      ageInDaysCorrected < 14 &&
+      globalState.gestationInDays.value >= 259
     ) {
-      return 'No measurement given.';
+      return 'Term infants can only be plotted at birth or from 2 weeks of age.';
     }
+    if (globalState.gestationInDays.value < 161) {
+      return 'UK-WHO data does not exist below 23 weeks gestation.';
+    }
+    switch (measurementType) {
+      case 'height':
+        if (ageInDaysCorrected < -106) {
+          return 'UK-WHO length data does not exist below 25 weeks gestation.';
+        }
+        break;
+      case 'bmi':
+        if (decimalAgeInYears < 2) {
+          return 'BMI cannot be plotted below 2 years of age.';
+        }
+        break;
+      case 'ofc':
+        if (decimalAgeInYears > 17 && globalState.sex.value === 'Female') {
+          return 'UK-WHO data for head circumference does not exist for over 17 years of age in girls.';
+        } else if (decimalAgeInYears > 18 && globalState.sex.value === 'Male') {
+          return 'UK-WHO data for head circumference does not exist for over 18 years of age in boys.';
+        }
+        break;
+      default:
+        return '';
+    }
+    return '';
+  } else if (reference === 'turner') {
+    if (measurementType !== 'height') {
+      return 'Only height data exists for Turner Syndrome.';
+    } else {
+      if (decimalAgeInYears < 1) {
+        return 'There is no reference data available below 1 year of age for Turner Syndrome.';
+      }
+    }
+    return '';
+  } else if (reference === 'trisomy-21') {
+    if (globalState.gestationInDays.value < 280) {
+      return 'There is no reference data below 40 weeks for Down Syndrome infants.';
+    }
+    if (measurementType === 'ofc' && decimalAgeInYears > 18) {
+      return 'No Down Syndrome reference data for head circumference exists above 18 years of age.';
+    }
+    return '';
+  } else {
+    throw new Error('No recognised reference for request checker');
   }
-  switch (measurementType) {
-    case 'height':
-      if (ageInDaysCorrected < -106) {
-        return 'UK-WHO length data does not exist below 25 weeks gestation.';
-      }
-      break;
-    case 'bmi':
-      if (decimalAgeInYears < 2) {
-        return 'BMI cannot be plotted below 2 years of age.';
-      }
-      break;
-    case 'ofc':
-      if (decimalAgeInYears > 17 && globalState.sex.value === 'Female') {
-        return 'UK-WHO data for head circumference does not exist for over 17 years of age in girls.';
-      } else if (decimalAgeInYears > 18 && globalState.sex.value === 'Male') {
-        return 'UK-WHO data for head circumference does not exist for over 18 years of age in boys.';
-      }
-      break;
-    default:
-      return '';
-  }
-  return '';
 };
 
-function makeCentileState(forErrors: boolean) {
-  const valueOfValue = forErrors ? '' : null;
-  const output: {[key: string]: any} = {
-    weight: valueOfValue,
-    height: valueOfValue,
-    ofc: valueOfValue,
-    bmi: valueOfValue,
+function makeCentileState() {
+  const centile: {[measurement in measurementTypes]: any} = {
+    weight: null,
+    height: null,
+    ofc: null,
+    bmi: null,
   };
-  if (forErrors) {
-    output.serverErrors = false;
-  }
-  return output;
+  return centile;
+}
+
+function makeErrorState() {
+  const errors: {[key: string]: '' | boolean} = {
+    weight: '',
+    height: '',
+    ofc: '',
+    bmi: '',
+    serverErrors: false,
+  };
+  return errors;
 }
 
 const useRcpchApi = (url = 'local') => {
   const {globalState} = useContext(GlobalStateContext);
-  const [centileResults, setCentileResults] = useState(makeCentileState(false));
-  const [errors, setErrors] = useState(makeCentileState(true));
+  const [centileResults, setCentileResults] = useState(makeCentileState());
+  const [errors, setErrors] = useState(makeErrorState());
 
   const getMultipleCentileResults = async (
     recordAnswer: boolean,
   ): Promise<void> => {
-    const workingErrorsObject = makeCentileState(true);
+    const workingErrorsObject = makeErrorState();
     for (const measurementName of Object.keys(centileResults)) {
       const errorMessage = checkRequestWillWork(measurementName, globalState);
       if (errorMessage) {

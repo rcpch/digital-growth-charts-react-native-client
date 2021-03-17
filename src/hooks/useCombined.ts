@@ -1,30 +1,23 @@
 import {useContext} from 'react';
+import {calculateBMI} from '../brains';
 import {
   GlobalStateContext,
   initialState,
-  globalStateType,
-  validMeasurementInputTypes,
 } from '../components/GlobalStateContext';
 import {ValidatorContext} from '../components/Validator';
 
-export type globalSubStateType = {
-  showPicker?: boolean;
-  value?: validMeasurementInputTypes;
-  timeStamp?: null | Date;
-  workingValue?: validMeasurementInputTypes;
-};
+import {globalStateType} from '../interfaces/GlobalState';
 
-const useCombined = (name?: string) => {
+const useCombined = (name?: keyof globalStateType) => {
   const {globalState, setGlobalState} = useContext(GlobalStateContext);
   const {
     updateSingleValidation,
     handleValidationReset,
     validation,
     handleSubmit,
-    validationProforma,
   } = useContext(ValidatorContext);
 
-  let buttonState: globalSubStateType = initialState.weight;
+  let buttonState = initialState.weight;
   let specificErrorMessage = '';
   let showErrorMessages = false;
   if (name) {
@@ -33,10 +26,10 @@ const useCombined = (name?: string) => {
     showErrorMessages = validation.showErrorMessages;
   }
 
-  const combinedSetter = (inputState: globalSubStateType): void => {
+  const combinedSetter = (inputState: any): void => {
     const localState = {...inputState};
     if (name) {
-      // due to the way the android date picker works, logic has been moved here to put entered value into correct property:
+      // due to the way the android date picker works, logic has been moved here to put workingValue into value:
       if (
         localState.workingValue &&
         localState.showPicker === false &&
@@ -63,23 +56,26 @@ const useCombined = (name?: string) => {
   };
 
   const combinedReset = (): void => {
-    setGlobalState((state: globalStateType) => {
-      const mutableState = {...state};
-      for (const validationKey of Object.keys(validationProforma)) {
-        for (const globalKey of Object.keys(globalState)) {
-          if (validationKey === globalKey) {
-            mutableState[globalKey] = initialState[globalKey];
-            break;
-          }
-        }
-      }
-      return mutableState;
-    });
+    setGlobalState(initialState);
     handleValidationReset();
   };
 
   const handleFinalSubmit = () => {
-    handleSubmit(globalState);
+    const workingState = {...globalState};
+    //create bmi:
+    if (globalState.weight.value && globalState.height.value) {
+      const bmiValue = calculateBMI(
+        workingState.weight.value,
+        workingState.height.value,
+      );
+      workingState.bmi = {
+        ...globalState.weight,
+        ...{value: bmiValue, workingValue: bmiValue},
+      };
+      setGlobalState(workingState);
+    }
+    // handleSubmit from validator:
+    handleSubmit(workingState);
   };
 
   return {

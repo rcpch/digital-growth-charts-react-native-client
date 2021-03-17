@@ -1,8 +1,4 @@
 import React, {useState} from 'react';
-import {
-  globalStateType,
-  validMeasurementInputTypes,
-} from './GlobalStateContext';
 
 type proformaObjectArgument = {
   inputType: {param: string; message?: string};
@@ -144,12 +140,17 @@ const proformaTemplate = {
       message: outOfBounds,
     },
   },
+  reference: {
+    inputType: {
+      param: 'string',
+    },
+  },
 };
 
 const blankContext: {
   updateSingleValidation: Function;
   handleValidationReset: Function;
-  validation: validatorStateType;
+  validation: any;
   handleSubmit: Function;
   validationProforma: {[key: string]: proformaObjectArgument};
 } = {
@@ -205,6 +206,9 @@ class Validator {
   countCumulative: proformaObjectArgument['countCumulative'];
   nullable: proformaObjectArgument['nullable'];
   constructor(proformaObjectArgument: proformaObjectArgument) {
+    if (!proformaObjectArgument) {
+      throw new Error('Validator needs proformas for every measurement entry');
+    }
     this.inputType = proformaObjectArgument.inputType;
     this.isRequired = proformaObjectArgument.isRequired;
     this.min = proformaObjectArgument.min;
@@ -366,7 +370,7 @@ const ValidatorProvider = ({
   const updateValidationObject = (
     oldValidation: validatorStateType,
     currentName: string,
-    newValue: validMeasurementInputTypes,
+    newValue: any,
   ): validatorStateType => {
     const specific = new Validator(oldValidation.proforma[currentName]);
     const evaluation = specific.validate(newValue);
@@ -425,10 +429,7 @@ const ValidatorProvider = ({
   };
 
   // updates validation object on single value passed to it:
-  const updateSingleValidation = (
-    name: string,
-    value: validMeasurementInputTypes,
-  ) => {
+  const updateSingleValidation = (name: string, value: any) => {
     let newValidation = updateValidationObject(validation, name, value);
     if (newValidation.showErrorMessages) {
       newValidation = checkForCumulative(newValidation);
@@ -437,7 +438,7 @@ const ValidatorProvider = ({
   };
 
   // handles submit. Shows errors if present, passes verified values to a custom submit function if no errors.
-  const handleSubmit = (globalState: globalStateType): void => {
+  const handleSubmit = (globalState: any): void => {
     let mutableState = {...validation};
     //validate untouched values:
     if (mutableState.untouched.length > 0) {
@@ -465,14 +466,7 @@ const ValidatorProvider = ({
     if (mutableState.showErrorMessages) {
       setValidation(mutableState);
     } else {
-      const submitObject: {[key: string]: validMeasurementInputTypes} = {};
-      for (const key of Object.keys(validation.proforma)) {
-        submitObject[key] = globalState[key].value;
-      }
-      setValidation((old: validatorStateType) => {
-        return {...old, ...{showErrorMessages: false}};
-      });
-      customSubmitFunction(submitObject);
+      customSubmitFunction();
       setValidation({
         ...mutableState,
         ...{showErrorMessages: false},

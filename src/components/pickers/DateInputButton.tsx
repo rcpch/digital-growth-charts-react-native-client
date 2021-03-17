@@ -3,9 +3,10 @@ import {Platform, StyleSheet, View} from 'react-native';
 
 import DateTimePicker from '@react-native-community/datetimepicker';
 
+import {globalStateType} from '../../interfaces/GlobalState';
+
 import {colors, containerWidth} from '../../config';
 import {formatDate} from '../../brains';
-import {globalSubStateType} from '../../hooks/useCombined';
 import useCombined from '../../hooks/useCombined';
 import AcceptCancel from '../AcceptCancel';
 import PickerButton from '../PickerButton';
@@ -13,7 +14,7 @@ import AppModal from '../AppModal';
 
 const modalWidth = containerWidth > 350 ? 350 : containerWidth;
 
-const DateInputButton = ({dateName}: {dateName: string}) => {
+const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
   const ios = Platform.OS === 'ios' ? true : false;
   const android = Platform.OS === 'android' ? true : false;
   const makeRefreshNotCancel = dateName === 'dob' ? false : true;
@@ -55,7 +56,7 @@ const DateInputButton = ({dateName}: {dateName: string}) => {
     }
   };
   const togglePickerIos = () => {
-    let workingObject: globalSubStateType = {};
+    let workingObject: any = {};
     if (showPicker) {
       if (
         dateName === 'dob' ||
@@ -76,7 +77,7 @@ const DateInputButton = ({dateName}: {dateName: string}) => {
   };
 
   const openPickerDateAndroid = () => {
-    let workingObject: globalSubStateType = {};
+    let workingObject: any = {};
     if (!workingValue) {
       workingObject.workingValue = new Date();
     }
@@ -86,8 +87,8 @@ const DateInputButton = ({dateName}: {dateName: string}) => {
   const cancelInputAndroid = () => {
     combinedSetter(initialState[dateName]);
   };
-  const onChangeAndroidDate = (event: Event, selected: Date | undefined) => {
-    let workingObject: globalSubStateType = {};
+  const onChangeAndroidDate = (event: any, selected: Date | undefined) => {
+    let workingObject: any = {};
     if (event.type === 'set') {
       const current = selected || workingValue;
       if (

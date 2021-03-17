@@ -26,12 +26,17 @@ const addOrdinalSuffix = (inputNumber: number): string => {
 };
 
 // as it says on the tin. Kept separate for simplicity
-const calculateBMI = (weight: number, heightInCm: number) => {
-  if (!weight || !heightInCm) {
+const calculateBMI = (weight: number | string, heightInCm: number | string) => {
+  if (
+    !weight ||
+    !heightInCm ||
+    isNaN(Number(weight)) ||
+    isNaN(Number(heightInCm))
+  ) {
     throw new Error('BMI calc did not receive valid arguments');
   }
-  const height = heightInCm / 100;
-  return weight / (height * height);
+  const height = Number(heightInCm) / 100;
+  return Number(weight) / (height * height);
 };
 
 // check timestamps of measurements from global state. Can change how many mins old the threshold is
@@ -64,30 +69,36 @@ const decidePluralSuffix = (inputNumber: number) => {
 
 // format date object to date DD/MM/YY, can also do to YYYY
 const formatDate = (
-  inputDate: Date,
+  inputDate: any,
   fullYear = false,
   standardised = false,
 ): string => {
-  if (!inputDate) {
-    throw new Error('Input date is required for formatDate function');
-  }
-  const date = new Date(inputDate);
-  let month = '' + (date.getMonth() + 1);
-  let day = '' + date.getDate();
-  let fourDigitYear = date.getFullYear();
-  let yearArray = date.getFullYear().toString().split('');
-  let shortArray = [yearArray[2], yearArray[3]];
-  const year = fullYear || standardised ? fourDigitYear : shortArray.join('');
-  if (month.length < 2) {
-    month = '0' + month;
-  }
-  if (day.length < 2) {
-    day = '0' + day;
-  }
-  if (standardised) {
-    return [year, month, day].join('-');
-  } else {
-    return [day, month, year].join('/');
+  let date: Date;
+  let month: string;
+  let day: string;
+  let fourDigitYear: number;
+  let yearArray: string[];
+  try {
+    date = new Date(inputDate);
+    month = '' + (date.getMonth() + 1);
+    day = '' + date.getDate();
+    fourDigitYear = date.getFullYear();
+    yearArray = date.getFullYear().toString().split('');
+    let shortArray = [yearArray[2], yearArray[3]];
+    const year = fullYear || standardised ? fourDigitYear : shortArray.join('');
+    if (month.length < 2) {
+      month = '0' + month;
+    }
+    if (day.length < 2) {
+      day = '0' + day;
+    }
+    if (standardised) {
+      return [year, month, day].join('-');
+    } else {
+      return [day, month, year].join('/');
+    }
+  } catch (error) {
+    throw new Error('Input date for formatDate not recognised');
   }
 };
 

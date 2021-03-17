@@ -7,23 +7,21 @@ import useCombined from '../../hooks/useCombined';
 import PickerButton from '../PickerButton';
 import AppModal from '../AppModal';
 import AppIcon from '../AppIcon';
+import {globalStateType} from '../../interfaces/GlobalState';
 
-const weekLabels = [];
-for (let i = 22; i < 43; i++) {
-  weekLabels.push(i);
-}
-const dayLabels = [0, 1, 2, 3, 4, 5, 6];
-const weekLabelList = weekLabels.map((number) => (
-  <Picker.Item label={`${number}`} value={number} key={number} />
-));
-const dayLabelList = dayLabels.map((number) => (
-  <Picker.Item label={`${number}`} value={number} key={number} />
-));
+type propTypes = {
+  name: keyof globalStateType;
+  pickerArray: {label: string; value: number | string}[];
+  userLabel: string;
+  iconName: string;
+};
 
-const name = 'gestationInDays';
-
-const GestationInputButton = () => {
+const WheelPicker = ({name, pickerArray, userLabel, iconName}: propTypes) => {
   const ios = Platform.OS === 'ios' ? true : false;
+
+  const pickerList = pickerArray.map(({label, value}) => (
+    <Picker.Item label={label} value={value} key={label} />
+  ));
 
   const {
     combinedSetter,
@@ -35,28 +33,33 @@ const GestationInputButton = () => {
 
   const {showPicker, workingValue, value} = buttonState;
 
-  const weeks = Math.floor(workingValue / 7);
-  const days = workingValue % 7;
+  function findRelevantIndexFromPickerArray() {
+    for (let i = 0; i < pickerArray.length; i++) {
+      if (pickerArray[i].value === value) {
+        return i;
+      }
+    }
+    throw new Error('Picker array index finder should always find an index');
+  }
 
   let buttonLabel;
   if (!value) {
-    buttonLabel = 'Birth Gestation';
+    buttonLabel = userLabel;
   } else {
-    buttonLabel = `Birth Gestation: ${Math.floor(value / 7)}+${value % 7}`;
+    buttonLabel = `${userLabel}: ${
+      pickerArray[findRelevantIndexFromPickerArray()].label
+    }`;
   }
 
   const showCancel = value === initialState[name].value ? false : true;
 
-  const toggleGestPicker = () => {
+  const togglePicker = () => {
     if (showPicker) {
       combinedSetter({
         value: workingValue,
         showPicker: false,
       });
     } else {
-      if (!workingValue) {
-        combinedSetter({showPicker: true, workingValue: 280});
-      }
       combinedSetter({showPicker: true});
     }
   };
@@ -68,30 +71,22 @@ const GestationInputButton = () => {
         workingValue: value,
       });
     } else {
-      combinedSetter(initialState.gestationInDays);
+      combinedSetter(initialState[name]);
     }
   };
 
-  const onValueChangeWeeks = (itemValue: number) => {
-    const noWeeks = workingValue - weeks * 7;
-    const newWorkingValue = itemValue * 7 + noWeeks;
-    combinedSetter({workingValue: newWorkingValue});
-  };
-
-  const onValueChangeDays = (itemValue: number) => {
-    const noDays = workingValue - days;
-    const newWorkingValue = itemValue + noDays;
-    combinedSetter({workingValue: newWorkingValue});
+  const onValueChange = (itemValue: number | string) => {
+    combinedSetter({workingValue: itemValue});
   };
 
   return (
     <React.Fragment>
       <PickerButton
-        toggleInput={toggleGestPicker}
+        toggleInput={togglePicker}
         buttonText={buttonLabel}
         showCancel={showCancel}
         cancelInput={resetInput}
-        iconName="human-pregnant"
+        iconName={iconName}
         specificErrorMessage={specificErrorMessage}
         showErrorMessages={showErrorMessages}
         makeRefreshNotCancel>
@@ -103,18 +98,11 @@ const GestationInputButton = () => {
             <Picker
               style={ios ? styles.iosPicker : styles.androidPicker}
               itemStyle={{color: colors.black}}
-              onValueChange={onValueChangeWeeks}
-              selectedValue={weeks}>
-              {weekLabelList}
-            </Picker>
-            <Picker
-              style={ios ? styles.iosPicker : styles.androidPicker}
-              itemStyle={{
-                color: colors.black,
-              }}
-              onValueChange={onValueChangeDays}
-              selectedValue={days}>
-              {dayLabelList}
+              onValueChange={(itemValue: string | number) =>
+                onValueChange(itemValue)
+              }
+              selectedValue={workingValue}>
+              {pickerList}
             </Picker>
           </View>
           <View style={styles.buttonContainer}>
@@ -126,7 +114,7 @@ const GestationInputButton = () => {
                 style={styles.closeIcon}
               />
             </TouchableOpacity>
-            <TouchableOpacity onPress={toggleGestPicker}>
+            <TouchableOpacity onPress={togglePicker}>
               <AppIcon
                 name="check-circle"
                 color={colors.black}
@@ -141,18 +129,18 @@ const GestationInputButton = () => {
   );
 };
 
-export default GestationInputButton;
+export default WheelPicker;
 
 const styles = StyleSheet.create({
   iosPicker: {
     height: 200,
-    width: theme.modal.width / 2.2,
+    width: theme.modal.width - 10,
     //backgroundColor: 'orange',
     alignSelf: 'center',
   },
   androidPicker: {
     height: 100,
-    width: theme.modal.width / 2 - 10,
+    width: theme.modal.width - 10,
   },
   buttonContainer: {
     width: theme.modal.width,

@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: 'Montserrat-Regular',
-    fontSize: windowWidth > 350 ? 19 : 16,
+    fontSize: windowWidth > 350 ? 18 : 16,
     color: colors.white,
   },
   modal: {

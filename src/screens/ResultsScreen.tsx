@@ -20,6 +20,8 @@ function ResultsScreen() {
     setIsLoading(true);
   };
 
+  console.log(centileResults.weight);
+
   const showRefresh = errors.serverErrors ? true : false;
 
   useEffect(() => {
@@ -34,13 +36,7 @@ function ResultsScreen() {
   }, [isLoading]);
 
   const centileOutputs = centileMeasurements.map((item) => {
-    let measurementProvided = false;
-    if (
-      globalState[item]?.value ||
-      (item === 'bmi' && globalState.weight.value && globalState.height.value)
-    ) {
-      measurementProvided = true;
-    }
+    const measurementProvided = globalState[item]?.value ? true : false;
     return (
       <CentileOutput
         measurementProvided={measurementProvided}
