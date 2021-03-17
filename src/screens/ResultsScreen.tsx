@@ -20,8 +20,6 @@ function ResultsScreen() {
     setIsLoading(true);
   };
 
-  console.log(centileResults.weight);
-
   const showRefresh = errors.serverErrors ? true : false;
 
   useEffect(() => {
@@ -49,8 +47,20 @@ function ResultsScreen() {
     );
   });
 
+  let referenceTitle: string;
+  if (globalState.reference.value === 'uk-who') {
+    referenceTitle = 'UK-WHO';
+  } else if (globalState.reference.value === 'turner') {
+    referenceTitle = 'Turner Syndrome';
+  } else {
+    referenceTitle = 'Down Syndrome';
+  }
+
   return (
     <Screen renderBack>
+      <View style={styles.referenceButton}>
+        <AppText>{`Reference: ${referenceTitle}`}</AppText>
+      </View>
       <AgeButton
         centileResults={centileResults}
         errors={errors}
@@ -72,6 +82,11 @@ const styles = StyleSheet.create({
   refreshButton: {
     ...theme.button,
     justifyContent: 'center',
+  },
+  referenceButton: {
+    ...theme.button,
+    justifyContent: 'center',
+    backgroundColor: colors.darkest,
   },
   backButtonText: {
     ...theme.text,
