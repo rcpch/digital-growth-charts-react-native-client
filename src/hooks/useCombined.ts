@@ -75,6 +75,14 @@ const useCombined = (name?: keyof globalStateType) => {
       };
       setGlobalState(workingState);
     }
+    // remove bmi if previously entered and valid measurements not there:
+    else if (
+      globalState.bmi.value &&
+      (!globalState.weight.value || !globalState.height.value)
+    ) {
+      workingState.bmi = initialState.bmi;
+      setGlobalState(workingState);
+    }
     // handleSubmit from validator goes into checkForOldValues:
     checkForOldValues(
       handleSubmit,

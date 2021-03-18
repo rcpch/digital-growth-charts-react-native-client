@@ -417,16 +417,12 @@ const ValidatorProvider = ({
     if (mutableState.untouched.length > 0) {
       const workingArray = validation.untouched;
       for (let i = 0; i < workingArray.length; i++) {
-        try {
-          const tempState = updateValidationObject(
-            mutableState,
-            workingArray[i],
-            globalState[workingArray[i]].value,
-          );
-          mutableState = {...mutableState, ...tempState};
-        } catch (error) {
-          throw new Error(`${workingArray[i]}`);
-        }
+        const tempState = updateValidationObject(
+          mutableState,
+          workingArray[i],
+          globalState[workingArray[i]].value,
+        );
+        mutableState = {...mutableState, ...tempState};
       }
     }
     // check if any cumulative entry errors:
