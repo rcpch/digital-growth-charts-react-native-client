@@ -42,7 +42,7 @@ const Screen = ({
             <AppText style={styles.backText}>Back</AppText>
           </TouchableOpacity>
         )}
-        <View style={{width: '100%', alignItems: 'center'}}>
+        <View style={styles.titleContainer}>
           <AppText style={styles.titleText}>{title}</AppText>
         </View>
       </View>
@@ -62,6 +62,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'flex-start',
     paddingBottom: 10,
+    borderBottomColor: colors.medium,
+    borderBottomWidth: 1,
   },
   view: {
     flex: 1,
@@ -71,6 +73,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingLeft: 5,
+  },
+  titleContainer: {
+    width: '100%',
+    alignItems: 'center',
   },
   titleText: {
     color: colors.black,

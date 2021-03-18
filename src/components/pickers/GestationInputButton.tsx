@@ -9,7 +9,7 @@ import AppModal from '../AppModal';
 import AppIcon from '../AppIcon';
 
 const weekLabels = [];
-for (let i = 22; i < 43; i++) {
+for (let i = 23; i < 43; i++) {
   weekLabels.push(i);
 }
 const dayLabels = [0, 1, 2, 3, 4, 5, 6];

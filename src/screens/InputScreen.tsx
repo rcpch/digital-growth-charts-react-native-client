@@ -19,6 +19,7 @@ import {
 import Zeit from '../brains/Zeit';
 import WheelPicker from '../components/pickers/WheelPicker';
 import {globalStateType} from '../interfaces/GlobalState';
+import {colors} from '../config';
 
 const ChildCentile = () => {
   const navigation = useNavigation();
