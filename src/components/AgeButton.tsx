@@ -5,6 +5,7 @@ import AppText from './AppText';
 import {colors, theme} from '../config/';
 import AppIcon from './AppIcon';
 import AppModal from './AppModal';
+import {Measurement} from '../interfaces/RCPCHMeasurementObject';
 
 type propTypes = {
   centileResults: {[key: string]: any};
@@ -12,6 +13,7 @@ type propTypes = {
   isLoading: boolean;
 };
 
+// trims calendar age string:
 function trimStringAge(stringAge: string): string {
   const stringArray = stringAge.split(' ');
   if (stringArray.length > 5) {
@@ -41,69 +43,72 @@ const AgeButton = ({centileResults, errors, isLoading}: propTypes) => {
     outputString = 'Loading...';
     modalMessage = 'Loading...';
   } else if (!isLoading && !errors.serverErrors) {
-    let workingValues: any = null;
+    let workingValues: Measurement;
     for (const individualCentileResult of Object.values(centileResults)) {
       if (individualCentileResult) {
         workingValues = individualCentileResult;
-        break;
-      }
-    }
-    if (workingValues) {
-      try {
-        const birthGestationWeeks = workingValues.birth_data.gestation_weeks;
-        const birthGestationDays = workingValues.birth_data.gestation_days;
-        const correctedGestationWeeks =
-          workingValues.measurement_dates.corrected_gestational_age
-            .corrected_gestation_weeks;
-        const correctedGestationDays =
-          workingValues.measurement_dates.corrected_gestational_age
-            .corrected_gestation_days;
-        const chronologicalDecimalAge =
-          workingValues.measurement_dates.chronological_decimal_age;
-        const correctedDecimalAge =
-          workingValues.measurement_dates.corrected_decimal_age;
-        const chronologicalCalendarAge =
-          workingValues.measurement_dates.chronological_calendar_age;
-        const correctedCalendarAge =
-          workingValues.measurement_dates.corrected_calendar_age;
-        const estimatedDateDelivery =
-          workingValues.birth_data.estimated_date_delivery_string;
-        const correctionComment =
-          workingValues.measurement_dates.comments
-            .clinician_corrected_decimal_age_comment;
-        //Born <37 weeks, less than 2 weeks corrected age and not birthday:
-        if (
-          birthGestationWeeks < 37 &&
-          correctedDecimalAge < 0.041 &&
-          chronologicalDecimalAge !== 0
-        ) {
-          // patient group is preterm infants:
-          outputString = `Corrected Gestation: ${correctedGestationWeeks}+${correctedGestationDays}`;
-          modalMessage = `${chronologicalCalendarAge} old\n\nEstimated Date of Delivery: ${estimatedDateDelivery}`;
-        } else if (chronologicalDecimalAge === 0) {
-          // patient group is infants at birth:
-          outputString = `Birth Gestation: ${birthGestationWeeks}+${birthGestationDays}`;
-          modalMessage = `Happy Birthday!\n\nEstimated Date of Delivery: ${estimatedDateDelivery}`;
-        } else {
-          // patient group is infants and children from 2 weeks of (corrected) age:
-          modalMessage = `${chronologicalCalendarAge} old.\n\nChild born at term, no gestational correction applied.`;
-          let appropriateStringAge = chronologicalCalendarAge;
-          if (
-            correctedDecimalAge !== chronologicalDecimalAge &&
-            birthGestationWeeks < 37
-          ) {
-            star = '*';
-            modalMessage =
-              `${correctedCalendarAge} old (corrected)\n\n${chronologicalCalendarAge} old (chronological)` +
-              `\n\n${correctionComment}`;
-            appropriateStringAge = correctedCalendarAge;
+        if (workingValues) {
+          try {
+            const birthGestationWeeks =
+              workingValues.birth_data.gestation_weeks;
+            const birthGestationDays = workingValues.birth_data.gestation_days;
+            const correctedGestationWeeks =
+              workingValues.measurement_dates.corrected_gestational_age
+                .corrected_gestation_weeks;
+            const correctedGestationDays =
+              workingValues.measurement_dates.corrected_gestational_age
+                .corrected_gestation_days;
+            const chronologicalDecimalAge =
+              workingValues.measurement_dates.chronological_decimal_age;
+            const correctedDecimalAge =
+              workingValues.measurement_dates.corrected_decimal_age;
+            const chronologicalCalendarAge =
+              workingValues.measurement_dates.chronological_calendar_age;
+            const correctedCalendarAge =
+              workingValues.measurement_dates.corrected_calendar_age;
+            const estimatedDateDelivery =
+              workingValues.birth_data.estimated_date_delivery_string;
+            const correctionComment =
+              workingValues.measurement_dates.comments
+                .clinician_corrected_decimal_age_comment;
+            //Born <37 weeks, less than 2 weeks corrected age and not birthday:
+            if (
+              birthGestationWeeks < 37 &&
+              correctedDecimalAge < 0.041 &&
+              chronologicalDecimalAge !== 0
+            ) {
+              // patient group is preterm infants:
+              outputString = `Corrected Gestation: ${correctedGestationWeeks}+${correctedGestationDays}`;
+              modalMessage = `${chronologicalCalendarAge} old\n\nEstimated Date of Delivery: ${estimatedDateDelivery}`;
+            } else if (chronologicalDecimalAge === 0) {
+              // patient group is infants at birth:
+              outputString = `Birth Gestation: ${birthGestationWeeks}+${birthGestationDays}`;
+              modalMessage = `Happy Birthday!\n\nEstimated Date of Delivery: ${estimatedDateDelivery}`;
+            } else {
+              // patient group is infants and children from 2 weeks of (corrected) age:
+              modalMessage = `${chronologicalCalendarAge} old.\n\nChild born at term, no gestational correction applied.`;
+              let appropriateStringAge = chronologicalCalendarAge;
+              if (
+                correctedDecimalAge !== chronologicalDecimalAge &&
+                birthGestationWeeks < 37
+              ) {
+                star = '*';
+                modalMessage =
+                  `${correctedCalendarAge} old (corrected)\n\n${chronologicalCalendarAge} old (chronological)` +
+                  `\n\n${correctionComment}`;
+                appropriateStringAge = correctedCalendarAge;
+              }
+              outputString = `Age: ${trimStringAge(
+                appropriateStringAge,
+              )}${star}`;
+            }
+          } catch (error) {
+            // if the api object changes, this should hopefully catch error here
+            console.error(error.message);
+            modalMessage = 'Error: failed to load';
           }
-          outputString = `Age: ${trimStringAge(appropriateStringAge)}${star}`;
+          break;
         }
-      } catch (error) {
-        // if the api object changes, this should hopefully catch error here
-        console.error(error.message);
-        modalMessage = 'Error: failed to load';
       }
     }
   }
@@ -184,106 +189,106 @@ const styles = StyleSheet.create({
   },
 });
 
-const exampleValues = {
-  birth_data: {
-    birth_date: 'Sun, 15 Mar 2020 00:00:00 GMT',
-    estimated_date_delivery: 'Sun, 15 Mar 2020 00:00:00 GMT',
-    estimated_date_delivery_string: 'Sun 15 March, 2020',
-    gestation_days: 0,
-    gestation_weeks: 40,
-    sex: 'female',
-  },
-  child_observation_value: {
-    measurement_method: 'weight',
-    observation_value: 9,
-    observation_value_error: null,
-  },
-  measurement_calculated_values: {
-    chronological_centile: 51,
-    chronological_centile_band:
-      'This weight measurement is on or near the 50th centile.',
-    chronological_measurement_error: null,
-    chronological_sds: 0.0487953597071724,
-    corrected_centile: 51,
-    corrected_centile_band:
-      'This weight measurement is on or near the 50th centile.',
-    corrected_measurement_error: null,
-    corrected_sds: 0.0487953597071724,
-    measurement_method: 'weight',
-  },
-  measurement_dates: {
-    chronological_calendar_age: '1 year',
-    chronological_decimal_age: 0.999315537303217,
-    chronological_decimal_age_error: null,
-    comments: {
-      clinician_chronological_decimal_age_comment:
-        'Born Term. No correction has been made for gestation.',
-      clinician_corrected_decimal_age_comment:
-        'Born at term. No correction has been made for gestation.',
-      lay_chronological_decimal_age_comment:
-        'Your baby was born on their due date.',
-      lay_corrected_decimal_age_comment:
-        'Your baby was born on their due date.',
-    },
-    corrected_calendar_age: '1 year',
-    corrected_decimal_age: 0.999315537303217,
-    corrected_decimal_age_error: null,
-    corrected_gestational_age: {
-      corrected_gestation_days: null,
-      corrected_gestation_weeks: null,
-    },
-    observation_date: 'Mon, 15 Mar 2021 00:00:00 GMT',
-  },
-};
+// const exampleValues = {
+//   birth_data: {
+//     birth_date: 'Sun, 15 Mar 2020 00:00:00 GMT',
+//     estimated_date_delivery: 'Sun, 15 Mar 2020 00:00:00 GMT',
+//     estimated_date_delivery_string: 'Sun 15 March, 2020',
+//     gestation_days: 0,
+//     gestation_weeks: 40,
+//     sex: 'female',
+//   },
+//   child_observation_value: {
+//     measurement_method: 'weight',
+//     observation_value: 9,
+//     observation_value_error: null,
+//   },
+//   measurement_calculated_values: {
+//     chronological_centile: 51,
+//     chronological_centile_band:
+//       'This weight measurement is on or near the 50th centile.',
+//     chronological_measurement_error: null,
+//     chronological_sds: 0.0487953597071724,
+//     corrected_centile: 51,
+//     corrected_centile_band:
+//       'This weight measurement is on or near the 50th centile.',
+//     corrected_measurement_error: null,
+//     corrected_sds: 0.0487953597071724,
+//     measurement_method: 'weight',
+//   },
+//   measurement_dates: {
+//     chronological_calendar_age: '1 year',
+//     chronological_decimal_age: 0.999315537303217,
+//     chronological_decimal_age_error: null,
+//     comments: {
+//       clinician_chronological_decimal_age_comment:
+//         'Born Term. No correction has been made for gestation.',
+//       clinician_corrected_decimal_age_comment:
+//         'Born at term. No correction has been made for gestation.',
+//       lay_chronological_decimal_age_comment:
+//         'Your baby was born on their due date.',
+//       lay_corrected_decimal_age_comment:
+//         'Your baby was born on their due date.',
+//     },
+//     corrected_calendar_age: '1 year',
+//     corrected_decimal_age: 0.999315537303217,
+//     corrected_decimal_age_error: null,
+//     corrected_gestational_age: {
+//       corrected_gestation_days: null,
+//       corrected_gestation_weeks: null,
+//     },
+//     observation_date: 'Mon, 15 Mar 2021 00:00:00 GMT',
+//   },
+// };
 
-const exampleValues2 = {
-  birth_data: {
-    birth_date: 'Sat, 19 Jan 2013 00:00:00 GMT',
-    estimated_date_delivery: 'Sat, 19 Jan 2013 00:00:00 GMT',
-    estimated_date_delivery_string: 'Sat 19 January, 2013',
-    gestation_days: 0,
-    gestation_weeks: 40,
-    sex: 'female',
-  },
-  child_observation_value: {
-    measurement_method: 'weight',
-    observation_value: 50,
-    observation_value_error: null,
-  },
-  measurement_calculated_values: {
-    chronological_centile: 99.9,
-    chronological_centile_band:
-      'This weight measurement is above the normal range.',
-    chronological_measurement_error: null,
-    chronological_sds: 3.061145905132034,
-    corrected_centile: 99.9,
-    corrected_centile_band:
-      'This weight measurement is above the normal range.',
-    corrected_measurement_error: null,
-    corrected_sds: 3.061145905132034,
-    measurement_method: 'weight',
-  },
-  measurement_dates: {
-    chronological_calendar_age: '8 years, 1 month, 3 weeks and 3 days',
-    chronological_decimal_age: 8.150581793292266,
-    chronological_decimal_age_error: null,
-    comments: {
-      clinician_chronological_decimal_age_comment:
-        'Born Term. No correction has been made for gestation.',
-      clinician_corrected_decimal_age_comment:
-        'Born at term. No correction has been made for gestation.',
-      lay_chronological_decimal_age_comment:
-        'Your baby was born on their due date.',
-      lay_corrected_decimal_age_comment:
-        'Your baby was born on their due date.',
-    },
-    corrected_calendar_age: '8 years, 1 month, 3 weeks and 3 days',
-    corrected_decimal_age: 8.150581793292266,
-    corrected_decimal_age_error: null,
-    corrected_gestational_age: {
-      corrected_gestation_days: null,
-      corrected_gestation_weeks: null,
-    },
-    observation_date: 'Mon, 15 Mar 2021 00:00:00 GMT',
-  },
-};
+// const exampleValues2 = {
+//   birth_data: {
+//     birth_date: 'Sat, 19 Jan 2013 00:00:00 GMT',
+//     estimated_date_delivery: 'Sat, 19 Jan 2013 00:00:00 GMT',
+//     estimated_date_delivery_string: 'Sat 19 January, 2013',
+//     gestation_days: 0,
+//     gestation_weeks: 40,
+//     sex: 'female',
+//   },
+//   child_observation_value: {
+//     measurement_method: 'weight',
+//     observation_value: 50,
+//     observation_value_error: null,
+//   },
+//   measurement_calculated_values: {
+//     chronological_centile: 99.9,
+//     chronological_centile_band:
+//       'This weight measurement is above the normal range.',
+//     chronological_measurement_error: null,
+//     chronological_sds: 3.061145905132034,
+//     corrected_centile: 99.9,
+//     corrected_centile_band:
+//       'This weight measurement is above the normal range.',
+//     corrected_measurement_error: null,
+//     corrected_sds: 3.061145905132034,
+//     measurement_method: 'weight',
+//   },
+//   measurement_dates: {
+//     chronological_calendar_age: '8 years, 1 month, 3 weeks and 3 days',
+//     chronological_decimal_age: 8.150581793292266,
+//     chronological_decimal_age_error: null,
+//     comments: {
+//       clinician_chronological_decimal_age_comment:
+//         'Born Term. No correction has been made for gestation.',
+//       clinician_corrected_decimal_age_comment:
+//         'Born at term. No correction has been made for gestation.',
+//       lay_chronological_decimal_age_comment:
+//         'Your baby was born on their due date.',
+//       lay_corrected_decimal_age_comment:
+//         'Your baby was born on their due date.',
+//     },
+//     corrected_calendar_age: '8 years, 1 month, 3 weeks and 3 days',
+//     corrected_decimal_age: 8.150581793292266,
+//     corrected_decimal_age_error: null,
+//     corrected_gestational_age: {
+//       corrected_gestation_days: null,
+//       corrected_gestation_weeks: null,
+//     },
+//     observation_date: 'Mon, 15 Mar 2021 00:00:00 GMT',
+//   },
+// };

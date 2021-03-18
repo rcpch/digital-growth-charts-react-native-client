@@ -5,6 +5,7 @@ import colors from '../config/colors';
 import {containerWidth} from '../config/';
 import AppText from './AppText';
 import MoreCentileInfo from './MoreCentileInfo';
+
 import {Measurement} from '../interfaces/RCPCHMeasurementObject';
 
 const userLabelNames: {[index: string]: string} = {
@@ -32,7 +33,7 @@ const CentileOutput = ({
   const specificResults = centileResults[measurementType];
   const specificError = errors[measurementType];
 
-  let defaultOutput = 'No measurement given.';
+  let defaultOutput: any = 'No measurement given.';
   let measurementValue: string | number = 'N/A';
   let correctionApplied = false;
 

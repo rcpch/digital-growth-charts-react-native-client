@@ -8,6 +8,7 @@ import {
   API_REAL_BASE,
   API_KEY,
 } from '@env';
+
 import {formatDate} from '../brains/oddBits';
 import {GlobalStateContext} from '../components';
 import Zeit from '../brains/Zeit';
@@ -24,7 +25,7 @@ type measurementTypes = 'weight' | 'height' | 'bmi' | 'ofc';
 
 if (!API_LOCAL_BASE_ANDROID || !API_LOCAL_BASE_IOS) {
   console.error(
-    'No environment variable found for local server running. Please check the environment variables needed in useRcpchApi',
+    'Environment variables not found for local server. Please check the environment variables needed in useRcpchApi',
   );
 }
 
@@ -157,8 +158,8 @@ const getSingleCentileData = async (
 };
 
 const checkRequestWillWork = (
-  measurementType: keyof globalStateType,
-  globalState: globalStateType,
+  measurementType: string,
+  globalState: any,
 ): string => {
   const ageObject = new Zeit(
     globalState.dob.value,
@@ -217,7 +218,7 @@ const checkRequestWillWork = (
     }
     return '';
   } else if (reference === 'trisomy-21') {
-    if (globalState.gestationInDays.value < 280) {
+    if (globalState.gestationInDays.value < 280 && decimalAgeInYears < 0) {
       return 'There is no reference data below 40 weeks for Down Syndrome infants.';
     }
     if (measurementType === 'ofc' && decimalAgeInYears > 18) {
@@ -240,7 +241,7 @@ function makeCentileState() {
 }
 
 function makeErrorState() {
-  const errors: {[key: string]: '' | boolean} = {
+  const errors: {[key: string]: any} = {
     weight: '',
     height: '',
     ofc: '',
@@ -252,7 +253,10 @@ function makeErrorState() {
 
 const useRcpchApi = (url = 'local') => {
   const {globalState} = useContext(GlobalStateContext);
-  const [centileResults, setCentileResults] = useState(makeCentileState());
+  const [centileResults, setCentileResults]: [
+    {[key in measurementTypes]: any},
+    Function,
+  ] = useState(makeCentileState());
   const [errors, setErrors] = useState(makeErrorState());
 
   const getMultipleCentileResults = async (
@@ -310,123 +314,125 @@ const useRcpchApi = (url = 'local') => {
 
 export default useRcpchApi;
 
-const referenceArgumentsSingleMeasurement = {
-  birth_date: '2003-02-10',
-  gestation_days: 4,
-  gestation_weeks: 40,
-  measurement_method: 'height',
-  observation_date: '2021-02-09',
-  observation_value: 188,
-  sex: 'male',
-};
+// const referenceArgumentsSingleMeasurement = {
+//   birth_date: '2003-02-10',
+//   gestation_days: 4,
+//   gestation_weeks: 40,
+//   measurement_method: 'height',
+//   observation_date: '2021-02-09',
+//   observation_value: 188,
+//   sex: 'male',
+// };
 
-const referenceReturnObjectSingleMeasurement = {
-  birth_data: {
-    birth_date: 'Sun, 15 Mar 2020 00:00:00 GMT',
-    estimated_date_delivery: 'Sun, 15 Mar 2020 00:00:00 GMT',
-    estimated_date_delivery_string: 'Sun 15 March, 2020',
-    gestation_days: 0,
-    gestation_weeks: 40,
-    sex: 'female',
-  },
-  child_observation_value: {
-    measurement_method: 'weight',
-    observation_value: 9,
-    observation_value_error: null,
-  },
-  measurement_calculated_values: {
-    chronological_centile: 51,
-    chronological_centile_band:
-      'This weight measurement is on or near the 50th centile.',
-    chronological_measurement_error: null,
-    chronological_sds: 0.0487953597071724,
-    corrected_centile: 51,
-    corrected_centile_band:
-      'This weight measurement is on or near the 50th centile.',
-    corrected_measurement_error: null,
-    corrected_sds: 0.0487953597071724,
-    measurement_method: 'weight',
-  },
-  measurement_dates: {
-    chronological_calendar_age: '1 year',
-    chronological_decimal_age: 0.999315537303217,
-    chronological_decimal_age_error: null,
-    comments: {
-      clinician_chronological_decimal_age_comment:
-        'Born Term. No correction has been made for gestation.',
-      clinician_corrected_decimal_age_comment:
-        'Born at term. No correction has been made for gestation.',
-      lay_chronological_decimal_age_comment:
-        'Your baby was born on their due date.',
-      lay_corrected_decimal_age_comment:
-        'Your baby was born on their due date.',
-    },
-    corrected_calendar_age: '1 year',
-    corrected_decimal_age: 0.999315537303217,
-    corrected_decimal_age_error: null,
-    corrected_gestational_age: {
-      corrected_gestation_days: null,
-      corrected_gestation_weeks: null,
-    },
-    observation_date: 'Mon, 15 Mar 2021 00:00:00 GMT',
-  },
-};
+// //soon to include plottable measurements:
+// const referenceReturnObjectSingleMeasurement = {
+//   birth_data: {
+//     birth_date: 'Sun, 15 Mar 2020 00:00:00 GMT',
+//     estimated_date_delivery: 'Sun, 15 Mar 2020 00:00:00 GMT',
+//     estimated_date_delivery_string: 'Sun 15 March, 2020',
+//     gestation_days: 0,
+//     gestation_weeks: 40,
+//     sex: 'female',
+//   },
+//   child_observation_value: {
+//     measurement_method: 'weight',
+//     observation_value: 9,
+//     observation_value_error: null,
+//   },
+//   measurement_calculated_values: {
+//     chronological_centile: 51,
+//     chronological_centile_band:
+//       'This weight measurement is on or near the 50th centile.',
+//     chronological_measurement_error: null,
+//     chronological_sds: 0.0487953597071724,
+//     corrected_centile: 51,
+//     corrected_centile_band:
+//       'This weight measurement is on or near the 50th centile.',
+//     corrected_measurement_error: null,
+//     corrected_sds: 0.0487953597071724,
+//     measurement_method: 'weight',
+//   },
+//   measurement_dates: {
+//     chronological_calendar_age: '1 year',
+//     chronological_decimal_age: 0.999315537303217,
+//     chronological_decimal_age_error: null,
+//     comments: {
+//       clinician_chronological_decimal_age_comment:
+//         'Born Term. No correction has been made for gestation.',
+//       clinician_corrected_decimal_age_comment:
+//         'Born at term. No correction has been made for gestation.',
+//       lay_chronological_decimal_age_comment:
+//         'Your baby was born on their due date.',
+//       lay_corrected_decimal_age_comment:
+//         'Your baby was born on their due date.',
+//     },
+//     corrected_calendar_age: '1 year',
+//     corrected_decimal_age: 0.999315537303217,
+//     corrected_decimal_age_error: null,
+//     corrected_gestational_age: {
+//       corrected_gestation_days: null,
+//       corrected_gestation_weeks: null,
+//     },
+//     observation_date: 'Mon, 15 Mar 2021 00:00:00 GMT',
+//   },
+// };
 
-const referenceReturnObjectPlottableChild = {
-  child_data: {
-    centile_data: [
-      [
-        {
-          age_type: 'corrected_age',
-          calendar_age: '1 year',
-          centile_band:
-            'This weight measurement is between the 25th and 50th centiles.',
-          centile_value: 40,
-          corrected_gestation_days: null,
-          corrected_gestation_weeks: null,
-          measurement_method: 'weight',
-          x: 1.002053388090349,
-          y: 9.4,
-        },
-        {
-          age_type: 'chronological_age',
-          calendar_age: '1 year',
-          centile_band:
-            'This weight measurement is between the 25th and 50th centiles.',
-          centile_value: 40,
-          corrected_gestation_days: null,
-          corrected_gestation_weeks: null,
-          measurement_method: 'weight',
-          x: 1.002053388090349,
-          y: 9.4,
-        },
-      ],
-    ],
-    measurement_method: 'weight',
-    sds_data: [
-      [
-        {
-          age_type: 'corrected_age',
-          calendar_age: '1 year',
-          corrected_gestation_days: null,
-          corrected_gestation_weeks: null,
-          measurement_method: 'weight',
-          x: 1.002053388090349,
-          y: -0.24344224642481746,
-        },
-        {
-          age_type: 'chronological_age',
-          calendar_age: '1 year',
-          corrected_gestation_days: null,
-          corrected_gestation_weeks: null,
-          measurement_method: 'weight',
-          x: 1.002053388090349,
-          y: -0.24344224642481746,
-        },
-      ],
-    ],
-  },
-  sex: 'male',
-};
+// //soon to be outdated:
+// const referenceReturnObjectPlottableChild = {
+//   child_data: {
+//     centile_data: [
+//       [
+//         {
+//           age_type: 'corrected_age',
+//           calendar_age: '1 year',
+//           centile_band:
+//             'This weight measurement is between the 25th and 50th centiles.',
+//           centile_value: 40,
+//           corrected_gestation_days: null,
+//           corrected_gestation_weeks: null,
+//           measurement_method: 'weight',
+//           x: 1.002053388090349,
+//           y: 9.4,
+//         },
+//         {
+//           age_type: 'chronological_age',
+//           calendar_age: '1 year',
+//           centile_band:
+//             'This weight measurement is between the 25th and 50th centiles.',
+//           centile_value: 40,
+//           corrected_gestation_days: null,
+//           corrected_gestation_weeks: null,
+//           measurement_method: 'weight',
+//           x: 1.002053388090349,
+//           y: 9.4,
+//         },
+//       ],
+//     ],
+//     measurement_method: 'weight',
+//     sds_data: [
+//       [
+//         {
+//           age_type: 'corrected_age',
+//           calendar_age: '1 year',
+//           corrected_gestation_days: null,
+//           corrected_gestation_weeks: null,
+//           measurement_method: 'weight',
+//           x: 1.002053388090349,
+//           y: -0.24344224642481746,
+//         },
+//         {
+//           age_type: 'chronological_age',
+//           calendar_age: '1 year',
+//           corrected_gestation_days: null,
+//           corrected_gestation_weeks: null,
+//           measurement_method: 'weight',
+//           x: 1.002053388090349,
+//           y: -0.24344224642481746,
+//         },
+//       ],
+//     ],
+//   },
+//   sex: 'male',
+// };
 
 export {getSingleCentileData};

@@ -22,17 +22,6 @@ function ResultsScreen() {
 
   const showRefresh = errors.serverErrors ? true : false;
 
-  useEffect(() => {
-    let recordAnswer = true;
-    if (isLoading) {
-      getMultipleCentileResults(recordAnswer).then(() => setIsLoading(false));
-    }
-    return () => {
-      recordAnswer = false;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]);
-
   const centileOutputs = centileMeasurements.map((item) => {
     const measurementProvided = globalState[item]?.value ? true : false;
     return (
@@ -55,6 +44,17 @@ function ResultsScreen() {
   } else {
     referenceTitle = "Down's Syndrome";
   }
+
+  useEffect(() => {
+    let recordAnswer = true;
+    if (isLoading) {
+      getMultipleCentileResults(recordAnswer).then(() => setIsLoading(false));
+    }
+    return () => {
+      recordAnswer = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading]);
 
   return (
     <Screen renderBack>

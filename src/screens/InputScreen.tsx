@@ -14,24 +14,23 @@ import {
   Screen,
   GlobalStateContext,
   initialState,
+  WheelPicker,
 } from '../components';
+import {Zeit} from '../brains/';
 
-import Zeit from '../brains/Zeit';
-import WheelPicker from '../components/pickers/WheelPicker';
 import {globalStateType} from '../interfaces/GlobalState';
-import {colors} from '../config';
 
-const ChildCentile = () => {
+const referenceArray = [
+  {label: 'UK-WHO', value: 'uk-who'},
+  {label: "Down's Syndrome", value: 'trisomy-21'},
+  {label: "Turner's Syndrome", value: 'turner'},
+];
+
+function InputScreen() {
   const navigation = useNavigation();
   const {globalState, setGlobalState} = useContext(GlobalStateContext);
 
   const [turnerSelected, setTurnerSelected] = useState(false);
-
-  const referenceArray = [
-    {label: 'UK-WHO', value: 'uk-who'},
-    {label: "Down's Syndrome", value: 'trisomy-21'},
-    {label: "Turner's Syndrome", value: 'turner'},
-  ];
 
   const submitFunction = () => {
     const ageObject = new Zeit(
@@ -132,6 +131,6 @@ const ChildCentile = () => {
       </ValidatorProvider>
     </Screen>
   );
-};
+}
 
-export default ChildCentile;
+export default InputScreen;

@@ -34,7 +34,7 @@ const blank = {
 };
 
 function MakeInitialState() {
-  const workingObject: any = {};
+  let workingObject: any = {};
   for (const [key, subValue] of Object.entries(list)) {
     workingObject[key] = {
       ...blank,
