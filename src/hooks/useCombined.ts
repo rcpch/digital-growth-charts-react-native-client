@@ -1,5 +1,5 @@
 import {useContext} from 'react';
-import {calculateBMI} from '../brains';
+import {calculateBMI, checkForOldValues} from '../brains';
 import {
   GlobalStateContext,
   initialState,
@@ -15,6 +15,7 @@ const useCombined = (name?: keyof globalStateType) => {
     handleValidationReset,
     validation,
     handleSubmit,
+    validationProforma,
   } = useContext(ValidatorContext);
 
   let buttonState = initialState.weight;
@@ -75,7 +76,12 @@ const useCombined = (name?: keyof globalStateType) => {
       setGlobalState(workingState);
     }
     // handleSubmit from validator:
-    handleSubmit(workingState);
+    checkForOldValues(
+      handleSubmit,
+      setGlobalState,
+      workingState,
+      validationProforma,
+    );
   };
 
   return {

@@ -1,5 +1,8 @@
 import {Alert} from 'react-native';
 
+import {globalStateType} from '../interfaces/GlobalState';
+import {proformaObjectArgument} from '../interfaces/Validator';
+
 // input a number and outputs a string with ordinal suffix attached
 const addOrdinalSuffix = (inputNumber: number): string => {
   const answerNumber = inputNumber;
@@ -7,7 +10,7 @@ const addOrdinalSuffix = (inputNumber: number): string => {
   if (Number.isInteger(workingNumber) === false) {
     workingNumber *= 10;
     if (Number.isInteger(workingNumber) === false) {
-      return 'Error: only integers or numbers to 1 decimal place are supported';
+      throw Error('Only integers or numbers to 1 decimal place are supported');
     }
   }
   const remainder10 = workingNumber % 10;
@@ -40,12 +43,16 @@ const calculateBMI = (weight: number | string, heightInCm: number | string) => {
 };
 
 // check timestamps of measurements from global state. Can change how many mins old the threshold is
-const checkTimeStamps = (globalObject, initialFormikValues, minsAgo = 2) => {
+const checkTimeStamps = (
+  globalObject: globalStateType,
+  validationProforma: validatorStateType,
+  minsAgo = 3,
+) => {
   const nameArray = [];
   const now = new Date();
   for (const [key, value] of Object.entries(globalObject)) {
-    for (const formikKey of Object.keys(initialFormikValues)) {
-      if (value.timeStamp && key === formikKey) {
+    for (const validationName of Object.keys(validationProforma)) {
+      if (value.timeStamp && key === validationName) {
         const timeStamp = value.timeStamp;
         const millisecondDifference = now.getTime() - timeStamp.getTime();
         if (millisecondDifference > minsAgo * 1000 * 60) {
@@ -124,14 +131,13 @@ const formatTime = (inputTime: Date, accurate = false) => {
 };
 
 // handles old measurements if the timestamp is considered old by the checkTimeStamps function. Submits if all OK.
-const handleOldValues = (
-  submitFunction,
-  kind,
-  setGlobalStats,
-  globalValues,
-  initialFormikValues,
+const checkForOldValues = (
+  submitFunction: Function,
+  setGlobalStats: Function,
+  globalValues: globalStateType,
+  validationProforma: {[key: string]: proformaObjectArgument},
 ) => {
-  const oldValueArray = checkTimeStamps(globalValues, initialFormikValues);
+  const oldValueArray = checkTimeStamps(globalValues, validationProforma);
   if (oldValueArray.length > 0) {
     const nameLookup = {
       height: 'Height / Length',
@@ -141,6 +147,7 @@ const handleOldValues = (
       gestationInDays: 'Birth Gestation',
       dob: 'Date of Birth',
       dom: 'Date of Measurement',
+      reference: 'Reference',
     };
     let oldValuesString = '';
     for (let i = 0; i < oldValueArray.length; i++) {
@@ -152,17 +159,13 @@ const handleOldValues = (
       }
     }
     const finalSubmitFunction = () => {
-      const mutableObject = {...globalValues};
+      const mutableObject: any = {...globalValues};
       const now = new Date();
       for (let i = 0; i < oldValueArray.length; i++) {
         mutableObject[oldValueArray[i]].timeStamp = now;
       }
-      setGlobalStats((state) => {
-        const newState = {...state};
-        newState[kind] = mutableObject;
-        return newState;
-      });
-      submitFunction();
+      setGlobalStats(mutableObject);
+      submitFunction(globalValues);
     };
     Alert.alert(
       'Are all measurements still valid?',
@@ -198,6 +201,6 @@ export {
   formatDate,
   formatTime,
   checkTimeStamps,
-  handleOldValues,
+  checkForOldValues,
   timeout,
 };
