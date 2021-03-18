@@ -12,11 +12,15 @@ Requires either a working Xcode environment for the iOS client, or Android Studi
 
 Next, navigate to the root directory of the project and make a .env file with the following variables:
 
-API_LOCAL_BASE_IOS=http://localhost:5000
-API_LOCAL_BASE_ANDROID=http://10.0.2.2:5000
-API_LAN_BASE=http://192.168.86.34:5000
-API_REAL_BASE=https://api.rcpch.ac.uk/growth/v1
-API_KEY=placeholder
+`API_LOCAL_BASE_IOS=http://localhost:5000`
+
+`API_LOCAL_BASE_ANDROID=http://10.0.2.2:5000`
+
+`API_LAN_BASE=http://192.168.86.34:5000`
+
+`API_REAL_BASE=https://api.rcpch.ac.uk/growth/v1`
+
+`API_KEY=placeholder`
 
 (Enter the base addresses / api key which best suit your setup. Note the IP address in the example above for android local- this address points to localhost in android simulators).
 
