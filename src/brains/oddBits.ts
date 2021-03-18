@@ -1,7 +1,7 @@
 import {Alert} from 'react-native';
 
 import {globalStateType} from '../interfaces/GlobalState';
-import {proformaObjectArgument} from '../interfaces/Validator';
+import {validatorProviderProps} from '../interfaces/Validator';
 
 // input a number and outputs a string with ordinal suffix attached
 const addOrdinalSuffix = (inputNumber: number): string => {
@@ -45,7 +45,7 @@ const calculateBMI = (weight: number | string, heightInCm: number | string) => {
 // check timestamps of measurements from global state. Can change how many mins old the threshold is
 const checkTimeStamps = (
   globalObject: globalStateType,
-  validationProforma: validatorStateType,
+  validationProforma: {[key: string]: validatorProviderProps},
   minsAgo = 3,
 ) => {
   const nameArray = [];
@@ -135,7 +135,7 @@ const checkForOldValues = (
   submitFunction: Function,
   setGlobalStats: Function,
   globalValues: globalStateType,
-  validationProforma: {[key: string]: proformaObjectArgument},
+  validationProforma: {[key: string]: validatorProviderProps},
 ) => {
   const oldValueArray = checkTimeStamps(globalValues, validationProforma);
   if (oldValueArray.length > 0) {
@@ -186,7 +186,7 @@ const checkForOldValues = (
       {cancelable: false},
     );
   } else {
-    submitFunction();
+    submitFunction(globalValues);
   }
 };
 

@@ -75,7 +75,7 @@ const useCombined = (name?: keyof globalStateType) => {
       };
       setGlobalState(workingState);
     }
-    // handleSubmit from validator:
+    // handleSubmit from validator goes into checkForOldValues:
     checkForOldValues(
       handleSubmit,
       setGlobalState,
