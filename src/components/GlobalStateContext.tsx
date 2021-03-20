@@ -47,7 +47,7 @@ function MakeInitialState() {
 
 const initialState = MakeInitialState();
 
-const GlobalStatsProvider = ({children}: propTypes) => {
+const GlobalStateProvider = ({children}: propTypes) => {
   const [globalState, setGlobalState] = useState(MakeInitialState());
 
   const setSingleGlobalState = (
@@ -79,4 +79,4 @@ const GlobalStatsProvider = ({children}: propTypes) => {
   );
 };
 
-export {GlobalStateContext, GlobalStatsProvider, initialState};
+export {GlobalStateContext, GlobalStateProvider, initialState};

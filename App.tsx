@@ -4,16 +4,16 @@ import {NavigationContainer} from '@react-navigation/native';
 
 // import {VictoryPlaceholder} from './src/components';
 import AppNavigator from './src/navigation/AppNavigator';
-import {GlobalStatsProvider} from './src/components';
+import {GlobalStateProvider} from './src/components';
 
 const App = () => {
   return (
     <SafeAreaProvider>
-      <GlobalStatsProvider>
+      <GlobalStateProvider>
         <NavigationContainer>
           <AppNavigator />
         </NavigationContainer>
-      </GlobalStatsProvider>
+      </GlobalStateProvider>
     </SafeAreaProvider>
   );
 };

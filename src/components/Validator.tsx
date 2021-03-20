@@ -3,6 +3,7 @@ import {
   proformaObjectArgument,
   returnValidatorObject,
   validatorProviderProps,
+  validatorStateType,
 } from '../interfaces/Validator';
 
 const wrongType = '↑ Are you sure you have entered a valid number?';
@@ -402,7 +403,7 @@ const ValidatorProvider = ({
   };
 
   // updates validation object on single value passed to it:
-  const updateSingleValidation = (name: string, value: any) => {
+  const updateSingleValidation = (name: string, value: any): void => {
     let newValidation = updateValidationObject(validation, name, value);
     if (newValidation.showErrorMessages) {
       newValidation = checkForCumulative(newValidation);
@@ -439,7 +440,7 @@ const ValidatorProvider = ({
     if (mutableState.showErrorMessages) {
       setValidation(mutableState);
     } else {
-      customSubmitFunction();
+      customSubmitFunction(globalState);
       setValidation({
         ...mutableState,
         ...{showErrorMessages: false},

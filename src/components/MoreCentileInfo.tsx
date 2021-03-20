@@ -7,7 +7,7 @@ import AppIcon from './AppIcon';
 import AppModal from './AppModal';
 import {addOrdinalSuffix} from '../brains';
 
-type propTyes = {
+type propTypes = {
   specificResults: any;
   correctionApplied: boolean;
 };
@@ -26,16 +26,28 @@ const parseExactCentile = (exact: number) => {
   }
 };
 
-const MoreCentileInfo = ({specificResults, correctionApplied}: propTyes) => {
+const MoreCentileInfo = ({specificResults, correctionApplied}: propTypes) => {
   const [modalVisible, setModalVisible] = useState(false);
   const centileCorrected =
-    specificResults?.measurement_calculated_values.corrected_centile || '';
+    typeof specificResults?.measurement_calculated_values.corrected_centile ===
+    'number'
+      ? specificResults.measurement_calculated_values.corrected_centile
+      : '';
   const centileChronological =
-    specificResults?.measurement_calculated_values.chronological_centile || '';
+    typeof specificResults?.measurement_calculated_values
+      .chronological_centile === 'number'
+      ? specificResults.measurement_calculated_values.chronological_centile
+      : '';
   const sdsCorrected =
-    specificResults?.measurement_calculated_values.corrected_sds || '';
+    typeof specificResults?.measurement_calculated_values.corrected_sds ===
+    'number'
+      ? specificResults.measurement_calculated_values.corrected_sds
+      : '';
   const sdsChronological =
-    specificResults?.measurement_calculated_values.chronological_sds || '';
+    typeof specificResults?.measurement_calculated_values.chronological_sds ===
+    'number'
+      ? specificResults.measurement_calculated_values.chronological_sds
+      : '';
 
   const noCorrectionMessage = !correctionApplied
     ? 'Child born at term, no gestational correction applied.\n\n'
@@ -80,9 +92,9 @@ const MoreCentileInfo = ({specificResults, correctionApplied}: propTyes) => {
         modalVisible={modalVisible}>
         <View style={styles.infoContainer}>
           <View style={styles.modalTextHeadingWrapper}>
-            {correctionApplied ? (
+            {correctionApplied && (
               <AppText style={styles.modalTextHeadings}>Corrected:</AppText>
-            ) : null}
+            )}
             <AppText style={styles.modalTextInfo}>
               {centileCorrectedAnswer}
             </AppText>
@@ -119,6 +131,7 @@ const styles = StyleSheet.create({
     padding: 5,
     alignItems: 'center',
     justifyContent: 'center',
+    margin: 7,
   },
   infoContainer: {
     flexDirection: 'row',

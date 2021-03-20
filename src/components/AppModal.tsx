@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  Modal,
-  StyleSheet,
-  Platform,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Modal, StyleSheet, TouchableOpacity, View} from 'react-native';
 
 import {colors, theme} from '../config';
 
@@ -16,6 +10,9 @@ type propTypes = {
   cancelInput?: Function;
   children: React.ReactNode;
   renderCloseButton?: boolean;
+  style?: any;
+  // to correctly place close icon if custom styling used on modal:
+  intendedModalWidth?: number;
 };
 
 const AppModal = ({
@@ -23,16 +20,18 @@ const AppModal = ({
   cancelInput,
   renderCloseButton = true,
   children,
+  style,
+  intendedModalWidth,
 }: propTypes) => {
   const handleRequestClose = () => {
-    if (!cancelInput && Platform.OS === 'android') {
-      throw new Error(
-        'Modal views require function to close modal on android, none was provided',
-      );
-    } else if (cancelInput) {
-      cancelInput();
-    }
+    cancelInput
+      ? cancelInput()
+      : console.error('No cancel input function defined for modal');
   };
+
+  const closeIconContainerWidth = intendedModalWidth
+    ? {width: intendedModalWidth - 18}
+    : null;
 
   return (
     <Modal
@@ -41,10 +40,14 @@ const AppModal = ({
       visible={modalVisible}
       onRequestClose={handleRequestClose}>
       <View style={styles.centeredView}>
-        <View style={styles.modalView}>
+        <View style={[styles.modalView, style]}>
           {renderCloseButton && (
             <TouchableOpacity onPress={handleRequestClose}>
-              <View style={styles.closeIconForModalContainer}>
+              <View
+                style={[
+                  styles.closeIconForModalContainer,
+                  closeIconContainerWidth,
+                ]}>
                 <AppIcon
                   name="close-circle"
                   color={colors.black}
@@ -88,13 +91,13 @@ const styles = StyleSheet.create({
   },
   closeIconForModalContainer: {
     marginTop: -15,
-    width: theme.modal.width,
+    width: theme.modal.width - 18,
   },
   closeIconForModal: {
     height: 50,
     width: 50,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'center',
   },
 });

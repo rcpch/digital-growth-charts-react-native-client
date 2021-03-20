@@ -191,23 +191,17 @@ const checkRequestWillWork = (
         if (ageInDaysCorrected < -106) {
           return 'UK-WHO length data does not exist below 25 weeks gestation.';
         }
-        break;
-      case 'bmi':
-        if (decimalAgeInYears < 2) {
-          return 'BMI cannot be plotted below 2 years of age.';
-        }
-        break;
+        return '';
       case 'ofc':
         if (decimalAgeInYears > 17 && globalState.sex.value === 'Female') {
           return 'UK-WHO data for head circumference does not exist for over 17 years of age in girls.';
         } else if (decimalAgeInYears > 18 && globalState.sex.value === 'Male') {
           return 'UK-WHO data for head circumference does not exist for over 18 years of age in boys.';
         }
-        break;
+        return '';
       default:
         return '';
     }
-    return '';
   } else if (reference === 'turner') {
     if (measurementType !== 'height') {
       return 'Only height data exists for Turner Syndrome.';
@@ -223,6 +217,9 @@ const checkRequestWillWork = (
     }
     if (measurementType === 'ofc' && decimalAgeInYears > 18) {
       return 'No Down Syndrome reference data for head circumference exists above 18 years of age.';
+    }
+    if (measurementType === 'bmi' && decimalAgeInYears > 18.82) {
+      return 'No Down Syndrome reference data for BMI exists above 18.8 years of age.';
     }
     return '';
   } else {
@@ -253,10 +250,7 @@ function makeErrorState() {
 
 const useRcpchApi = (url = 'local') => {
   const {globalState} = useContext(GlobalStateContext);
-  const [centileResults, setCentileResults]: [
-    {[key in measurementTypes]: any},
-    Function,
-  ] = useState(makeCentileState());
+  const [centileResults, setCentileResults] = useState(makeCentileState());
   const [errors, setErrors] = useState(makeErrorState());
 
   const getMultipleCentileResults = async (

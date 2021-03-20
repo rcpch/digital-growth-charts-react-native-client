@@ -166,3 +166,6 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
+
+# Misc
+App_testing.tsx

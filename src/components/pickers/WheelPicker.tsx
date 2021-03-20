@@ -97,7 +97,7 @@ const WheelPicker = ({name, pickerArray, userLabel, iconName}: propTypes) => {
           <View style={styles.pickerContainer}>
             <Picker
               style={ios ? styles.iosPicker : styles.androidPicker}
-              itemStyle={{color: colors.black}}
+              itemStyle={styles.iosPickerText}
               onValueChange={(itemValue: string | number) =>
                 onValueChange(itemValue)
               }
@@ -137,6 +137,10 @@ const styles = StyleSheet.create({
     width: theme.modal.width - 10,
     //backgroundColor: 'orange',
     alignSelf: 'center',
+  },
+  iosPickerText: {
+    ...theme.text,
+    color: colors.black,
   },
   androidPicker: {
     height: 100,

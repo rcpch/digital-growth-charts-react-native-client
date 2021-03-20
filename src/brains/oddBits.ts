@@ -4,7 +4,7 @@ import {globalStateType} from '../interfaces/GlobalState';
 import {proformaObjectArgument} from '../interfaces/Validator';
 
 // input a number and outputs a string with ordinal suffix attached
-const addOrdinalSuffix = (inputNumber: number): string => {
+const addOrdinalSuffix = (inputNumber: number | string): string => {
   const answerNumber = inputNumber;
   let workingNumber = Number(inputNumber);
   if (Number.isInteger(workingNumber) === false) {
@@ -46,7 +46,7 @@ const calculateBMI = (weight: number | string, heightInCm: number | string) => {
 const checkTimeStamps = (
   globalObject: globalStateType,
   validationProforma: {[key: string]: proformaObjectArgument},
-  minsAgo = 3,
+  minsAgo = 2,
 ) => {
   const nameArray = [];
   const now = new Date();
@@ -65,8 +65,8 @@ const checkTimeStamps = (
   return nameArray;
 };
 
-// simple is number plural or not
-const decidePluralSuffix = (inputNumber: number) => {
+// simple give 's' if number is plural
+const pluralSuffix = (inputNumber: number): string => {
   if (inputNumber === 1) {
     return '';
   } else {
@@ -197,7 +197,7 @@ const timeout = (ms: number) => {
 export {
   addOrdinalSuffix,
   calculateBMI,
-  decidePluralSuffix,
+  pluralSuffix,
   formatDate,
   formatTime,
   checkTimeStamps,

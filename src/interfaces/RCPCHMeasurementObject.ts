@@ -21,7 +21,7 @@ export interface Measurement {
   child_observation_value: {
     measurement_method: string;
     observation_value: number;
-    observation_value_error: null;
+    observation_value_error: null | string;
   };
   measurement_calculated_values: {
     chronological_centile: number;
@@ -30,14 +30,14 @@ export interface Measurement {
     chronological_sds: number;
     corrected_centile: number;
     corrected_centile_band: string;
-    corrected_measurement_error: null | number;
+    corrected_measurement_error: null | string;
     corrected_sds: number;
     measurement_method: string;
   };
   measurement_dates: {
     chronological_calendar_age: string;
     chronological_decimal_age: number;
-    chronological_decimal_age_error: null | number;
+    chronological_decimal_age_error: null | string;
     comments: {
       clinician_chronological_decimal_age_comment: string;
       clinician_corrected_decimal_age_comment: string;
@@ -46,7 +46,7 @@ export interface Measurement {
     };
     corrected_calendar_age: string;
     corrected_decimal_age: number;
-    corrected_decimal_age_error: null | number;
+    corrected_decimal_age_error: null | string;
     corrected_gestational_age: {
       corrected_gestation_days: null | number;
       corrected_gestation_weeks: null | number;

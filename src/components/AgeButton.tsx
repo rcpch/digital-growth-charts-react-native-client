@@ -2,10 +2,10 @@ import React, {useState} from 'react';
 import {StyleSheet, View, TouchableOpacity} from 'react-native';
 
 import AppText from './AppText';
-import {colors, theme} from '../config/';
+import {colors, theme, windowWidth} from '../config/';
 import AppIcon from './AppIcon';
 import AppModal from './AppModal';
-import {Measurement} from '../interfaces/RCPCHMeasurementObject';
+import LoadingOrText from './LoadingOrText';
 
 type propTypes = {
   centileResults: {[key: string]: any};
@@ -40,78 +40,76 @@ const AgeButton = ({centileResults, errors, isLoading}: propTypes) => {
   let star = '';
 
   if (isLoading) {
-    outputString = 'Loading...';
-    modalMessage = 'Loading...';
+    outputString = '';
   } else if (!isLoading && !errors.serverErrors) {
-    let workingValues: Measurement;
     for (const individualCentileResult of Object.values(centileResults)) {
       if (individualCentileResult) {
-        workingValues = individualCentileResult;
-        if (workingValues) {
-          try {
-            const birthGestationWeeks =
-              workingValues.birth_data.gestation_weeks;
-            const birthGestationDays = workingValues.birth_data.gestation_days;
-            const correctedGestationWeeks =
-              workingValues.measurement_dates.corrected_gestational_age
-                .corrected_gestation_weeks;
-            const correctedGestationDays =
-              workingValues.measurement_dates.corrected_gestational_age
-                .corrected_gestation_days;
-            const chronologicalDecimalAge =
-              workingValues.measurement_dates.chronological_decimal_age;
-            const correctedDecimalAge =
-              workingValues.measurement_dates.corrected_decimal_age;
-            const chronologicalCalendarAge =
-              workingValues.measurement_dates.chronological_calendar_age;
-            const correctedCalendarAge =
-              workingValues.measurement_dates.corrected_calendar_age;
-            const estimatedDateDelivery =
-              workingValues.birth_data.estimated_date_delivery_string;
-            const correctionComment =
-              workingValues.measurement_dates.comments
-                .clinician_corrected_decimal_age_comment;
-            //Born <37 weeks, less than 2 weeks corrected age and not birthday:
+        try {
+          const birthGestationWeeks =
+            individualCentileResult.birth_data.gestation_weeks;
+          const birthGestationDays =
+            individualCentileResult.birth_data.gestation_days;
+          const correctedGestationWeeks =
+            individualCentileResult.measurement_dates.corrected_gestational_age
+              .corrected_gestation_weeks;
+          const correctedGestationDays =
+            individualCentileResult.measurement_dates.corrected_gestational_age
+              .corrected_gestation_days;
+          const chronologicalDecimalAge =
+            individualCentileResult.measurement_dates.chronological_decimal_age;
+          const correctedDecimalAge =
+            individualCentileResult.measurement_dates.corrected_decimal_age;
+          const chronologicalCalendarAge =
+            individualCentileResult.measurement_dates
+              .chronological_calendar_age;
+          const correctedCalendarAge =
+            individualCentileResult.measurement_dates.corrected_calendar_age;
+          const estimatedDateDelivery =
+            individualCentileResult.birth_data.estimated_date_delivery_string;
+          const correctionComment =
+            individualCentileResult.measurement_dates.comments
+              .clinician_corrected_decimal_age_comment;
+          //Born <37 weeks, less than 2 weeks corrected age and not birthday:
+          if (
+            birthGestationWeeks < 37 &&
+            correctedDecimalAge < 0.041 &&
+            chronologicalDecimalAge !== 0
+          ) {
+            // patient group is preterm infants:
+            outputString = `Corrected Gestation: ${correctedGestationWeeks}+${correctedGestationDays}`;
+            modalMessage = `${chronologicalCalendarAge} old\n\nEstimated Date of Delivery: ${estimatedDateDelivery}`;
+          } else if (chronologicalDecimalAge === 0) {
+            // patient group is infants at birth:
+            outputString = `Birth Gestation: ${birthGestationWeeks}+${birthGestationDays}`;
+            modalMessage = `Happy Birthday!\n\nEstimated Date of Delivery: ${estimatedDateDelivery}`;
+          } else {
+            // patient group is infants and children from 2 weeks of (corrected) age:
+            modalMessage = `${chronologicalCalendarAge} old.\n\nChild born at term, no gestational correction applied.`;
+            let appropriateStringAge = chronologicalCalendarAge;
             if (
-              birthGestationWeeks < 37 &&
-              correctedDecimalAge < 0.041 &&
-              chronologicalDecimalAge !== 0
+              correctedDecimalAge !== chronologicalDecimalAge &&
+              birthGestationWeeks < 37
             ) {
-              // patient group is preterm infants:
-              outputString = `Corrected Gestation: ${correctedGestationWeeks}+${correctedGestationDays}`;
-              modalMessage = `${chronologicalCalendarAge} old\n\nEstimated Date of Delivery: ${estimatedDateDelivery}`;
-            } else if (chronologicalDecimalAge === 0) {
-              // patient group is infants at birth:
-              outputString = `Birth Gestation: ${birthGestationWeeks}+${birthGestationDays}`;
-              modalMessage = `Happy Birthday!\n\nEstimated Date of Delivery: ${estimatedDateDelivery}`;
-            } else {
-              // patient group is infants and children from 2 weeks of (corrected) age:
-              modalMessage = `${chronologicalCalendarAge} old.\n\nChild born at term, no gestational correction applied.`;
-              let appropriateStringAge = chronologicalCalendarAge;
-              if (
-                correctedDecimalAge !== chronologicalDecimalAge &&
-                birthGestationWeeks < 37
-              ) {
-                star = '*';
-                modalMessage =
-                  `${correctedCalendarAge} old (corrected)\n\n${chronologicalCalendarAge} old (chronological)` +
-                  `\n\n${correctionComment}`;
-                appropriateStringAge = correctedCalendarAge;
-              }
-              outputString = `Age: ${trimStringAge(
-                appropriateStringAge,
-              )}${star}`;
+              star = '*';
+              modalMessage =
+                `${correctedCalendarAge} old (corrected)\n\n${chronologicalCalendarAge} old (chronological)` +
+                `\n\n${correctionComment}`;
+              appropriateStringAge = correctedCalendarAge;
             }
-          } catch (error) {
-            // if the api object changes, this should hopefully catch error here
-            console.error(error.message);
-            modalMessage = 'Error: failed to load';
+            outputString = `Age: ${trimStringAge(appropriateStringAge)}${star}`;
           }
-          break;
+        } catch (error) {
+          // if the api object changes, this should hopefully catch error here
+          console.error(error.message);
+          outputString = 'Age: N/A';
+          modalMessage = 'Error: failed to load';
         }
+        break;
       }
     }
   }
+
+  const mainButtonTextStyle = isLoading ? {width: windowWidth / 4} : null;
 
   return (
     <React.Fragment>
@@ -121,7 +119,9 @@ const AgeButton = ({centileResults, errors, isLoading}: propTypes) => {
         }}>
         <View style={styles.button}>
           <View style={styles.buttonContainer}>
-            <AppText>{outputString}</AppText>
+            <LoadingOrText style={mainButtonTextStyle}>
+              {outputString}
+            </LoadingOrText>
             <AppIcon
               size={25}
               name="information-outline"
@@ -136,7 +136,9 @@ const AgeButton = ({centileResults, errors, isLoading}: propTypes) => {
         <View style={styles.modalTextHeadingWrapper}>
           <AppText style={styles.modalTextHeadings}>{modalHeading}</AppText>
         </View>
-        <AppText style={styles.modalTextParagraph}>{modalMessage}</AppText>
+        <LoadingOrText style={styles.modalTextParagraph}>
+          {modalMessage}
+        </LoadingOrText>
       </AppModal>
     </React.Fragment>
   );

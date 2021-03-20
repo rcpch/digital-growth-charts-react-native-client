@@ -1,10 +1,11 @@
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 
-import colors from '../config/colors';
-import {containerWidth} from '../config/';
+import {containerWidth, colors} from '../config/';
 import AppText from './AppText';
 import MoreCentileInfo from './MoreCentileInfo';
+import LoadingOrText from './LoadingOrText';
+import ChartModal from './ChartModal';
 
 import {Measurement} from '../interfaces/RCPCHMeasurementObject';
 
@@ -30,23 +31,25 @@ const CentileOutput = ({
   errors,
   isLoading,
 }: propTypes) => {
-  const specificResults = centileResults[measurementType];
+  const specificResults: null | Measurement = centileResults[measurementType];
   const specificError = errors[measurementType];
 
-  let defaultOutput: any = 'No measurement given.';
+  let defaultOutput: string = 'No measurement given.';
   let measurementValue: string | number = 'N/A';
   let correctionApplied = false;
 
   if (measurementProvided && isLoading) {
-    defaultOutput = 'Loading answer...';
+    defaultOutput = '';
   } else if (measurementProvided && !isLoading) {
-    if (specificError) {
+    if (specificError && typeof specificError === 'string') {
       defaultOutput = specificError;
     } else if (specificResults) {
       defaultOutput =
         specificResults.measurement_calculated_values.corrected_centile_band;
       if (!defaultOutput) {
         defaultOutput =
+          specificResults.measurement_calculated_values
+            .corrected_measurement_error ||
           'Server did not respond with a recognised answer. Has the API changed?';
       }
       measurementValue =
@@ -91,10 +94,16 @@ const CentileOutput = ({
       <View style={styles.outputTextBox}>
         <AppText style={styles.text}>{titleText}</AppText>
         <View>
-          <AppText style={styles.outputText}>{defaultOutput}</AppText>
+          <LoadingOrText style={styles.outputText}>
+            {defaultOutput}
+          </LoadingOrText>
         </View>
       </View>
       <View style={styles.buttonContainer}>
+        <ChartModal
+          measurementType={measurementType}
+          specificResults={specificResults}
+        />
         <MoreCentileInfo
           specificResults={specificResults}
           correctionApplied={correctionApplied}
@@ -122,7 +131,7 @@ const styles = StyleSheet.create({
     margin: 20,
     textAlign: 'left',
     justifyContent: 'center',
-    width: containerWidth - 105,
+    width: containerWidth - 155,
   },
   text: {
     fontSize: 18,
@@ -140,5 +149,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
   },
 });
