@@ -9,9 +9,8 @@ import {
   API_KEY,
 } from '@env';
 
-import {formatDate} from '../brains/oddBits';
 import {GlobalStateContext} from '../components';
-import Zeit from '../brains/Zeit';
+import {Zeit, formatDate} from '../brains/';
 
 import {globalStateType} from '../interfaces/GlobalState';
 
@@ -55,12 +54,18 @@ const makeApiArgument = (
     throw new Error('No valid sex found');
   }
 
-  const birthDate = formatDate(new Date(dob), true, true);
-  const observationDate = formatDate(
-    inputObject.dom?.value ? new Date(inputObject.dom.value) : new Date(),
-    true,
-    true,
-  );
+  const birthDate = dob.toISOString();
+  const todayWithTimeStripped = new Date(formatDate(new Date(), true, true));
+  const observationDate =
+    inputObject.dom.value?.toISOString() || todayWithTimeStripped.toISOString();
+
+  // const birthDate = formatDate(dob, true, true);
+  // const observationDate = formatDate(
+  //   inputObject.dom.value || new Date(),
+  //   true,
+  //   true,
+  // );
+
   const gestationDays = gestationInDays % 7;
   const gestationWeeks = Math.floor(gestationInDays / 7);
   const observationValue = Number(measurement);
