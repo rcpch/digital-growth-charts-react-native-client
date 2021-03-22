@@ -14,11 +14,13 @@ function ResultsScreen() {
     centileResults,
     errors,
     globalState,
-  } = useRcpchApi('local');
+  } = useRcpchApi('lan');
 
   const reset = () => {
     setIsLoading(true);
   };
+
+  // console.log(centileResults.weight);
 
   const showRefresh = errors.serverErrors ? true : false;
 

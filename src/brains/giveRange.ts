@@ -12,7 +12,7 @@ const majorCentileLines: [number, string][] = [
 
 // javascript implementation to give centile range for result from z score:
 
-const giveRange = (z: number): string => {
+function giveRange(z: number): string {
   if (!z && z !== 0) {
     return '';
   }
@@ -67,6 +67,6 @@ const giveRange = (z: number): string => {
       } and the ${arrayForOrdering[measurementPosition + 1][1]} centiles.`;
     }
   }
-};
+}
 
 export default giveRange;

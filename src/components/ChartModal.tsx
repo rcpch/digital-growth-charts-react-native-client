@@ -7,6 +7,8 @@ import AppIcon from '../components/AppIcon';
 import AppModal from '../components/AppModal';
 import {colors, containerWidth, windowHeight} from '../config';
 
+import {Measurement} from '../interfaces/RCPCHMeasurementObject';
+
 type propTypes = {
   measurementType?: string;
   specificResults?: null | Measurement;

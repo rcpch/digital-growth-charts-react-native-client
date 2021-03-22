@@ -102,16 +102,14 @@ const GestationInputButton = () => {
           <View style={styles.pickerContainer}>
             <Picker
               style={ios ? styles.iosPicker : styles.androidPicker}
-              itemStyle={{color: colors.black}}
+              itemStyle={styles.iosPickerText}
               onValueChange={onValueChangeWeeks}
               selectedValue={weeks}>
               {weekLabelList}
             </Picker>
             <Picker
               style={ios ? styles.iosPicker : styles.androidPicker}
-              itemStyle={{
-                color: colors.black,
-              }}
+              itemStyle={styles.iosPickerText}
               onValueChange={onValueChangeDays}
               selectedValue={days}>
               {dayLabelList}
@@ -149,6 +147,10 @@ const styles = StyleSheet.create({
     width: theme.modal.width / 2.2,
     //backgroundColor: 'orange',
     alignSelf: 'center',
+  },
+  iosPickerText: {
+    ...theme.text,
+    color: colors.black,
   },
   androidPicker: {
     height: 100,
