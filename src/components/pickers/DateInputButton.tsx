@@ -1,22 +1,17 @@
 import React from 'react';
-import {Platform, StyleSheet, View} from 'react-native';
-
-import DateTimePicker from '@react-native-community/datetimepicker';
+import {StyleSheet, View} from 'react-native';
 
 import {globalStateType} from '../../interfaces/GlobalState';
 
-import {colors, containerWidth} from '../../config';
+import {theme} from '../../config';
 import {formatDate} from '../../brains';
 import useCombined from '../../hooks/useCombined';
 import AcceptCancel from '../AcceptCancel';
 import PickerButton from '../PickerButton';
 import AppModal from '../AppModal';
-
-const modalWidth = containerWidth > 350 ? 350 : containerWidth;
+import DateTimeBare from '../DateTimeBare';
 
 const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
-  const ios = Platform.OS === 'ios' ? true : false;
-  const android = Platform.OS === 'android' ? true : false;
   const makeRefreshNotCancel = dateName === 'dob' ? false : true;
 
   const {
@@ -41,11 +36,7 @@ const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
         : `Measured on ${formatDate(value)}`;
   }
 
-  const onChangeDateIos = (event: Event, date: Date | undefined) => {
-    const currentDate = date || workingValue;
-    combinedSetter({workingValue: currentDate});
-  };
-  const cancelInputIos = () => {
+  const cancelInput = () => {
     if (showPicker) {
       combinedSetter({
         showPicker: false,
@@ -55,7 +46,7 @@ const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
       combinedSetter(initialState[dateName]);
     }
   };
-  const togglePickerIos = () => {
+  const togglePicker = () => {
     let workingObject: any = {};
     if (showPicker) {
       if (
@@ -76,78 +67,32 @@ const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
     }
   };
 
-  const openPickerDateAndroid = () => {
-    let workingObject: any = {};
-    if (!workingValue) {
-      workingObject.workingValue = new Date();
-    }
-    workingObject.showPicker = true;
-    combinedSetter(workingObject);
-  };
-  const cancelInputAndroid = () => {
-    combinedSetter(initialState[dateName]);
-  };
-  const onChangeAndroidDate = (event: any, selected: Date | undefined) => {
-    let workingObject: any = {};
-    if (event.type === 'set') {
-      const current = selected || workingValue;
-      if (
-        dateName === 'dob' ||
-        (dateName === 'dom' && formatDate(current) !== formatDate(new Date()))
-      ) {
-        workingObject.workingValue = current;
-      } else {
-        workingObject.workingValue = null;
-      }
-      workingObject.showPicker = false;
-      combinedSetter(workingObject);
-    } else {
-      workingObject.workingValue = value;
-      workingObject.showPicker = false;
-      combinedSetter(workingObject);
-    }
-  };
-
   return (
     <PickerButton
-      toggleInput={ios ? togglePickerIos : openPickerDateAndroid}
-      cancelInput={ios ? cancelInputIos : cancelInputAndroid}
+      toggleInput={togglePicker}
+      cancelInput={cancelInput}
       buttonText={buttonText}
       showCancel={showCancel}
       makeRefreshNotCancel={makeRefreshNotCancel}
       iconName="calendar-range"
       specificErrorMessage={specificErrorMessage}
       showErrorMessages={showErrorMessages}>
-      {ios && (
-        <AppModal modalVisible={showPicker} renderCloseButton={false}>
-          <View style={styles.iosDatePickerContainer}>
-            <DateTimePicker
-              testID="datePickerIos"
-              value={workingValue}
-              mode="date"
-              display="spinner"
-              onChange={onChangeDateIos}
-              style={styles.iosDatePicker}
-              textColor={colors.black}
-            />
-          </View>
-          <AcceptCancel
-            acceptInput={togglePickerIos}
-            cancelInput={cancelInputIos}
-            iconSize={40}
-            width={modalWidth / 3}
+      <AppModal modalVisible={showPicker} renderCloseButton={false}>
+        <View style={styles.pickerWrapper}>
+          <DateTimeBare
+            date={workingValue}
+            setDate={(newValue: Date) =>
+              combinedSetter({workingValue: newValue})
+            }
           />
-        </AppModal>
-      )}
-      {showPicker && android && (
-        <DateTimePicker
-          testID="datePickerAndroid"
-          value={workingValue}
-          mode="date"
-          display="spinner"
-          onChange={onChangeAndroidDate}
+        </View>
+        <AcceptCancel
+          acceptInput={togglePicker}
+          cancelInput={cancelInput}
+          iconSize={40}
+          width={theme.modal.width / 3}
         />
-      )}
+      </AppModal>
     </PickerButton>
   );
 };
@@ -155,11 +100,7 @@ const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
 export default DateInputButton;
 
 const styles = StyleSheet.create({
-  iosDatePickerContainer: {
-    height: 150,
-    width: modalWidth,
-  },
-  iosDatePicker: {
-    height: 150,
+  pickerWrapper: {
+    marginBottom: 15,
   },
 });
