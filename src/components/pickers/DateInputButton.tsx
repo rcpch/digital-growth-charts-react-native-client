@@ -46,6 +46,7 @@ const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
       combinedSetter(initialState[dateName]);
     }
   };
+
   const togglePicker = () => {
     let workingObject: any = {};
     if (showPicker) {
@@ -67,6 +68,10 @@ const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
     }
   };
 
+  const onValueChange = (newValue: Date) => {
+    combinedSetter({workingValue: newValue});
+  };
+
   return (
     <PickerButton
       toggleInput={togglePicker}
@@ -79,12 +84,7 @@ const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
       showErrorMessages={showErrorMessages}>
       <AppModal modalVisible={showPicker} renderCloseButton={false}>
         <View style={styles.pickerWrapper}>
-          <DateTimeBare
-            date={workingValue}
-            setDate={(newValue: Date) =>
-              combinedSetter({workingValue: newValue})
-            }
-          />
+          <DateTimeBare date={workingValue} setDate={onValueChange} />
         </View>
         <AcceptCancel
           acceptInput={togglePicker}
