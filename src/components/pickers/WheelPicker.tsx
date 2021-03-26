@@ -1,12 +1,11 @@
 import React from 'react';
-import {Platform, StyleSheet, View, TouchableOpacity} from 'react-native';
+import {StyleSheet, View, Platform} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 
 import {colors, theme} from '../../config';
 import useCombined from '../../hooks/useCombined';
 import PickerButton from '../PickerButton';
 import AppModal from '../AppModal';
-import AppIcon from '../AppIcon';
 import {globalStateType} from '../../interfaces/GlobalState';
 import AcceptCancel from '../AcceptCancel';
 
@@ -19,6 +18,8 @@ type propTypes = {
 
 const WheelPicker = ({name, pickerArray, userLabel, iconName}: propTypes) => {
   const ios = Platform.OS === 'ios' ? true : false;
+
+  const androidStyle = !ios ? {backgroundColor: colors.light} : null;
 
   const pickerList = pickerArray.map(({label, value}) => (
     <Picker.Item label={label} value={value} key={label} />
@@ -94,7 +95,8 @@ const WheelPicker = ({name, pickerArray, userLabel, iconName}: propTypes) => {
         <AppModal
           modalVisible={showPicker}
           cancelInput={resetInput}
-          renderCloseButton={false}>
+          renderCloseButton={false}
+          style={androidStyle}>
           <View style={styles.pickerContainer}>
             <Picker
               style={ios ? styles.iosPicker : styles.androidPicker}
@@ -111,6 +113,7 @@ const WheelPicker = ({name, pickerArray, userLabel, iconName}: propTypes) => {
             cancelInput={resetInput}
             width={theme.modal.width / 3}
             iconSize={40}
+            iconColor={ios ? 'white' : 'black'}
           />
         </AppModal>
       </PickerButton>
@@ -129,7 +132,7 @@ const styles = StyleSheet.create({
   },
   androidPicker: {
     height: 100,
-    width: theme.modal.width - 10,
+    width: theme.modal.width * 0.75,
   },
   buttonContainer: {
     width: theme.modal.width,

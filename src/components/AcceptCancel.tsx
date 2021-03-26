@@ -8,21 +8,28 @@ type propTypes = {
   cancelInput: Function;
   acceptInput: Function;
   iconSize: number;
+  iconColor?: string;
   width?: number;
 };
 
-function AcceptCancel({cancelInput, acceptInput, iconSize, width}: propTypes) {
+function AcceptCancel({
+  cancelInput,
+  acceptInput,
+  iconSize,
+  iconColor = 'white',
+  width,
+}: propTypes) {
   const containerWidth = width ? {width: width} : null;
   return (
     <View style={[styles.container, containerWidth]}>
       <View style={styles.roundIcon}>
         <TouchableOpacity onPress={() => cancelInput()}>
-          <AppIcon name="close-circle" color={colors.white} size={iconSize} />
+          <AppIcon name="close-circle" color={iconColor} size={iconSize} />
         </TouchableOpacity>
       </View>
       <View style={styles.roundIcon}>
         <TouchableOpacity onPress={() => acceptInput()}>
-          <AppIcon name="check-circle" color={colors.white} size={iconSize} />
+          <AppIcon name="check-circle" color={iconColor} size={iconSize} />
         </TouchableOpacity>
       </View>
     </View>

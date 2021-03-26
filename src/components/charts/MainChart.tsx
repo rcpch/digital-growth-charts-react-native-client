@@ -25,8 +25,7 @@ import XPoint from './subComponents/XPoint';
 import {ICentile} from './interfaces/CentilesObject';
 import {PlottableMeasurement} from './interfaces/RCPCHMeasurementObject';
 import {Domains} from './interfaces/Domains';
-import { MainChartProps, Results } from './MainChart.types';
-
+import {MainChartProps, Results} from './MainChart.types';
 
 function MainChart({
   title,
@@ -128,37 +127,38 @@ function MainChart({
             <RenderTickLabel style={tickLabelStyle} domains={domains} />
           }
         />
-        {centileData && centileData.map((reference, index) => {
-          if (reference.length > 0) {
-            return (
-              <VictoryGroup key={index}>
-                {reference.map((centile: ICentile, centileIndex: number) => {
-                  if (centileIndex % 2 === 0) {
-                    // even index - centile is dashed
-                    return (
-                      <VictoryLine
-                        key={centile.centile + '-' + centileIndex}
-                        padding={{top: 20, bottom: 60}}
-                        data={centile.data}
-                        style={dashedCentileStyle}
-                      />
-                    );
-                  } else {
-                    // uneven index - centile is continuous
-                    return (
-                      <VictoryLine
-                        key={centile.centile + '-' + centileIndex}
-                        padding={{top: 20, bottom: 60}}
-                        data={centile.data}
-                        style={continuousCentileStyle}
-                      />
-                    );
-                  }
-                })}
-              </VictoryGroup>
-            );
-          }
-        })}
+        {centileData &&
+          centileData.map((reference, index) => {
+            if (reference.length > 0) {
+              return (
+                <VictoryGroup key={index}>
+                  {reference.map((centile: ICentile, centileIndex: number) => {
+                    if (centileIndex % 2 === 0) {
+                      // even index - centile is dashed
+                      return (
+                        <VictoryLine
+                          key={centile.centile + '-' + centileIndex}
+                          padding={{top: 20, bottom: 60}}
+                          data={centile.data}
+                          style={dashedCentileStyle}
+                        />
+                      );
+                    } else {
+                      // uneven index - centile is continuous
+                      return (
+                        <VictoryLine
+                          key={centile.centile + '-' + centileIndex}
+                          padding={{top: 20, bottom: 60}}
+                          data={centile.data}
+                          style={continuousCentileStyle}
+                        />
+                      );
+                    }
+                  })}
+                </VictoryGroup>
+              );
+            }
+          })}
         {measurementsArray.map((childMeasurement: any, index) => {
           const chronologicalAgeData =
             childMeasurement.plottable_data.centile_data
@@ -328,4 +328,4 @@ export default MainChart;
 //   stroke: 'grey',
 //   strokeWidth: 1,
 //   dashed: false,
-};
+// };
