@@ -1,9 +1,9 @@
 import React from 'react';
-import {StyleSheet, View, Platform} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 
 import {globalStateType} from '../../interfaces/GlobalState';
 
-import {colors, theme} from '../../config';
+import {theme} from '../../config';
 import {formatDate} from '../../brains';
 import useCombined from '../../hooks/useCombined';
 import AcceptCancel from '../AcceptCancel';
@@ -13,9 +13,6 @@ import DateTimeBare from './DateTimeBare';
 
 const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
   const makeRefreshNotCancel = dateName === 'dob' ? false : true;
-
-  const androidStyle =
-    Platform.OS === 'android' ? {backgroundColor: colors.light} : null;
 
   const {
     combinedSetter,
@@ -85,10 +82,7 @@ const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
       iconName="calendar-range"
       specificErrorMessage={specificErrorMessage}
       showErrorMessages={showErrorMessages}>
-      <AppModal
-        style={androidStyle}
-        modalVisible={showPicker}
-        renderCloseButton={false}>
+      <AppModal modalVisible={showPicker} renderCloseButton={false}>
         <View style={styles.pickerWrapper}>
           <DateTimeBare date={workingValue} setDate={onValueChange} />
         </View>
@@ -96,7 +90,6 @@ const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
           acceptInput={togglePicker}
           cancelInput={cancelInput}
           iconSize={40}
-          iconColor={Platform.OS === 'android' ? 'black' : 'white'}
           width={theme.modal.width / 3}
         />
       </AppModal>

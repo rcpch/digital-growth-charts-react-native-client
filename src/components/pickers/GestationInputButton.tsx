@@ -25,6 +25,7 @@ const name = 'gestationInDays';
 
 const GestationInputButton = () => {
   const ios = Platform.OS === 'ios' ? true : false;
+  const androidStyle = !ios ? {backgroundColor: colors.light} : null;
 
   const {
     combinedSetter,
@@ -99,7 +100,8 @@ const GestationInputButton = () => {
         <AppModal
           modalVisible={showPicker}
           cancelInput={resetInput}
-          renderCloseButton={false}>
+          renderCloseButton={false}
+          style={androidStyle}>
           <View style={styles.pickerContainer}>
             <Picker
               style={ios ? styles.iosPicker : styles.androidPicker}
@@ -121,6 +123,7 @@ const GestationInputButton = () => {
             cancelInput={resetInput}
             width={theme.modal.width / 3}
             iconSize={40}
+            iconColor={ios ? 'white' : 'black'}
           />
         </AppModal>
       </PickerButton>
