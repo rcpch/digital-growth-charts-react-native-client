@@ -20,8 +20,6 @@ function ResultsScreen() {
     setIsLoading(true);
   };
 
-  // console.log(centileResults.weight);
-
   const showRefresh = errors.serverErrors ? true : false;
 
   const centileOutputs = centileMeasurements.map((item) => {
@@ -33,6 +31,7 @@ function ResultsScreen() {
         centileResults={centileResults}
         errors={errors}
         isLoading={isLoading}
+        reference={globalState.reference.value}
         key={item}
       />
     );

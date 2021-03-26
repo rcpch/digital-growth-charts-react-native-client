@@ -54,17 +54,17 @@ const makeApiArgument = (
     throw new Error('No valid sex found');
   }
 
-  const birthDate = dob.toISOString();
-  const todayWithTimeStripped = new Date(formatDate(new Date(), true, true));
-  const observationDate =
-    inputObject.dom.value?.toISOString() || todayWithTimeStripped.toISOString();
+  // const birthDate = dob.toISOString();
+  // const todayWithTimeStripped = new Date(formatDate(new Date(), true, true));
+  // const observationDate =
+  //   inputObject.dom.value?.toISOString() || todayWithTimeStripped.toISOString();
 
-  // const birthDate = formatDate(dob, true, true);
-  // const observationDate = formatDate(
-  //   inputObject.dom.value || new Date(),
-  //   true,
-  //   true,
-  // );
+  const birthDate = formatDate(dob, true, true);
+  const observationDate = formatDate(
+    inputObject.dom.value || new Date(),
+    true,
+    true,
+  );
 
   const gestationDays = gestationInDays % 7;
   const gestationWeeks = Math.floor(gestationInDays / 7);
@@ -179,6 +179,9 @@ const checkRequestWillWork = (
   }
   if (decimalAgeInYears > 20) {
     return 'No data exists for any measurements after 20 years of age.';
+  }
+  if (measurementType === 'bmi' && ageInDaysCorrected < 14) {
+    return 'BMI data does not exist below 2 weeks of age';
   }
   if (reference === 'uk-who') {
     if (
@@ -300,6 +303,7 @@ const useRcpchApi = (url = 'local') => {
           bmi: bmi,
           ofc: ofc,
         });
+        // console.log(JSON.stringify(weight));
         setErrors(workingErrorsObject);
       }
     } catch (error) {

@@ -17,12 +17,12 @@ function AcceptCancel({cancelInput, acceptInput, iconSize, width}: propTypes) {
     <View style={[styles.container, containerWidth]}>
       <View style={styles.roundIcon}>
         <TouchableOpacity onPress={() => cancelInput()}>
-          <AppIcon name="close-circle" color={colors.black} size={iconSize} />
+          <AppIcon name="close-circle" color={colors.white} size={iconSize} />
         </TouchableOpacity>
       </View>
       <View style={styles.roundIcon}>
         <TouchableOpacity onPress={() => acceptInput()}>
-          <AppIcon name="check-circle" color={colors.black} size={iconSize} />
+          <AppIcon name="check-circle" color={colors.white} size={iconSize} />
         </TouchableOpacity>
       </View>
     </View>

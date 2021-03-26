@@ -2,25 +2,41 @@ import React, {useState} from 'react';
 import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
-import AppText from '../components/AppText';
 import AppIcon from '../components/AppIcon';
 import AppModal from '../components/AppModal';
-import {colors, containerWidth, windowHeight} from '../config';
+import {colors, containerWidth, windowHeight, windowWidth} from '../config';
 
-import {Measurement} from '../interfaces/RCPCHMeasurementObject';
+import {PlottableMeasurement} from '../interfaces/RCPCHMeasurementObject';
+import AppText from './AppText';
+import MainChart from './charts/MainChart';
 
 type propTypes = {
   measurementType?: string;
-  specificResults?: null | Measurement;
+  specificResults?: null | PlottableMeasurement;
+  reference: string;
+  userLabelNames: {[index: string]: string};
 };
 
-function ChartModal({measurementType, specificResults}: propTypes) {
+function ChartModal({
+  measurementType,
+  specificResults,
+  reference,
+  userLabelNames,
+}: propTypes) {
   const [modalVisible, setModalVisible] = useState(false);
   const insets = useSafeAreaInsets();
   const extraDimensionsChartContainer = {
-    marginTop: insets.top || 5,
-    marginBottom: insets.bottom || 5,
-    height: windowHeight - insets.top - insets.bottom - 10,
+    marginTop: insets.top,
+    marginBottom: insets.bottom,
+    height: windowHeight - insets.top - insets.bottom,
+  };
+  const sex = specificResults?.birth_data.sex;
+  const customChartStyle = {
+    backgroundColour: 'white',
+    width: containerWidth - 6,
+    height: extraDimensionsChartContainer.height * 0.91,
+    tooltipBackgroundColour: 'black',
+    tooltipTextColour: 'white',
   };
   return (
     <>
@@ -38,26 +54,69 @@ function ChartModal({measurementType, specificResults}: propTypes) {
           cancelInput={() => setModalVisible(!modalVisible)}
           style={[styles.chartContainer, extraDimensionsChartContainer]}
           intendedModalWidth={containerWidth}>
-          <View style={styles.chart}>
-            <AppText style={styles.text}>Chart Goes Here</AppText>
-          </View>
+          {specificResults ? (
+            <View style={styles.chart}>
+              <MainChart
+                title={`${userLabelNames[measurementType]} Chart`}
+                subtitle=""
+                measurementMethod={measurementType}
+                reference={reference}
+                sex={sex}
+                measurementsArray={[specificResults]}
+                chartStyle={customChartStyle}
+                axisStyle={customAxisStyle}
+                gridlineStyle={customGridlineStyle}
+                centileStyle={customCentileStyle}
+                measurementStyle={customMeasurementStyle}
+              />
+            </View>
+          ) : (
+            <View style={styles.naContainer}>
+              <AppText style={styles.naText}>N/A</AppText>
+            </View>
+          )}
         </AppModal>
       </TouchableOpacity>
     </>
   );
 }
 
+const customAxisStyle = {
+  axisStroke: 'black',
+  axisLabelColour: 'black',
+  axisLabelFont: 'Montserrat-Regular',
+  axisLabelSize: 12,
+  tickLabelSize: 12,
+};
+
+const customCentileStyle = {
+  centileStroke: 'black',
+  centileStrokeWidth: 2,
+  delayedPubertyAreaFill: 'purple',
+};
+
+const customMeasurementStyle = {
+  measurementFill: 'black',
+  measurementSize: 4,
+  measurementShape: 'circle',
+};
+
+const customGridlineStyle = {
+  gridlines: false,
+  stroke: 'grey',
+  strokeWidth: 1,
+  dashed: false,
+};
+
 const styles = StyleSheet.create({
   chart: {
-    width: containerWidth - 20,
-    height: '96%',
     backgroundColor: 'white',
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
   chartContainer: {
-    width: containerWidth,
+    width: windowWidth - 6,
     backgroundColor: colors.medium,
   },
   openModalIcon: {
@@ -68,10 +127,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     margin: 7,
   },
-  text: {
-    color: colors.black,
-    fontSize: 20,
+  naText: {
+    color: colors.white,
+    fontSize: 25,
     fontWeight: '500',
+  },
+  naContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '96%',
+    width: containerWidth,
   },
 });
 

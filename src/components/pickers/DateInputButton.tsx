@@ -9,7 +9,7 @@ import useCombined from '../../hooks/useCombined';
 import AcceptCancel from '../AcceptCancel';
 import PickerButton from '../PickerButton';
 import AppModal from '../AppModal';
-import DateTimeBare from '../DateTimeBare';
+import DateTimeBare from './DateTimeBare';
 
 const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
   const makeRefreshNotCancel = dateName === 'dob' ? false : true;

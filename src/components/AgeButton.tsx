@@ -165,7 +165,6 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   modalTextParagraph: {
-    color: colors.black,
     marginBottom: 5,
     textAlign: 'center',
     flexWrap: 'wrap',

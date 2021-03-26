@@ -22,6 +22,7 @@ type propTypes = {
   centileResults: {[key: string]: Measurement | null};
   errors: {[key: string]: string | boolean};
   isLoading: boolean;
+  reference: string;
 };
 
 const CentileOutput = ({
@@ -30,6 +31,7 @@ const CentileOutput = ({
   centileResults,
   errors,
   isLoading,
+  reference,
 }: propTypes) => {
   const specificResults: null | Measurement = centileResults[measurementType];
   const specificError = errors[measurementType];
@@ -103,6 +105,8 @@ const CentileOutput = ({
         <ChartModal
           measurementType={measurementType}
           specificResults={specificResults}
+          reference={reference}
+          userLabelNames={userLabelNames}
         />
         <MoreCentileInfo
           specificResults={specificResults}
@@ -117,7 +121,7 @@ export default CentileOutput;
 
 const styles = StyleSheet.create({
   outputContainer: {
-    backgroundColor: colors.darkest,
+    backgroundColor: colors.dark,
     borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',

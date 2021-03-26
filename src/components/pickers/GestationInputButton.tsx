@@ -7,6 +7,7 @@ import useCombined from '../../hooks/useCombined';
 import PickerButton from '../PickerButton';
 import AppModal from '../AppModal';
 import AppIcon from '../AppIcon';
+import AcceptCancel from '../AcceptCancel';
 
 const weekLabels = [];
 for (let i = 23; i < 43; i++) {
@@ -102,37 +103,25 @@ const GestationInputButton = () => {
           <View style={styles.pickerContainer}>
             <Picker
               style={ios ? styles.iosPicker : styles.androidPicker}
-              itemStyle={styles.iosPickerText}
+              itemStyle={theme.text}
               onValueChange={onValueChangeWeeks}
               selectedValue={weeks}>
               {weekLabelList}
             </Picker>
             <Picker
               style={ios ? styles.iosPicker : styles.androidPicker}
-              itemStyle={styles.iosPickerText}
+              itemStyle={theme.text}
               onValueChange={onValueChangeDays}
               selectedValue={days}>
               {dayLabelList}
             </Picker>
           </View>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={resetInput}>
-              <AppIcon
-                name="close-circle"
-                color={colors.black}
-                size={40}
-                style={styles.closeIcon}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={toggleGestPicker}>
-              <AppIcon
-                name="check-circle"
-                color={colors.black}
-                size={40}
-                style={styles.acceptIcon}
-              />
-            </TouchableOpacity>
-          </View>
+          <AcceptCancel
+            acceptInput={toggleGestPicker}
+            cancelInput={resetInput}
+            width={theme.modal.width / 3}
+            iconSize={40}
+          />
         </AppModal>
       </PickerButton>
     </React.Fragment>
@@ -147,10 +136,6 @@ const styles = StyleSheet.create({
     width: theme.modal.width / 2.2,
     //backgroundColor: 'orange',
     alignSelf: 'center',
-  },
-  iosPickerText: {
-    ...theme.text,
-    color: colors.black,
   },
   androidPicker: {
     height: 100,

@@ -50,7 +50,7 @@ const AppModal = ({
                 ]}>
                 <AppIcon
                   name="close-circle"
-                  color={colors.black}
+                  color={colors.white}
                   size={30}
                   style={styles.closeIconForModal}
                 />
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
   },
   modalView: {
     ...theme.modal,
-    backgroundColor: colors.light,
+    backgroundColor: colors.darkest,
     borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: {

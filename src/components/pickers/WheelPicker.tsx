@@ -8,6 +8,7 @@ import PickerButton from '../PickerButton';
 import AppModal from '../AppModal';
 import AppIcon from '../AppIcon';
 import {globalStateType} from '../../interfaces/GlobalState';
+import AcceptCancel from '../AcceptCancel';
 
 type propTypes = {
   name: keyof globalStateType;
@@ -97,7 +98,7 @@ const WheelPicker = ({name, pickerArray, userLabel, iconName}: propTypes) => {
           <View style={styles.pickerContainer}>
             <Picker
               style={ios ? styles.iosPicker : styles.androidPicker}
-              itemStyle={styles.iosPickerText}
+              itemStyle={theme.text}
               onValueChange={(itemValue: string | number) =>
                 onValueChange(itemValue)
               }
@@ -105,24 +106,12 @@ const WheelPicker = ({name, pickerArray, userLabel, iconName}: propTypes) => {
               {pickerList}
             </Picker>
           </View>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity onPress={resetInput}>
-              <AppIcon
-                name="close-circle"
-                color={colors.black}
-                size={40}
-                style={styles.closeIcon}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={togglePicker}>
-              <AppIcon
-                name="check-circle"
-                color={colors.black}
-                size={40}
-                style={styles.acceptIcon}
-              />
-            </TouchableOpacity>
-          </View>
+          <AcceptCancel
+            acceptInput={togglePicker}
+            cancelInput={resetInput}
+            width={theme.modal.width / 3}
+            iconSize={40}
+          />
         </AppModal>
       </PickerButton>
     </React.Fragment>
@@ -137,10 +126,6 @@ const styles = StyleSheet.create({
     width: theme.modal.width - 10,
     //backgroundColor: 'orange',
     alignSelf: 'center',
-  },
-  iosPickerText: {
-    ...theme.text,
-    color: colors.black,
   },
   androidPicker: {
     height: 100,

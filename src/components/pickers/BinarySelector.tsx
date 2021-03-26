@@ -1,6 +1,6 @@
 import React from 'react';
 
-import UnitsSwitcher from '../UnitsSwitcher';
+import UnitsSwitcher from './UnitsSwitcher';
 import PickerButton from '../PickerButton';
 
 import useCombined from '../../hooks/useCombined';
