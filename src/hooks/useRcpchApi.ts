@@ -181,54 +181,48 @@ const checkRequestWillWork = (
     return 'No data exists for any measurements after 20 years of age.';
   }
   if (measurementType === 'bmi' && ageInDaysCorrected < 14) {
-    return 'BMI data does not exist below 2 weeks of age';
+    // return 'BMI data does not exist below 2 weeks of age';
   }
   if (reference === 'uk-who') {
-    if (
-      ageInDaysCorrected > 0 &&
-      ageInDaysCorrected < 14 &&
-      globalState.gestationInDays.value >= 259
-    ) {
-      return 'Term infants can only be plotted at birth or from 2 weeks of age.';
-    }
-    if (globalState.gestationInDays.value < 161) {
-      return 'UK-WHO data does not exist below 23 weeks gestation.';
-    }
-    switch (measurementType) {
-      case 'height':
-        if (ageInDaysCorrected < -106) {
-          return 'UK-WHO length data does not exist below 25 weeks gestation.';
-        }
-        return '';
-      case 'ofc':
-        if (decimalAgeInYears > 17 && globalState.sex.value === 'Female') {
-          return 'UK-WHO data for head circumference does not exist for over 17 years of age in girls.';
-        } else if (decimalAgeInYears > 18 && globalState.sex.value === 'Male') {
-          return 'UK-WHO data for head circumference does not exist for over 18 years of age in boys.';
-        }
-        return '';
-      default:
-        return '';
-    }
+    // if (globalState.gestationInDays.value < 161) {
+    //   return 'UK-WHO data does not exist below 23 weeks gestation.';
+    // }
+    // switch (measurementType) {
+    //   case 'height':
+    //     if (ageInDaysCorrected < -106) {
+    //       return 'UK-WHO length data does not exist below 25 weeks gestation.';
+    //     }
+    //     return '';
+    //   case 'ofc':
+    //     if (decimalAgeInYears > 17 && globalState.sex.value === 'Female') {
+    //       return 'UK-WHO data for head circumference does not exist for over 17 years of age in girls.';
+    //     } else if (decimalAgeInYears > 18 && globalState.sex.value === 'Male') {
+    //       return 'UK-WHO data for head circumference does not exist for over 18 years of age in boys.';
+    //     }
+    //     return '';
+    //   default:
+    //     return '';
+    // }
+    return '';
   } else if (reference === 'turner') {
     if (measurementType !== 'height') {
       return 'Only height data exists for Turner Syndrome.';
     } else {
-      if (decimalAgeInYears < 1) {
-        return 'There is no reference data available below 1 year of age for Turner Syndrome.';
-      }
+      // if (decimalAgeInYears < 1) {
+      //   return 'There is no reference data available below 1 year of age for Turner Syndrome.';
+      // }
     }
     return '';
   } else if (reference === 'trisomy-21') {
-    if (globalState.gestationInDays.value < 280 && decimalAgeInYears < 0) {
-      return 'There is no reference data below 40 weeks for Down Syndrome infants.';
-    }
-    if (measurementType === 'ofc' && decimalAgeInYears > 18) {
-      return 'No Down Syndrome reference data for head circumference exists above 18 years of age.';
-    }
-    if (measurementType === 'bmi' && decimalAgeInYears > 18.82) {
-      return 'No Down Syndrome reference data for BMI exists above 18.8 years of age.';
-    }
+    // if (globalState.gestationInDays.value < 280 && decimalAgeInYears < 0) {
+    //   return 'There is no reference data below 40 weeks for Down Syndrome infants.';
+    // }
+    // if (measurementType === 'ofc' && decimalAgeInYears > 18) {
+    //   return 'No Down Syndrome reference data for head circumference exists above 18 years of age.';
+    // }
+    // if (measurementType === 'bmi' && decimalAgeInYears > 18.82) {
+    //   return 'No Down Syndrome reference data for BMI exists above 18.8 years of age.';
+    // }
     return '';
   } else {
     throw new Error('No recognised reference for request checker');

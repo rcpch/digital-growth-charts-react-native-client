@@ -1,7 +1,7 @@
 import React from 'react';
 import {createStackNavigator} from '@react-navigation/stack';
 
-import {InputScreen, ResultsScreen} from '../screens';
+import {ChartScreen, InputScreen, ResultsScreen} from '../screens';
 
 const Stack = createStackNavigator();
 
@@ -14,6 +14,7 @@ const AppNavigator = () => {
       }}>
       <Stack.Screen name="Input" component={InputScreen} />
       <Stack.Screen name="Results" component={ResultsScreen} />
+      <Stack.Screen name="Chart" component={ChartScreen} />
     </Stack.Navigator>
   );
 };

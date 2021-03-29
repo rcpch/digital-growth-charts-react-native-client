@@ -14,7 +14,7 @@ function ResultsScreen() {
     centileResults,
     errors,
     globalState,
-  } = useRcpchApi('lan');
+  } = useRcpchApi('local');
 
   const reset = () => {
     setIsLoading(true);

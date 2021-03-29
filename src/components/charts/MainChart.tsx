@@ -1,11 +1,10 @@
-import React, {useState, useMemo, useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {View} from 'react-native';
 import {
   VictoryChart,
   VictoryGroup,
   VictoryLine,
   VictoryScatter,
-  VictoryTooltip,
   VictoryAxis,
   VictoryLegend,
   VictoryLabel,
@@ -15,15 +14,14 @@ import {
 
 import {
   yAxisLabel,
-  makeXTickValues,
   getDomainsAndData,
   makeStylesObjects,
+  getXTickValuesAndLabels,
 } from './functions';
 import RenderTickLabel from './subComponents/RenderTickLabel';
 import XPoint from './subComponents/XPoint';
 
 import {ICentile} from './interfaces/CentilesObject';
-import {PlottableMeasurement} from './interfaces/RCPCHMeasurementObject';
 import {Domains} from './interfaces/Domains';
 import {MainChartProps, Results} from './MainChart.types';
 
@@ -56,33 +54,36 @@ function MainChart({
   const blankInternalState: {
     centileData: null | any[];
     domains: null | Domains;
-    tickValues: null | number[];
   } = {
     centileData: null,
     domains: null,
-    tickValues: null,
   };
 
   const [showChronologicalAge, setShowChronologicalAge] = useState(true);
   const [showCorrectedAge, setShowCorrectedAge] = useState(true);
   const [internalData, setInternalData] = useState(blankInternalState);
 
-  const tickValues = internalData.tickValues;
   const centileData = internalData.centileData;
   const domains = internalData.domains;
 
+  const {xLabels, xArray} = getXTickValuesAndLabels(domains);
+
   useEffect(() => {
-    getDomainsAndData(measurementsArray, sex, measurementMethod, reference)
+    getDomainsAndData(
+      measurementsArray,
+      sex,
+      measurementMethod,
+      reference,
+      domains,
+    )
       .then((results: Results) => {
-        const tickValues = makeXTickValues(results.domains);
         setInternalData({
           centileData: results.centileData,
           domains: results.domains,
-          tickValues: tickValues,
         });
       })
       .catch((error) => console.error(error.message));
-  }, [sex, measurementMethod, reference, measurementsArray]);
+  }, [sex, measurementMethod, reference, measurementsArray, domains]);
 
   if (!domains) {
     return (
@@ -93,7 +94,18 @@ function MainChart({
       <VictoryChart
         width={chartStyle.width}
         height={chartStyle.height}
+        padding={40}
         domain={domains}>
+        {/*containerComponent={
+          <VictoryZoomContainer
+            onZoomDomainChange={(domain) =>
+              setInternalData((prevState: Results) => {
+                return {...prevState, ...{domains: domain}};
+              })
+            }
+            allowPan
+          />
+        }*/}
         <VictoryLegend
           title={[title, subtitle]}
           centerTitle
@@ -122,9 +134,9 @@ function MainChart({
         <VictoryAxis
           label={label}
           style={parsedAxisStyle}
-          tickValues={tickValues}
+          tickValues={xArray}
           tickLabelComponent={
-            <RenderTickLabel style={tickLabelStyle} domains={domains} />
+            <RenderTickLabel style={tickLabelStyle} xLabels={xLabels} />
           }
         />
         {centileData &&
@@ -170,7 +182,7 @@ function MainChart({
           if (
             JSON.stringify(chronologicalAgeData) ===
               JSON.stringify(correctedAgeData) ||
-            correctedAgeData.x < -0.05769231
+            correctedAgeData.x <= 0.038329911019849415
           ) {
             showDifferent = false;
           }

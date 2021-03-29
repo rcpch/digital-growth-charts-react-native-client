@@ -1,12 +1,12 @@
 import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, View, TouchableOpacity} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
 import {containerWidth, colors} from '../config/';
 import AppText from './AppText';
 import MoreCentileInfo from './MoreCentileInfo';
 import LoadingOrText from './LoadingOrText';
-import ChartModal from './ChartModal';
-
+import AppIcon from './AppIcon';
 import {Measurement} from '../interfaces/RCPCHMeasurementObject';
 
 const userLabelNames: {[index: string]: string} = {
@@ -33,12 +33,15 @@ const CentileOutput = ({
   isLoading,
   reference,
 }: propTypes) => {
+  const navigation = useNavigation();
+
   const specificResults: null | Measurement = centileResults[measurementType];
   const specificError = errors[measurementType];
 
   let defaultOutput: string = 'No measurement given.';
   let measurementValue: string | number = 'N/A';
   let correctionApplied = false;
+  let renderChart = false;
 
   if (measurementProvided && isLoading) {
     defaultOutput = '';
@@ -48,11 +51,13 @@ const CentileOutput = ({
     } else if (specificResults) {
       defaultOutput =
         specificResults.measurement_calculated_values.corrected_centile_band;
+      renderChart = true;
       if (!defaultOutput) {
         defaultOutput =
           specificResults.measurement_calculated_values
             .corrected_measurement_error ||
           'Server did not respond with a recognised answer. Has the API changed?';
+        renderChart = false;
       }
       measurementValue =
         specificResults.child_observation_value.observation_value;
@@ -91,8 +96,23 @@ const CentileOutput = ({
     }
   }
 
+  const navigateChart = () => {
+    const objString = JSON.stringify({
+      measurementType: measurementType,
+      specificResults: specificResults && renderChart ? specificResults : null,
+      reference: reference,
+      userLabelNames: userLabelNames,
+    });
+    navigation.navigate('Chart', objString);
+  };
+
   return (
     <View style={styles.outputContainer}>
+      <MoreCentileInfo
+        specificResults={specificResults}
+        correctionApplied={correctionApplied}
+      />
+
       <View style={styles.outputTextBox}>
         <AppText style={styles.text}>{titleText}</AppText>
         <View>
@@ -101,18 +121,13 @@ const CentileOutput = ({
           </LoadingOrText>
         </View>
       </View>
-      <View style={styles.buttonContainer}>
-        <ChartModal
-          measurementType={measurementType}
-          specificResults={specificResults}
-          reference={reference}
-          userLabelNames={userLabelNames}
+      <TouchableOpacity onPress={navigateChart}>
+        <AppIcon
+          name="chart-bell-curve-cumulative"
+          size={30}
+          style={styles.gotToChartIcon}
         />
-        <MoreCentileInfo
-          specificResults={specificResults}
-          correctionApplied={correctionApplied}
-        />
-      </View>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -125,6 +140,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-evenly',
     marginHorizontal: 5,
     marginTop: 5,
     marginBottom: 5,
@@ -132,7 +148,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   outputTextBox: {
-    margin: 20,
+    marginTop: 15,
+    marginBottom: 15,
     textAlign: 'left',
     justifyContent: 'center',
     width: containerWidth - 155,
@@ -150,9 +167,12 @@ const styles = StyleSheet.create({
     color: colors.white,
     flexWrap: 'wrap',
   },
-  buttonContainer: {
+  gotToChartIcon: {
+    borderRadius: 5,
+    backgroundColor: colors.medium,
+    padding: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    flexDirection: 'row',
+    margin: 7,
   },
 });

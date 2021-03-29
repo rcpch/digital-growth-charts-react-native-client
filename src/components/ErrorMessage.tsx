@@ -10,11 +10,7 @@ type PropTypes = {
 
 function ErrorMessage({specificErrorMessage, showErrorMessages}: PropTypes) {
   if (specificErrorMessage && showErrorMessages) {
-    return (
-      <AppText style={styles.container} bold>
-        {specificErrorMessage}
-      </AppText>
-    );
+    return <AppText style={styles.container}>{specificErrorMessage}</AppText>;
   } else {
     return null;
   }
@@ -26,6 +22,7 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontSize: 16,
     width: '98%',
+    fontWeight: '500',
   },
 });
 

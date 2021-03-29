@@ -22,14 +22,13 @@ const Screen = ({
 }: propTypes) => {
   const insets = useSafeAreaInsets();
   const dynamicBannerStyle = {
-    height: insets.top + 50,
+    height: insets.top + 30,
     backgroundColor: backgroundColor || colors.light,
   };
-  const dynamicWholeScreen = {paddingBottom: insets.bottom, flex: 1};
   const navigation = useNavigation();
   const goBack = () => navigation.goBack();
   return (
-    <View style={dynamicWholeScreen}>
+    <View style={styles.wholeScreen}>
       <View style={[styles.banner, dynamicBannerStyle]}>
         {renderBack && (
           <TouchableOpacity style={styles.touchableContainer} onPress={goBack}>
@@ -55,13 +54,13 @@ const styles = StyleSheet.create({
   backButton: {
     alignItems: 'center',
     justifyContent: 'center',
+    paddingBottom: 6,
   },
   banner: {
     marginBottom: 5,
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'flex-start',
-    paddingBottom: 10,
     borderBottomColor: colors.medium,
     borderBottomWidth: 1,
   },
@@ -82,12 +81,17 @@ const styles = StyleSheet.create({
     color: colors.black,
     textAlign: 'center',
     textAlignVertical: 'center',
+    height: 30,
   },
   backText: {
     color: colors.black,
     fontSize: 18,
     textAlign: 'center',
     textAlignVertical: 'center',
+    height: 30,
+  },
+  wholeScreen: {
+    flex: 1,
   },
 });
 
