@@ -9,8 +9,10 @@ import {
 import {PlottableMeasurement} from './interfaces/RCPCHMeasurementObject';
 
 export type Results = {
-  centileData: any[];
-  domains: Domains;
+  centileData: null | any[];
+  domains: null | Domains;
+  chartScaleType: 'prem' | 'infant' | 'smallChild' | 'biggerChild';
+  pointsForCentileLabels: any[];
 };
 
 export type MainChartProps = {

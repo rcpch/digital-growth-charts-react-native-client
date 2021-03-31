@@ -1,29 +1,35 @@
 import React, {useState, useEffect} from 'react';
-import {View} from 'react-native';
+import {View, Text} from 'react-native';
 import {
   VictoryChart,
   VictoryGroup,
   VictoryLine,
   VictoryScatter,
   VictoryAxis,
-  VictoryLegend,
   VictoryLabel,
   VictoryArea,
-  VictoryZoomContainer,
 } from 'victory-native';
 
 import {
+  xAxisLabel,
   yAxisLabel,
   getDomainsAndData,
   makeStylesObjects,
-  getXTickValuesAndLabels,
+  tailoredXTickValues,
 } from './functions';
 import RenderTickLabel from './subComponents/RenderTickLabel';
 import XPoint from './subComponents/XPoint';
 
 import {ICentile} from './interfaces/CentilesObject';
-import {Domains} from './interfaces/Domains';
+
 import {MainChartProps, Results} from './MainChart.types';
+import defaultToggles from './functions/defaultToggles';
+import addOrdinalSuffix from './functions/addOrdinalSuffix';
+import {
+  delayedPubertyThreshold,
+  pubertyThresholds,
+} from './functions/DelayedPuberty';
+import CustomGridComponent from './subComponents/CustomGridComponent';
 
 function MainChart({
   title,
@@ -50,23 +56,41 @@ function MainChart({
     measurementStyle,
     gridlineStyle,
   );
-  const label = 'Age';
-  const blankInternalState: {
-    centileData: null | any[];
-    domains: null | Domains;
-  } = {
+
+  const blankInternalState: Results = {
     centileData: null,
     domains: null,
+    chartScaleType: 'prem',
+    pointsForCentileLabels: [],
   };
 
-  const [showChronologicalAge, setShowChronologicalAge] = useState(true);
-  const [showCorrectedAge, setShowCorrectedAge] = useState(true);
+  const {defaultShowCorrected, defaultShowChronological} = defaultToggles(
+    measurementsArray,
+  );
+
+  const [showChronologicalAge, setShowChronologicalAge] = useState(
+    defaultShowChronological,
+  );
+  const [showCorrectedAge, setShowCorrectedAge] = useState(
+    defaultShowCorrected,
+  );
   const [internalData, setInternalData] = useState(blankInternalState);
 
   const centileData = internalData.centileData;
   const domains = internalData.domains;
+  const chartScaleType = internalData.chartScaleType;
+  const pointsForCentileLabels = internalData.pointsForCentileLabels;
 
-  const {xLabels, xArray} = getXTickValuesAndLabels(domains);
+  const lowerPubertyBorder = (d: any) => {
+    if (
+      (sex === 'male' && d.x >= 9 && d.x <= 14) ||
+      (sex === 'female' && d.x >= 9 && d.x <= 13)
+    ) {
+      return d.y0;
+    } else {
+      return null;
+    }
+  };
 
   useEffect(() => {
     getDomainsAndData(
@@ -74,162 +98,276 @@ function MainChart({
       sex,
       measurementMethod,
       reference,
-      domains,
+      showCorrectedAge,
+      showChronologicalAge,
     )
       .then((results: Results) => {
         setInternalData({
           centileData: results.centileData,
           domains: results.domains,
+          chartScaleType: results.chartScaleType,
+          pointsForCentileLabels: results.pointsForCentileLabels,
         });
       })
       .catch((error) => console.error(error.message));
-  }, [sex, measurementMethod, reference, measurementsArray, domains]);
+  }, [
+    sex,
+    measurementMethod,
+    reference,
+    measurementsArray,
+    showCorrectedAge,
+    showChronologicalAge,
+  ]);
 
   if (!domains) {
     return (
-      <View style={{height: chartStyle.height, width: chartStyle.width}} />
+      <View
+        style={{
+          height: chartStyle.height,
+          width: chartStyle.width,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Text
+          style={{
+            fontFamily: 'Montserrat-Regular',
+            fontWeight: '500',
+            fontSize: 20,
+            color: 'black',
+          }}>
+          Loading...
+        </Text>
+      </View>
     );
   } else {
     return (
-      <VictoryChart
-        width={chartStyle.width}
-        height={chartStyle.height}
-        padding={40}
-        domain={domains}>
-        {/*containerComponent={
-          <VictoryZoomContainer
-            onZoomDomainChange={(domain) =>
-              setInternalData((prevState: Results) => {
-                return {...prevState, ...{domains: domain}};
-              })
-            }
-            allowPan
-          />
-        }*/}
-        <VictoryLegend
-          title={[title, subtitle]}
-          centerTitle
-          titleOrientation="top"
-          orientation="horizontal"
+      <View style={{alignItems: 'center', justifyContent: 'center'}}>
+        <View
           style={{
-            data: {
-              fill: 'transparent',
-            },
-            title: {
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 10,
+            paddingBottom: 0,
+          }}>
+          <Text
+            style={{
               fontFamily: 'Montserrat-Regular',
               fontWeight: '500',
               fontSize: 18,
-            },
-          }}
-          y={20}
-          x={chartStyle.width / 2.8}
+              color: 'black',
+            }}>
+            {title}
+          </Text>
+        </View>
+        <VictoryChart
           width={chartStyle.width}
-          data={[]}
-        />
-        <VictoryAxis
-          label={yAxisLabel(measurementMethod)}
-          style={parsedAxisStyle}
-          dependentAxis
-        />
-        <VictoryAxis
-          label={label}
-          style={parsedAxisStyle}
-          tickValues={xArray}
-          tickLabelComponent={
-            <RenderTickLabel style={tickLabelStyle} xLabels={xLabels} />
-          }
-        />
-        {centileData &&
-          centileData.map((reference, index) => {
-            if (reference.length > 0) {
-              return (
-                <VictoryGroup key={index}>
-                  {reference.map((centile: ICentile, centileIndex: number) => {
-                    if (centileIndex % 2 === 0) {
-                      // even index - centile is dashed
-                      return (
-                        <VictoryLine
-                          key={centile.centile + '-' + centileIndex}
-                          padding={{top: 20, bottom: 60}}
-                          data={centile.data}
-                          style={dashedCentileStyle}
-                        />
-                      );
-                    } else {
-                      // uneven index - centile is continuous
-                      return (
-                        <VictoryLine
-                          key={centile.centile + '-' + centileIndex}
-                          padding={{top: 20, bottom: 60}}
-                          data={centile.data}
-                          style={continuousCentileStyle}
-                        />
-                      );
-                    }
-                  })}
-                </VictoryGroup>
-              );
+          height={chartStyle.height - 50}
+          paddingTop={0}
+          domain={domains}>
+          {chartScaleType !== 'prem' && (
+            <VictoryArea
+              style={{data: {fill: gridlineStyle.stroke}}}
+              data={[
+                {x: -0.057494866529774126, y: domains.y[1], y0: domains.y[0]},
+                {x: 0, y: domains.y[1], y0: domains.y[0]},
+                {x: 0.038329911019849415, y: domains.y[1], y0: domains.y[0]},
+              ]}
+            />
+          )}
+
+          <VictoryAxis
+            label={yAxisLabel(measurementMethod)}
+            style={parsedAxisStyle}
+            dependentAxis
+          />
+
+          <VictoryAxis
+            label={xAxisLabel(chartScaleType, domains)}
+            style={parsedAxisStyle}
+            tickValues={tailoredXTickValues[chartScaleType]}
+            tickLabelComponent={
+              <RenderTickLabel
+                style={tickLabelStyle}
+                chartScaleType={chartScaleType}
+                domains={domains}
+              />
             }
-          })}
-        {measurementsArray.map((childMeasurement: any, index) => {
-          const chronologicalAgeData =
-            childMeasurement.plottable_data.centile_data
-              .chronological_decimal_age_data;
-          const correctedAgeData =
-            childMeasurement.plottable_data.centile_data
-              .corrected_decimal_age_data;
-          let showDifferent = true;
-          if (
-            JSON.stringify(chronologicalAgeData) ===
-              JSON.stringify(correctedAgeData) ||
-            correctedAgeData.x <= 0.038329911019849415
-          ) {
-            showDifferent = false;
+            gridComponent={
+              <CustomGridComponent chartScaleType={chartScaleType} />
+            }
+          />
+          {
+            // centile lines:
+            centileData &&
+              centileData.map((reference, index) => {
+                if (reference.length > 0) {
+                  return (
+                    <VictoryGroup key={index}>
+                      {reference.map(
+                        (centile: ICentile, centileIndex: number) => {
+                          if (centileIndex % 2 === 0) {
+                            // even index - centile is dashed
+                            return (
+                              <VictoryLine
+                                key={centile.centile + '-' + centileIndex}
+                                padding={{top: 20, bottom: 60}}
+                                data={centile.data}
+                                style={dashedCentileStyle}
+                              />
+                            );
+                          } else {
+                            // uneven index - centile is continuous
+                            return (
+                              <VictoryLine
+                                key={centile.centile + '-' + centileIndex}
+                                padding={{top: 20, bottom: 60}}
+                                data={centile.data}
+                                style={continuousCentileStyle}
+                              />
+                            );
+                          }
+                        },
+                      )}
+                    </VictoryGroup>
+                  );
+                }
+              })
           }
-          return (
-            <VictoryGroup key={'measurement' + index}>
-              {showCorrectedAge && (
-                <VictoryScatter // corrected age - a custom component that renders a cross
-                  data={[correctedAgeData]}
-                  dataComponent={<XPoint />}
-                  size={measurementStyle.measurementSize}
-                  style={{
-                    data: {
-                      fill: measurementStyle.measurementFill,
-                    },
-                  }}
-                />
-              )}
-              {showDifferent && showChronologicalAge && (
-                <VictoryScatter // chronological age
-                  data={[chronologicalAgeData]}
-                  symbol={measurementStyle.measurementShape}
-                  size={measurementStyle.measurementSize}
-                  style={{
-                    data: {
-                      fill: measurementStyle.measurementFill,
-                    },
-                  }}
-                />
-              )}
-              {showDifferent &&
-                showChronologicalAge &&
-                showCorrectedAge && ( // only show the line if both cross and dot are rendered
-                  <VictoryLine
-                    name="linkLine"
+
+          {
+            // delayed puberty area:
+            reference === 'uk-who' && measurementMethod === 'height' && (
+              <VictoryArea
+                data={delayedPubertyThreshold(sex)}
+                y0={lowerPubertyBorder}
+                style={{
+                  data: {
+                    stroke: centileStyle.delayedPubertyAreaFill,
+                    fill: centileStyle.delayedPubertyAreaFill,
+                    strokeWidth: centileStyle.centileStrokeWidth,
+                  },
+                }}
+                name="delayed"
+              />
+            )
+          }
+
+          {
+            // puberty threshold lines uk90:
+            reference === 'uk-who' &&
+              measurementMethod === 'height' &&
+              pubertyThresholds[sex].map((data, index) => {
+                if (data.x > domains.x[0] && data.x < domains.x[1]) {
+                  return (
+                    <VictoryAxis
+                      dependentAxis
+                      key={index}
+                      label={data.label}
+                      axisLabelComponent={
+                        <VictoryLabel
+                          dy={40}
+                          dx={-120}
+                          style={{
+                            fontSize: 11,
+                            color: 'black',
+                            fontFamily: 'Montserrat-Regular',
+                            textAlign: 'start',
+                          }}
+                        />
+                      }
+                      style={{
+                        axis: {
+                          stroke: axisStyle.axisStroke,
+                          strokeWidth: 1.0,
+                        },
+                        tickLabels: {
+                          fill: 'none',
+                        },
+                        axisLabel: {},
+                      }}
+                      axisValue={data.x}
+                    />
+                  );
+                } else {
+                  return null;
+                }
+              })
+          }
+          {
+            //labels for centile lines:
+          }
+          <VictoryScatter
+            data={pointsForCentileLabels}
+            labels={({datum}) => addOrdinalSuffix(datum.centile)}
+            labelComponent={
+              <VictoryLabel
+                dy={2}
+                dx={chartScaleType === 'prem' ? -15 : 14}
+                style={{
+                  fontSize: 10,
+                  fontFamily: 'Montserrat-Regular',
+                  fontWeight: '500',
+                }}
+              />
+            }
+            style={{
+              data: {fill: 'transparent'},
+            }}
+          />
+          {
+            // child  measurements:
+          }
+          {measurementsArray.map((childMeasurement: any, index) => {
+            const chronologicalAgeData =
+              childMeasurement.plottable_data.centile_data
+                .chronological_decimal_age_data;
+            const correctedAgeData =
+              childMeasurement.plottable_data.centile_data
+                .corrected_decimal_age_data;
+            return (
+              <VictoryGroup key={'measurement' + index}>
+                {showCorrectedAge && (
+                  <VictoryScatter // corrected age - a custom component that renders a cross
+                    data={[correctedAgeData]}
+                    dataComponent={<XPoint />}
+                    size={measurementStyle.measurementSize}
                     style={{
                       data: {
-                        stroke: measurementStyle.measurementFill,
-                        strokeWidth: 1.25,
+                        fill: measurementStyle.measurementFill,
                       },
                     }}
-                    data={[correctedAgeData, chronologicalAgeData]}
                   />
                 )}
-            </VictoryGroup>
-          );
-        })}
-      </VictoryChart>
+                {showChronologicalAge && (
+                  <VictoryScatter // chronological age
+                    data={[chronologicalAgeData]}
+                    symbol={measurementStyle.measurementShape}
+                    size={measurementStyle.measurementSize}
+                    style={{
+                      data: {
+                        fill: measurementStyle.measurementFill,
+                      },
+                    }}
+                  />
+                )}
+                {showChronologicalAge &&
+                  showCorrectedAge && ( // only show the line if both cross and dot are rendered
+                    <VictoryLine
+                      name="linkLine"
+                      style={{
+                        data: {
+                          stroke: measurementStyle.measurementFill,
+                          strokeWidth: 1.25,
+                        },
+                      }}
+                      data={[correctedAgeData, chronologicalAgeData]}
+                    />
+                  )}
+              </VictoryGroup>
+            );
+          })}
+        </VictoryChart>
+      </View>
     );
   }
 }

@@ -68,18 +68,18 @@ const customAxisStyle = {
 const customCentileStyle = {
   centileStroke: 'black',
   centileStrokeWidth: 2,
-  delayedPubertyAreaFill: 'purple',
+  delayedPubertyAreaFill: colors.medium,
 };
 
 const customMeasurementStyle = {
   measurementFill: 'black',
-  measurementSize: 4,
+  measurementSize: 6,
   measurementShape: 'circle',
 };
 
 const customGridlineStyle = {
-  gridlines: false,
-  stroke: 'grey',
+  gridlines: true,
+  stroke: '#D9D9D9',
   strokeWidth: 1,
   dashed: false,
 };
