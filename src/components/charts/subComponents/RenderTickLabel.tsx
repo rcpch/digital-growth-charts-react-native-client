@@ -6,24 +6,36 @@ function RenderTickLabel(props) {
   const y = props.y;
   const text = props.text;
   const style = props.style;
-  const xLabels = props.xLabels;
+  const chartScaleType = props.chartScaleType;
+  const lowerX = props.domains.x[0];
 
-  const LolliPop = ({textLabel}: {textLabel: number}) => {
+  const Dash = () => {
     return (
       <Svg>
-        <Text
-          x={x}
-          y={y - 19}
-          textAnchor="middle"
-          fill="black"
-          fontSize={10}
-          fontFamily={style.axisLabelFont}>
-          {textLabel}
-        </Text>
-        <Circle cx={x} cy={y - 22} r={8} stroke="black" fill="transparent" />
-        <Line x1={x} x2={x} y1={y - 5} y2={y - 14} stroke="black" />
+        <Line x1={x} x2={x} y1={y - 5} y2={y - 3} stroke="black" />
       </Svg>
     );
+  };
+  const LolliPop = ({textLabel}: {textLabel: number}) => {
+    if (text !== lowerX) {
+      return (
+        <Svg>
+          <Text
+            x={x}
+            y={y - 19}
+            textAnchor="middle"
+            fill="black"
+            fontSize={10}
+            fontFamily={style.axisLabelFont}>
+            {textLabel}
+          </Text>
+          <Circle cx={x} cy={y - 22} r={8} stroke="black" fill="transparent" />
+          <Line x1={x} x2={x} y1={y - 5} y2={y - 14} stroke="black" />
+        </Svg>
+      );
+    } else {
+      return null;
+    }
   };
   const PlainAxisLabel = ({textLabel}: {textLabel: number}) => {
     return (
@@ -41,48 +53,77 @@ function RenderTickLabel(props) {
       </Svg>
     );
   };
-  const Dash = () => {
-    return (
-      <Svg>
-        <Line x1={x} x2={x} y1={y - 5} y2={y - 3} stroke="black" />
-      </Svg>
-    );
-  };
-
-  const key = text.toString();
-  const {lower, upper} = xLabels[key];
 
   const gestWeeks = 40 + Math.round(text * 52.18);
   const weeks = Math.round(text * 52.18);
   const months = Math.round(text * 12);
 
-  switch (true) {
-    case lower === 'gestWeeks' && upper === null:
-      return <PlainAxisLabel textLabel={gestWeeks} />;
-    case lower === 'weeks' && upper === null:
-      return <PlainAxisLabel textLabel={weeks} />;
-    case lower === null && upper === 'months':
-      return <LolliPop textLabel={months} />;
-    case lower === 'years' && upper === 'months':
-      return (
-        <>
-          <LolliPop textLabel={months} />
-          <PlainAxisLabel textLabel={text} />
-        </>
-      );
-    case lower === 'weeks' && upper === 'months':
-      return (
-        <>
-          <LolliPop textLabel={months} />
-          <PlainAxisLabel textLabel={52} />
-        </>
-      );
-    case lower === 'years' && upper === null:
-      return <PlainAxisLabel textLabel={text} />;
-    case lower === 'dash' && upper === null:
-      return <Dash />;
+  const isAllGestWeeks = (arrayNumber: number) => arrayNumber < 0.0384;
+  const isEvenGestWeeks = (arrayNumber: number) => {
+    const rounded = Number((text * 52.18).toFixed(2));
+    return arrayNumber < 0 && Number.isInteger(rounded) && rounded % 2 === 0;
+  };
+  const isEvenWeeks = (arrayNumber: number) =>
+    Number.isInteger(Number((arrayNumber * 52.18).toFixed(2)));
+  const isMonths = (arrayNumber: number) =>
+    Number.isInteger(Number((arrayNumber * 12).toFixed(2)));
+  const isYears = (arrayNumber: number) => Number.isInteger(arrayNumber);
+
+  switch (chartScaleType) {
+    case 'prem':
+      if (isAllGestWeeks(text)) {
+        return <PlainAxisLabel textLabel={gestWeeks} />;
+      } else if (isEvenWeeks(text)) {
+        return <PlainAxisLabel textLabel={weeks} />;
+      } else if (isMonths(text)) {
+        return <LolliPop textLabel={months} />;
+      } else {
+        return null;
+      }
+    case 'infant':
+      if (isMonths(text) && text !== 0 && text !== 1) {
+        return <LolliPop textLabel={months} />;
+      } else if (isEvenGestWeeks(text)) {
+        return <PlainAxisLabel textLabel={gestWeeks} />;
+      } else if (text === 1) {
+        return (
+          <>
+            <LolliPop textLabel={months} />
+            <PlainAxisLabel textLabel={52} />
+          </>
+        );
+      } else if (isEvenWeeks(text)) {
+        return <PlainAxisLabel textLabel={weeks} />;
+      } else {
+        return null;
+      }
+    case 'smallChild':
+      if (text <= 4 && isMonths(text) && isYears(text)) {
+        return (
+          <>
+            <LolliPop textLabel={months} />
+            <PlainAxisLabel textLabel={text} />
+          </>
+        );
+      } else if (text <= 4 && isMonths(text)) {
+        return <LolliPop textLabel={months} />;
+      } else if (isYears(text)) {
+        return <PlainAxisLabel textLabel={text} />;
+      } else if (Number.isInteger(text * 2)) {
+        return <Dash />;
+      } else {
+        return null;
+      }
+    case 'biggerChild':
+      if (isYears(text)) {
+        return <PlainAxisLabel textLabel={text} />;
+      } else if (Number.isInteger(text * 2)) {
+        return <Dash />;
+      } else {
+        return null;
+      }
     default:
-      console.error(`RenderXTickLabel did not pick a value to render: ${text}`);
+      console.error('No valid chartScaleType picked up by RenderTickLabel ');
       return null;
   }
 }
