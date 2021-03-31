@@ -260,9 +260,8 @@ const useRcpchApi = (url = 'local') => {
   ): Promise<void> => {
     const workingErrorsObject = makeErrorState();
     for (const measurementName of Object.keys(centileResults)) {
-      const errorMessage = checkRequestWillWork(measurementName, globalState);
-      if (errorMessage) {
-        workingErrorsObject[measurementName] = errorMessage;
+      if (!globalState[measurementName]?.value) {
+        workingErrorsObject[measurementName] = 'No measurement given.';
       }
     }
     try {
