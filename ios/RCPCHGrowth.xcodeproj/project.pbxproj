@@ -234,9 +234,9 @@
 			productReference = 00E356EE1AD99517003FC87E /* RCPCHGrowthTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		13B07F861A680F5B00A75B9A /* RCPCHGrowth */ = {
+		13B07F861A680F5B00A75B9A /* Growth */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "RCPCHGrowth" */;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Growth" */;
 			buildPhases = (
 				0E5F06E9FE135B5161111311 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
@@ -250,7 +250,7 @@
 			);
 			dependencies = (
 			);
-			name = RCPCHGrowth;
+			name = Growth;
 			productName = RCPCHGrowth;
 			productReference = 13B07F961A680F5B00A75B9A /* RCPCHGrowth.app */;
 			productType = "com.apple.product-type.application";
@@ -334,7 +334,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13B07F861A680F5B00A75B9A /* RCPCHGrowth */,
+				13B07F861A680F5B00A75B9A /* Growth */,
 				00E356ED1AD99517003FC87E /* RCPCHGrowthTests */,
 				2D02E47A1E0B4A5D006451C7 /* RCPCHGrowth-tvOS */,
 				2D02E48F1E0B4A5D006451C7 /* RCPCHGrowth-tvOSTests */,
@@ -725,7 +725,7 @@
 /* Begin PBXTargetDependency section */
 		00E356F51AD99517003FC87E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 13B07F861A680F5B00A75B9A /* RCPCHGrowth */;
+			target = 13B07F861A680F5B00A75B9A /* Growth */;
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
 		};
 		2D02E4921E0B4A5D006451C7 /* PBXTargetDependency */ = {
@@ -795,7 +795,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.demo.RCPCHGrowth;
 				PRODUCT_NAME = RCPCHGrowth;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -818,7 +818,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.demo.RCPCHGrowth;
 				PRODUCT_NAME = RCPCHGrowth;
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1060,7 +1060,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "RCPCHGrowth" */ = {
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "Growth" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
