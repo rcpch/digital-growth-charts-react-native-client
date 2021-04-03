@@ -39,8 +39,7 @@ const CentileOutput = ({
   const specificError = errors[measurementType];
 
   let defaultOutput: string = 'No measurement given.';
-  let measurementValue: string | number = 'N/A';
-  let correctionApplied = false;
+  let measurementValue: string | number = '';
   let renderChart = false;
 
   if (measurementProvided && isLoading) {
@@ -61,19 +60,10 @@ const CentileOutput = ({
       }
       measurementValue =
         specificResults.child_observation_value.observation_value;
-      if (
-        specificResults.measurement_calculated_values.corrected_sds !==
-          specificResults.measurement_calculated_values.chronological_sds &&
-        (specificResults.measurement_dates.corrected_decimal_age > 0.0384 ||
-          specificResults.measurement_dates.chronological_decimal_age !== 0) &&
-        specificResults.birth_data.gestation_weeks < 37
-      ) {
-        correctionApplied = true;
-      }
     }
   }
 
-  let titleText = `${userLabelNames[measurementType]}: N/A`;
+  let titleText = `${userLabelNames[measurementType]}`;
 
   if (measurementProvided && specificResults) {
     switch (measurementType) {
@@ -89,7 +79,6 @@ const CentileOutput = ({
         } else {
           titleText = 'BMI: N/A';
         }
-
         break;
       default:
         titleText = `${userLabelNames[measurementType]}: ${measurementValue}cm`;
@@ -97,22 +86,18 @@ const CentileOutput = ({
   }
 
   const navigateChart = () => {
-    const objString = JSON.stringify({
+    const navObj = {
       measurementType: measurementType,
       specificResults: specificResults && renderChart ? specificResults : null,
       reference: reference,
       userLabelNames: userLabelNames,
-    });
-    navigation.navigate('Chart', objString);
+    };
+    navigation.navigate('Chart', navObj);
   };
 
   return (
     <View style={styles.outputContainer}>
-      <MoreCentileInfo
-        specificResults={specificResults}
-        correctionApplied={correctionApplied}
-      />
-
+      <MoreCentileInfo specificResults={specificResults} />
       <View style={styles.outputTextBox}>
         <AppText style={styles.text}>{titleText}</AppText>
         <View>

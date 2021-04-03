@@ -44,11 +44,23 @@ function MainChart({
   centileStyle,
   measurementStyle,
 }: MainChartProps) {
+  // parse chart styles:
   const {
+    loadingChartContainerStyle,
+    loadingTextStyle,
+    chartContainerStyle,
+    chartPaddingStyle,
+    chartBackgroundStyle,
+    titleTextStyle,
+    titleContainerStyle,
+    subtitleTextStyle,
     parsedAxisStyle,
     tickLabelStyle,
     dashedCentileStyle,
     continuousCentileStyle,
+    measurementPointStyle,
+    measurementLineStyle,
+    termFillStyle,
   } = makeStylesObjects(
     axisStyle,
     centileStyle,
@@ -121,66 +133,40 @@ function MainChart({
 
   if (!domains) {
     return (
-      <View
-        style={{
-          height: chartStyle.height,
-          width: chartStyle.width,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <Text
-          style={{
-            fontFamily: 'Montserrat-Regular',
-            fontWeight: '500',
-            fontSize: 20,
-            color: 'black',
-          }}>
-          Loading...
-        </Text>
+      <View style={loadingChartContainerStyle}>
+        <Text style={loadingTextStyle}>Loading...</Text>
       </View>
     );
   } else {
     return (
-      <View style={{alignItems: 'center', justifyContent: 'center'}}>
-        <View
-          style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: 10,
-            paddingBottom: 0,
-          }}>
-          <Text
-            style={{
-              fontFamily: 'Montserrat-Regular',
-              fontWeight: '500',
-              fontSize: 18,
-              color: 'black',
-            }}>
-            {title}
-          </Text>
+      <View style={chartContainerStyle}>
+        <View style={titleContainerStyle}>
+          <Text style={titleTextStyle}>{title}</Text>
         </View>
         <VictoryChart
           width={chartStyle.width}
           height={chartStyle.height - 50}
-          paddingTop={0}
+          padding={chartPaddingStyle}
+          style={chartBackgroundStyle}
           domain={domains}>
-          {chartScaleType !== 'prem' && (
-            <VictoryArea
-              style={{data: {fill: gridlineStyle.stroke}}}
-              data={[
-                {x: -0.057494866529774126, y: domains.y[1], y0: domains.y[0]},
-                {x: 0, y: domains.y[1], y0: domains.y[0]},
-                {x: 0.038329911019849415, y: domains.y[1], y0: domains.y[0]},
-              ]}
-            />
-          )}
+          {/* Term child shaded area: */}
 
+          <VictoryArea
+            style={termFillStyle}
+            data={[
+              {x: -0.057494866529774126, y: domains.y[1], y0: domains.y[0]},
+              {x: 0, y: domains.y[1], y0: domains.y[0]},
+              {x: 0.038329911019849415, y: domains.y[1], y0: domains.y[0]},
+            ]}
+          />
+
+          {/* Y axis: */}
           <VictoryAxis
             label={yAxisLabel(measurementMethod)}
             style={parsedAxisStyle}
             dependentAxis
           />
-
+          {/* X axis: */}
           <VictoryAxis
             label={xAxisLabel(chartScaleType, domains)}
             style={parsedAxisStyle}
@@ -272,6 +258,7 @@ function MainChart({
                             color: 'black',
                             fontFamily: 'Montserrat-Regular',
                             textAlign: 'start',
+                            fontWeight: '500',
                           }}
                         />
                       }
@@ -341,7 +328,7 @@ function MainChart({
                 {showChronologicalAge && (
                   <VictoryScatter // chronological age
                     data={[chronologicalAgeData]}
-                    symbol={measurementStyle.measurementShape}
+                    symbol="circle"
                     size={measurementStyle.measurementSize}
                     style={{
                       data: {
@@ -444,38 +431,3 @@ export default MainChart;
 //     },
 //   },
 // ];
-
-// const customAxisStyle = {
-//   axisStroke: 'black',
-//   axisLabelColour: 'black',
-//   axisLabelFont: 'Montserrat-Regular',
-//   axisLabelSize: 12,
-//   tickLabelSize: 12,
-// };
-
-// const customCentileStyle = {
-//   centileStroke: 'black',
-//   centileStrokeWidth: 2,
-//   delayedPubertyAreaFill: 'purple',
-// };
-
-// const customMeasurementStyle = {
-//   measurementFill: 'black',
-//   measurementSize: 4,
-//   measurementShape: 'circle',
-// };
-
-// const customChartStyle = {
-//   backgroundColour: 'white',
-//   width: 0,
-//   height: 0,
-//   tooltipBackgroundColour: 'black',
-//   tooltipTextColour: 'white',
-// };
-
-// const customGridlineStyle = {
-//   gridlines: false,
-//   stroke: 'grey',
-//   strokeWidth: 1,
-//   dashed: false,
-// };

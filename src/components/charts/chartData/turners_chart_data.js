@@ -1,3 +1,6 @@
+
+/* eslint-disable */
+
 export const turnerData = {
   turner: {
     female: {

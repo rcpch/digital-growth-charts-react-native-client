@@ -49,7 +49,9 @@ function ResultsScreen() {
   useEffect(() => {
     let recordAnswer = true;
     if (isLoading) {
-      getMultipleCentileResults(recordAnswer).then(() => setIsLoading(false));
+      getMultipleCentileResults(recordAnswer).then(() => {
+        setIsLoading(false);
+      });
     }
     return () => {
       recordAnswer = false;

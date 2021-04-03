@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, TouchableOpacity, View} from 'react-native';
+import {Platform, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 
@@ -54,15 +54,13 @@ const styles = StyleSheet.create({
   backButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: 6,
+    paddingBottom: Platform.OS === 'ios' ? 6 : 0,
   },
   banner: {
     marginBottom: 5,
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'flex-start',
-    borderBottomColor: colors.medium,
-    borderBottomWidth: 1,
   },
   view: {
     flex: 1,
@@ -71,6 +69,7 @@ const styles = StyleSheet.create({
   touchableContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     paddingLeft: 5,
   },
   titleContainer: {

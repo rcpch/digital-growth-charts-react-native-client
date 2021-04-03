@@ -1,3 +1,7 @@
+import {Platform} from 'react-native';
+
+const defaultSystemFont = Platform.OS === 'ios' ? 'System' : 'Roboto';
+
 import {
   AxisStyle,
   CentileStyle,
@@ -9,38 +13,94 @@ import {
 function makeStylesObjects(
   axisStyle: AxisStyle,
   centileStyle: CentileStyle,
-  chartStyle?: ChartStyle,
-  measurementStyle?: MeasurementStyle,
-  gridlineStyle?: GridlineStyle,
+  chartStyle: ChartStyle,
+  measurementStyle: MeasurementStyle,
+  gridlineStyle: GridlineStyle,
 ) {
+  const loadingChartContainerStyle = {
+    height: chartStyle.height,
+    width: chartStyle.width,
+    alignItems: 'center',
+    justifyContent: 'center',
+  };
+  const loadingTextStyle = {
+    fontFamily: chartStyle.titleStyle?.name || defaultSystemFont,
+    fontWeight: chartStyle.titleStyle?.weight || '500',
+    fontSize: chartStyle.titleStyle?.size || 20,
+    color: chartStyle.titleStyle?.colour || 'black',
+  };
+  const chartContainerStyle = {
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    backgroundColor: chartStyle.backgroundColour,
+  };
+  const chartPaddingStyle = chartStyle.padding
+    ? {
+        left: chartStyle.padding.left,
+        right: chartStyle.padding.right,
+        top: 5,
+        bottom: chartStyle.padding.bottom,
+      }
+    : null;
+
+  const chartBackgroundStyle = {
+    background: {
+      fill: chartStyle.backgroundColour || null,
+    },
+  };
+
+  const titleTextStyle = {
+    fontFamily: chartStyle.titleStyle?.name || defaultSystemFont,
+    fontWeight: chartStyle.titleStyle?.weight || '500',
+    fontSize: chartStyle.titleStyle?.size || 20,
+    color: chartStyle.titleStyle?.colour || 'black',
+    textAlign: 'center',
+    textAlignVertical: 'center',
+  };
+
+  const titleContainerStyle = {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: chartStyle.padding?.top ? chartStyle.padding?.top : 0,
+    paddingBottom: 20,
+  };
+
+  const subtitleTextStyle = {
+    fontFamily: chartStyle.titleStyle?.name || defaultSystemFont,
+    fontWeight: chartStyle.titleStyle?.weight || '300',
+    fontSize: chartStyle.titleStyle?.size || 18,
+    color: chartStyle.titleStyle?.colour || 'black',
+  };
+
   const parsedAxisStyle = {
     axis: {
       stroke: axisStyle.axisStroke,
     },
     axisLabel: {
-      fontSize: axisStyle.axisLabelSize,
-      paddingBottom: 20,
-      color: axisStyle.axisStroke,
-      fontFamily: axisStyle.axisLabelFont,
+      fontSize: axisStyle.axisLabelTextStyle?.size || 12,
+      padding: 20,
+      color: axisStyle.axisLabelTextStyle?.colour || 'black',
+      fontFamily: axisStyle.axisLabelTextStyle?.name || defaultSystemFont,
     },
     ticks: {
       stroke: axisStyle.axisStroke,
     },
     tickLabels: {
-      fontSize: axisStyle.tickLabelSize,
+      fontSize: axisStyle.tickLabelTextStyle?.size || 10,
       padding: 5,
-      color: axisStyle.axisLabelColour,
-      fontFamily: axisStyle.axisLabelFont,
+      color: axisStyle.axisLabelTextStyle?.colour || 'black',
+      fontFamily: axisStyle.axisLabelTextStyle?.name || defaultSystemFont,
     },
     grid: {
-      stroke: gridlineStyle?.gridlines ? gridlineStyle.stroke : null,
-      strokeWidth: gridlineStyle?.strokeWidth,
+      stroke: gridlineStyle?.gridlines ? gridlineStyle?.stroke : null,
+      strokeWidth: gridlineStyle.strokeWidth,
+      strokeDasharray: gridlineStyle.dashed ? '5 5' : null,
     },
   };
   const tickLabelStyle = {
-    fill: axisStyle.axisLabelColour,
-    fontSize: axisStyle.tickLabelSize,
-    fontFamily: axisStyle.axisLabelFont,
+    fill: axisStyle.tickLabelTextStyle?.colour,
+    fontSize: axisStyle.tickLabelTextStyle?.size,
+    fontFamily: axisStyle.tickLabelTextStyle?.name,
   };
   const dashedCentileStyle = {
     data: {
@@ -57,14 +117,36 @@ function makeStylesObjects(
       strokeLinecap: 'round',
     },
   };
-  const parsedMeasurementStyle =  {
+  const measurementPointStyle = {
+    data: {
+      fill: measurementStyle.measurementFill,
+      strokeWidth: measurementStyle.measurementSize,
+    },
+  };
+  const measurementLineStyle = {
+    data: {
+      stroke: measurementStyle.measurementFill,
+      strokeWidth: 1.25,
+    },
+  };
+  const termFillStyle = {data: {fill: chartStyle.termFill}};
 
-  }
   return {
+    loadingChartContainerStyle,
+    loadingTextStyle,
+    chartContainerStyle,
+    chartPaddingStyle,
+    chartBackgroundStyle,
+    titleTextStyle,
+    titleContainerStyle,
+    subtitleTextStyle,
     parsedAxisStyle,
     tickLabelStyle,
     dashedCentileStyle,
     continuousCentileStyle,
+    measurementPointStyle,
+    measurementLineStyle,
+    termFillStyle,
   };
 }
 

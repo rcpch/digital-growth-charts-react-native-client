@@ -2,7 +2,6 @@ import React from 'react';
 import {View, TouchableOpacity, StyleSheet} from 'react-native';
 
 import AppIcon from './AppIcon';
-import {colors} from '../config';
 
 type propTypes = {
   cancelInput: Function;

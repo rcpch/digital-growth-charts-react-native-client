@@ -15,39 +15,57 @@ function ChartScreen({route}: propTypes) {
     specificResults,
     reference,
     userLabelNames,
-  } = JSON.parse(route.params);
+  } = route.params;
+
   const insets = useSafeAreaInsets();
+
   const extraDimensionsChartContainer = {
     marginTop: insets.top,
     marginBottom: insets.bottom,
     height: windowHeight - insets.top - 30,
   };
+
   const sex = specificResults?.birth_data.sex;
+
   const customChartStyle = {
-    backgroundColour: 'white',
+    backgroundColour: null,
     width: containerWidth,
-    height: extraDimensionsChartContainer.height - 30,
-    tooltipBackgroundColour: 'black',
-    tooltipTextColour: 'white',
+    height: extraDimensionsChartContainer.height - 90,
+    padding: {left: 40, right: 40, top: 20, bottom: 50},
+    termFill: '#D9D9D9',
+    termStroke: 'black',
+    infoBoxFill: colors.darkest,
+    infoBoxStroke: 'black',
+    infoBoxTextStyle: {
+      name: 'Montserrat-Regular',
+      colour: 'white',
+      size: '14',
+      weight: 'bold',
+    },
+    toggleButtonInactiveColour: colors.medium,
+    toggleButtonActiveColour: colors.darkest,
+    toggleButtonTextColour: 'white',
+    titleStyle: {
+      name: 'Montserrat-Regular',
+    },
   };
+
   return (
     <Screen renderBack>
       {specificResults ? (
-        <View style={styles.chart}>
-          <MainChart
-            title={`${userLabelNames[measurementType]} Chart`}
-            subtitle=""
-            measurementMethod={measurementType}
-            reference={reference}
-            sex={sex}
-            measurementsArray={[specificResults]}
-            chartStyle={customChartStyle}
-            axisStyle={customAxisStyle}
-            gridlineStyle={customGridlineStyle}
-            centileStyle={customCentileStyle}
-            measurementStyle={customMeasurementStyle}
-          />
-        </View>
+        <MainChart
+          title={`${userLabelNames[measurementType]} Chart`}
+          subtitle=""
+          measurementMethod={measurementType}
+          reference={reference}
+          sex={sex}
+          measurementsArray={[specificResults]}
+          chartStyle={customChartStyle}
+          axisStyle={customAxisStyle}
+          gridlineStyle={customGridlineStyle}
+          centileStyle={customCentileStyle}
+          measurementStyle={customMeasurementStyle}
+        />
       ) : (
         <View style={styles.naContainer}>
           <AppText style={styles.naText}>N/A</AppText>
@@ -59,10 +77,18 @@ function ChartScreen({route}: propTypes) {
 
 const customAxisStyle = {
   axisStroke: 'black',
-  axisLabelColour: 'black',
-  axisLabelFont: 'Montserrat-Regular',
-  axisLabelSize: 12,
-  tickLabelSize: 12,
+  axisLabelTextStyle: {
+    name: 'Montserrat-Regular',
+    colour: 'black',
+    size: 12,
+    weight: 'regular',
+  },
+  tickLabelTextStyle: {
+    name: 'Montserrat-Regular',
+    colour: 'black',
+    size: 12,
+    weight: 'regular',
+  },
 };
 
 const customCentileStyle = {

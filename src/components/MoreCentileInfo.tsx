@@ -6,13 +6,13 @@ import {colors} from '../config';
 import AppIcon from './AppIcon';
 import AppModal from './AppModal';
 import {addOrdinalSuffix} from '../brains';
+import {Measurement} from '../interfaces/RCPCHMeasurementObject';
 
 type propTypes = {
-  specificResults: any;
-  correctionApplied: boolean;
+  specificResults: Measurement | null;
 };
 
-const parseExactCentile = (exact: number) => {
+const parseExactCentile = (exact: number | string) => {
   if (typeof exact === 'number') {
     if (exact > 99.9) {
       return '>99.9th';
@@ -26,8 +26,10 @@ const parseExactCentile = (exact: number) => {
   }
 };
 
-const MoreCentileInfo = ({specificResults, correctionApplied}: propTypes) => {
+const MoreCentileInfo = ({specificResults}: propTypes) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const gestWeeks = specificResults?.birth_data.gestation_weeks || 40;
+  const correctionApplied = gestWeeks >= 40 ? false : true;
   const centileCorrected =
     typeof specificResults?.measurement_calculated_values.corrected_centile ===
     'number'
@@ -50,7 +52,7 @@ const MoreCentileInfo = ({specificResults, correctionApplied}: propTypes) => {
       : '';
 
   const noCorrectionMessage = !correctionApplied
-    ? 'Child born at term, no gestational correction applied.\n\n'
+    ? 'Child born at or after 40 weeks gestation, no gestational correction applied.\n\n'
     : '';
 
   const centileCorrectedAnswer = `Centile: ${parseExactCentile(

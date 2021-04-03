@@ -24,10 +24,9 @@ function defaultToggles(
       return {defaultShowCorrected: true, defaultShowChronological: false};
     }
   }
-  // if bang on 40 weeks, only show chronological:
+  // if >= 40 weeks, only show chronological:
   const gestWeeks = childMeasurements[0].birth_data.gestation_weeks;
-  const gestDays = childMeasurements[0].birth_data.gestation_days;
-  if (gestWeeks === 40 && gestDays === 0) {
+  if (gestWeeks >= 40) {
     return {defaultShowCorrected: false, defaultShowChronological: true};
   }
   // get minimum corrected age from  data:
