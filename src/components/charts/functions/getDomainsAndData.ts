@@ -13,84 +13,6 @@ import {
   UKWHOArray,
 } from '../interfaces/CentilesObject';
 
-function filterData(data: any, lowerX: number, upperX: number) {
-  const filtered = data.filter((d: IPlottedCentileMeasurement) => {
-    //as centile data is to 4 decimal places, this prevents premature chopping off at either end:
-    const upperXTo4 = Number(upperX.toFixed(4));
-    const lowerXTo4 = Number(lowerX.toFixed(4));
-    if (d.x <= upperXTo4 && d.x >= lowerXTo4) {
-      return true;
-    } else {
-      return false;
-    }
-  });
-  return filtered;
-}
-
-// gets relevant data sets:
-function getRelevantDataSets(
-  sex: 'male' | 'female',
-  measurementMethod: 'height' | 'weight' | 'bmi' | 'ofc',
-  reference: 'uk-who' | 'trisomy-21' | 'turner',
-  lowestChildX: number,
-  highestChildX: number,
-) {
-  const dataSetRanges = [
-    [-0.33, 0.0383],
-    [0.0383, 2],
-    [2, 4],
-    [4, 21],
-  ];
-  let startingGroup = 0;
-  let endingGroup = 3;
-  for (let i = 0; i < dataSetRanges.length; i++) {
-    const range = dataSetRanges[i];
-    if (lowestChildX >= range[0] && lowestChildX < range[1]) {
-      startingGroup = i;
-    }
-    if (highestChildX >= range[0] && highestChildX < range[1]) {
-      endingGroup = i;
-    }
-  }
-  if (reference === 'uk-who') {
-    const allData: UKWHOArray = [
-      ukwhoData.uk90_preterm[sex][measurementMethod],
-      ukwhoData.uk_who_infant[sex][measurementMethod],
-      ukwhoData.uk_who_child[sex][measurementMethod],
-      ukwhoData.uk90_child[sex][measurementMethod],
-    ];
-    if (startingGroup === 0 && endingGroup === 3) {
-      return allData;
-    } else {
-      let returnArray = [];
-      for (let i = startingGroup; i <= endingGroup; i++) {
-        returnArray.push(allData[i]);
-      }
-      return returnArray;
-    }
-  } else if (reference === 'trisomy-21') {
-    if (startingGroup === 0 && endingGroup === 0) {
-      return [ukwhoData.uk90_preterm[sex][measurementMethod]];
-    } else if (startingGroup === 0 && endingGroup > 0) {
-      return [
-        ukwhoData.uk90_preterm[sex][measurementMethod],
-        trisomy21Data.trisomy21[sex][measurementMethod],
-      ];
-    } else {
-      return [trisomy21Data.trisomy21[sex][measurementMethod]];
-    }
-  } else if (reference === 'turner') {
-    if (sex !== 'female' && measurementMethod !== 'height') {
-      throw new Error(
-        'Only female height data available for Turner, something else was requested',
-      );
-    }
-    return [turnerData.turner.female.height];
-  } else {
-    throw new Error('No valid reference given to getRelevantDataSets');
-  }
-}
-
 // analyses whole child measurement array to work out top and bottom x and y
 function childMeasurementRanges(
   childMeasurements: PlottableMeasurement[],
@@ -144,19 +66,136 @@ function childMeasurementRanges(
   return {lowestChildX, highestChildX, lowestChildY, highestChildY};
 }
 
-// truncates data sets
-function truncate(rawDataSet: any[], lowerX: number, upperX: number) {
+/* update highest / lowest values in visible data set for labels / setting up best y domains. This is run in the filter
+ data loops, so that only one run of looping required:
+*/
+function updateCoordsOfExtremeValues(
+  extremeValues: any,
+  centileString: string,
+  d: IPlottedCentileMeasurement,
+): void {
+  // transition points can lead to inaccurate coords for centile labels, therefore don't include 2 or 4 years old
+  if (d.x !== 4 && d.x !== 2) {
+    if (extremeValues.lowestY > d.y) {
+      extremeValues.lowestY = d.y;
+    }
+    if (extremeValues.lowestYForX[centileString].workingX > d.x) {
+      extremeValues.lowestYForX[centileString].value = d.y;
+      extremeValues.lowestYForX[centileString].workingX = d.x;
+    }
+    if (extremeValues.highestY < d.y) {
+      extremeValues.highestY = d.y;
+    }
+    if (extremeValues.highestYForX[centileString].workingX < d.x) {
+      extremeValues.highestYForX[centileString].value = d.y;
+      extremeValues.highestYForX[centileString].workingX = d.x;
+    }
+  }
+}
+
+//filter data to data that will be visible on screen:
+function filterData(
+  data: any,
+  lowerX: number,
+  upperX: number,
+  centileString: string,
+  extremeValues: {[key: string]: any},
+) {
+  const filtered = data.filter((d: IPlottedCentileMeasurement) => {
+    //as centile data is to 4 decimal places, this prevents premature chopping off at either end:
+    const upperXTo4 = Number(upperX.toFixed(4));
+    const lowerXTo4 = Number(lowerX.toFixed(4));
+    if (d.x <= upperXTo4 && d.x >= lowerXTo4) {
+      updateCoordsOfExtremeValues(extremeValues, centileString, d);
+      return true;
+    } else {
+      return false;
+    }
+  });
+  return filtered;
+}
+
+// loops through data sets with filterData function:
+function truncate(
+  rawDataSet: any[],
+  lowerX: number,
+  upperX: number,
+  extremeValues: any,
+) {
   const truncatedDataSet: any[] = [];
   for (let i = 0; i < rawDataSet.length; i++) {
     const originalCentileObject = rawDataSet[i];
     const rawData = originalCentileObject.data;
-    const truncatedData = filterData(rawData, lowerX, upperX);
+    const centileString = originalCentileObject.centile;
+
+    const truncatedData = filterData(
+      rawData,
+      lowerX,
+      upperX,
+      centileString,
+      extremeValues,
+    );
     truncatedDataSet.push({
       ...originalCentileObject,
       ...{data: truncatedData},
     });
   }
   return truncatedDataSet;
+}
+
+// gets relevant data sets:
+function getRelevantDataSets(
+  sex: 'male' | 'female',
+  measurementMethod: 'height' | 'weight' | 'bmi' | 'ofc',
+  reference: 'uk-who' | 'trisomy-21' | 'turner',
+  lowestChildX: number,
+  highestChildX: number,
+) {
+  const dataSetRanges = [
+    [-0.33, 0.0383],
+    [0.0383, 2],
+    [2, 4],
+    [4, 21],
+  ];
+  let startingGroup = 0;
+  let endingGroup = 3;
+  for (let i = 0; i < dataSetRanges.length; i++) {
+    const range = dataSetRanges[i];
+    if (lowestChildX >= range[0] && lowestChildX < range[1]) {
+      startingGroup = i;
+    }
+    if (highestChildX >= range[0] && highestChildX < range[1]) {
+      endingGroup = i;
+    }
+  }
+  if (reference === 'uk-who') {
+    const allData: UKWHOArray = [
+      ukwhoData.uk90_preterm[sex][measurementMethod],
+      ukwhoData.uk_who_infant[sex][measurementMethod],
+      ukwhoData.uk_who_child[sex][measurementMethod],
+      ukwhoData.uk90_child[sex][measurementMethod],
+    ];
+    if (startingGroup === 0 && endingGroup === 3) {
+      return allData;
+    } else {
+      let returnArray = [];
+      for (let i = startingGroup; i <= endingGroup; i++) {
+        returnArray.push(allData[i]);
+      }
+      return returnArray;
+    }
+  } else if (reference === 'trisomy-21') {
+    return [trisomy21Data.trisomy21[sex][measurementMethod]];
+  } else if (reference === 'turner') {
+    if (sex !== 'female' && measurementMethod !== 'height') {
+      throw new Error(
+        'Only female height data available for Turner, something else was requested',
+      );
+    }
+    return [turnerData.turner.female.height];
+  } else {
+    throw new Error('No valid reference given to getRelevantDataSets');
+  }
 }
 
 // main function to get best domains, fetch relevant data.
@@ -168,9 +207,15 @@ function getDomainsAndData(
   showCorrected: boolean,
   showChronological: boolean,
 ) {
-  let internalDomains: Domains;
+  // variables initialised to chart for bigger child:
+  let internalChartScaleType: 'prem' | 'infant' | 'smallChild' | 'biggerChild' =
+    'biggerChild';
+  let agePadding = totalMinPadding.biggerChild;
+  let absoluteBottomX = -0.057494866529774126; // 37 weeks
+  let absoluteHighX = 20;
+
   let finalCentileData: any[] = [];
-  let internalChartScaleType: 'prem' | 'infant' | 'smallChild' | 'biggerChild';
+  let internalDomains: Domains;
   let pointsForCentileLabels: any[] = [];
 
   const {
@@ -183,11 +228,6 @@ function getDomainsAndData(
     showCorrected,
     showChronological,
   );
-  let agePadding: number;
-  let absoluteBottomX = -0.057494866529774126; // 37 weeks
-  let absoluteHighX = 20;
-
-  //this needs additions for down's
 
   if (measurementMethod === 'ofc') {
     if (sex === 'female') {
@@ -196,10 +236,26 @@ function getDomainsAndData(
       absoluteHighX = 18;
     }
   }
+
+  if (reference === 'trisomy-21') {
+    absoluteBottomX = 0;
+    if (measurementMethod === 'ofc') {
+      absoluteHighX = 18;
+    }
+    if (measurementMethod === 'bmi') {
+      absoluteHighX = 18.82;
+    }
+  }
+
+  if (reference === 'turner') {
+    absoluteBottomX = 1;
+  }
+
   const difference = highestChildX - lowestChildX;
 
+  // set appropriate chart scale based on data:
   if (
-    lowestChildX < -0.057494866529774126 && // 37 weeks
+    lowestChildX < 0 && // 40 weeks
     highestChildX <= 0.038329911019849415 // 42 weeks or 2 weeks postnatal
   ) {
     // prem:
@@ -222,17 +278,13 @@ function getDomainsAndData(
     }
   } else if (highestChildX <= 4) {
     // small child:
-    if (difference > totalMinPadding.smallChild) {
-      agePadding = totalMinPadding.biggerChild;
-      internalChartScaleType = 'biggerChild';
+    if (difference <= totalMinPadding.smallChild) {
+      internalChartScaleType = 'smallChild';
+      agePadding = totalMinPadding.smallChild;
     }
-    internalChartScaleType = 'smallChild';
-    agePadding = totalMinPadding.smallChild;
-  } else {
-    // anyone else:
-    internalChartScaleType = 'biggerChild';
-    agePadding = totalMinPadding.biggerChild;
   }
+
+  // work out most appropriate highest and lowest x coords for domain setting:
   let unroundedLowestX = 0;
   let unroundedHighestX = 0;
   if (agePadding <= difference) {
@@ -283,6 +335,7 @@ function getDomainsAndData(
     highestXForDomain = arrayForOrdering[highestXIndex + 1];
   }
 
+  //removes irrelevant datasets before filtering to visible data:
   const relevantDataSets = getRelevantDataSets(
     sex,
     measurementMethod,
@@ -291,80 +344,54 @@ function getDomainsAndData(
     highestXForDomain,
   );
 
+  // this object keeps track of highest / lowest visible coords to use for chart scaling / labels:
+  const extremeValues = {
+    lowestY: 500,
+    highestY: -500,
+    lowestYForX: {
+      0.4: {value: 500, workingX: 500},
+      2: {value: 500, workingX: 500},
+      9: {value: 500, workingX: 500},
+      25: {value: 500, workingX: 500},
+      50: {value: 500, workingX: 500},
+      75: {value: 500, workingX: 500},
+      91: {value: 500, workingX: 500},
+      98: {value: 500, workingX: 500},
+      99.6: {value: 500, workingX: 500},
+    },
+    highestYForX: {
+      0.4: {value: -500, workingX: -500},
+      2: {value: -500, workingX: -500},
+      9: {value: -500, workingX: -500},
+      25: {value: -500, workingX: -500},
+      50: {value: -500, workingX: -500},
+      75: {value: -500, workingX: -500},
+      91: {value: -500, workingX: -500},
+      98: {value: -500, workingX: -500},
+      99.6: {value: -500, workingX: -500},
+    },
+  };
+
   //get final centile data set for centile line render:
   for (let referenceSet of relevantDataSets) {
     const truncated = truncate(
       referenceSet,
       lowestXForDomain,
       highestXForDomain,
+      extremeValues,
     );
     finalCentileData.push(truncated);
   }
 
-  // this centile data is to be used to find min / max data points for domain setting / labels:
-  let allCombinedData: any[] = [];
-
-  // needs to be 1 big array for finding data points::
-  for (const element of finalCentileData) {
-    allCombinedData = allCombinedData.concat(element);
-  }
-
-  function findDataPoints(
-    pointsToGet: 'lowest' | 'highest' | 'allHighest' | 'allLowest',
-  ) {
-    const returningArray: any[] = [];
-    let centileLabels = [0.4, 2, 9, 25, 50, 75, 91, 98, 99.6];
-    if (pointsToGet === 'lowest') {
-      centileLabels = [0.4];
-    } else if (pointsToGet === 'highest') {
-      centileLabels = [99.6];
-    }
-    for (let centileNumber of centileLabels) {
-      const centileBands = allCombinedData.filter(
-        (element) => element.centile === centileNumber,
-      );
-      let centileData: any[] = [];
-      if (centileBands.length > 1) {
-        for (let element of centileBands) {
-          centileData = centileData.concat(element.data);
-        }
-      } else {
-        centileData = centileBands[0].data;
-      }
-      let yPoint =
-        pointsToGet === 'lowest' || pointsToGet === 'allLowest' ? 500 : -500;
-      let xPoint =
-        pointsToGet === 'lowest' || pointsToGet === 'allLowest' ? 500 : -500;
-      for (let element of centileData) {
-        if (pointsToGet === 'lowest' && yPoint > element.y) {
-          yPoint = element.y;
-        }
-        if (pointsToGet === 'allLowest' && xPoint > element.x) {
-          yPoint = element.y;
-          xPoint = element.x;
-        }
-        if (pointsToGet === 'highest' && yPoint < element.y) {
-          yPoint = element.y;
-        }
-        if (pointsToGet === 'allHighest' && xPoint < element.x) {
-          yPoint = element.y;
-          xPoint = element.x;
-        }
-      }
-      returningArray.push({y: yPoint, centile: centileNumber});
-    }
-    return returningArray;
-  }
-
-  const [lowestData] = findDataPoints('lowest');
-  const [highestData] = findDataPoints('highest');
+  const lowestDataY = extremeValues.lowestY;
+  const highestDataY = extremeValues.highestY;
 
   // decide if measurement or centile band highest and lowest y:
   const prePaddingLowestY =
-    lowestChildY < lowestData.y ? lowestChildY : lowestData.y;
+    lowestChildY < lowestDataY ? lowestChildY : lowestDataY;
 
   const prePaddingHighestY =
-    highestChildY > highestData.y ? highestChildY : highestData.y;
+    highestChildY > highestDataY ? highestChildY : highestDataY;
 
   // to give a bit of space in vertical axis:
   const finalLowestY =
@@ -377,14 +404,25 @@ function getDomainsAndData(
     y: [finalLowestY, finalHighestY],
   };
 
-  pointsForCentileLabels = findDataPoints('allHighest');
+  // generate data needed to display centile labels:
   if (internalChartScaleType === 'prem') {
-    pointsForCentileLabels = findDataPoints('allLowest');
-  }
-
-  for (let element of pointsForCentileLabels) {
-    element.x =
-      internalChartScaleType === 'prem' ? lowestXForDomain : highestXForDomain;
+    for (const [key, miniObject] of Object.entries(extremeValues.lowestYForX)) {
+      pointsForCentileLabels.push({
+        x: lowestXForDomain,
+        centile: key,
+        y: miniObject.value,
+      });
+    }
+  } else {
+    for (const [key, miniObject] of Object.entries(
+      extremeValues.highestYForX,
+    )) {
+      pointsForCentileLabels.push({
+        x: highestXForDomain,
+        centile: key,
+        y: miniObject.value,
+      });
+    }
   }
 
   return {
