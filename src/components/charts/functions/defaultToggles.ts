@@ -29,17 +29,17 @@ function defaultToggles(
   if (gestWeeks >= 40) {
     return {defaultShowCorrected: false, defaultShowChronological: true};
   }
-  // get minimum corrected age from  data:
-  let minAge = 500;
+  // get max corrected age from  data:
+  let maxAge = -500;
   for (let measurement of childMeasurements) {
     const correctedX =
       measurement.plottable_data.centile_data.corrected_decimal_age_data.x;
-    if (minAge > correctedX) {
-      minAge = correctedX;
+    if (maxAge < correctedX) {
+      maxAge = correctedX;
     }
   }
   // if older child, showing 2 points looks messy:
-  if (minAge >= 4) {
+  if (maxAge >= 2) {
     return {defaultShowCorrected: true, defaultShowChronological: false};
   }
   // all other cases show both:

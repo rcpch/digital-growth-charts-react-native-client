@@ -22,7 +22,7 @@ Next, navigate to the root directory of the project and make a .env file with th
 
 (Enter the base addresses / api key which best suit your setup. Note the IP address in the example above for android local- this address points to localhost in android simulators).
 
-**To state the obvious:** storing an API key in an environment file is not suitable for a production app. The API key will be copied as plain text into the application bundle at compile time and therefore easily compromised. See [https://reactnative.dev/docs/security](https://reactnative.dev/docs/security)
+**To state the obvious:** storing an API key in an environment variable file (or writing it into code) is not suitable for a production app. The API key will be copied as plain text into the application bundle at compile time and therefore easily compromised. See [https://reactnative.dev/docs/security](https://reactnative.dev/docs/security)
 
 Install the necessary dependencies:
 

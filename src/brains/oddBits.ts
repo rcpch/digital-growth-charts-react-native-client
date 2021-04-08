@@ -174,7 +174,7 @@ const checkForOldValues = (
         {
           text: 'No',
           style: 'cancel',
-          onPress: () => null,
+          onPress: () => {},
         },
         {
           text: 'Yes',

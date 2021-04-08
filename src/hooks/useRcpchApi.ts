@@ -131,7 +131,7 @@ const getSingleCentileData = async (
       'Cache-Control': 'no-cache',
     };
     if (urlBase === 'real') {
-      headersObject['Primary-Subscription-Key'] = API_KEY;
+      headersObject['Subscription-Key'] = API_KEY;
     }
     const apiArgument = makeApiArgument(inputObject, measurementType);
     const options = {

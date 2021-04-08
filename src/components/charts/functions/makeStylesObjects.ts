@@ -51,7 +51,7 @@ function makeStylesObjects(
 
   const titleTextStyle = {
     fontFamily: chartStyle.titleStyle?.name || defaultSystemFont,
-    fontWeight: chartStyle.titleStyle?.weight || '500',
+    fontWeight: chartStyle.titleStyle?.weight || 'bold',
     fontSize: chartStyle.titleStyle?.size || 20,
     color: chartStyle.titleStyle?.colour || 'black',
     textAlign: 'center',
@@ -67,8 +67,8 @@ function makeStylesObjects(
 
   const subtitleTextStyle = {
     fontFamily: chartStyle.titleStyle?.name || defaultSystemFont,
-    fontWeight: chartStyle.titleStyle?.weight || '300',
-    fontSize: chartStyle.titleStyle?.size || 18,
+    fontWeight: chartStyle.titleStyle?.weight || 'bold',
+    fontSize: chartStyle.titleStyle?.size || 16,
     color: chartStyle.titleStyle?.colour || 'black',
   };
 
@@ -78,7 +78,7 @@ function makeStylesObjects(
     },
     axisLabel: {
       fontSize: axisStyle.axisLabelTextStyle?.size || 12,
-      padding: 20,
+      padding: 25,
       color: axisStyle.axisLabelTextStyle?.colour || 'black',
       fontFamily: axisStyle.axisLabelTextStyle?.name || defaultSystemFont,
     },
@@ -87,7 +87,7 @@ function makeStylesObjects(
     },
     tickLabels: {
       fontSize: axisStyle.tickLabelTextStyle?.size || 10,
-      padding: 5,
+      padding: 2,
       color: axisStyle.axisLabelTextStyle?.colour || 'black',
       fontFamily: axisStyle.axisLabelTextStyle?.name || defaultSystemFont,
     },
@@ -131,6 +131,12 @@ function makeStylesObjects(
   };
   const termFillStyle = {data: {fill: chartStyle.termFill}};
 
+  const centileLabelStyle = {
+    fontSize: 10,
+    fontFamily: 'Montserrat-Bold',
+    fontWeight: 'bold',
+  };
+
   return {
     loadingChartContainerStyle,
     loadingTextStyle,
@@ -147,6 +153,7 @@ function makeStylesObjects(
     measurementPointStyle,
     measurementLineStyle,
     termFillStyle,
+    centileLabelStyle,
   };
 }
 

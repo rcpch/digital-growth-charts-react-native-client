@@ -61,6 +61,7 @@ function MainChart({
     measurementPointStyle,
     measurementLineStyle,
     termFillStyle,
+    centileLabelStyle,
   } = makeStylesObjects(
     axisStyle,
     centileStyle,
@@ -104,6 +105,23 @@ function MainChart({
     }
   };
 
+  const centileLabelMaker = ({datum}: {datum: any}) => {
+    const centile = datum.centile;
+    if (
+      chartScaleType === 'prem' &&
+      (centile === '99.6' || centile === '0.4')
+    ) {
+      return addOrdinalSuffix(centile) + '  ';
+    } else if (
+      chartScaleType !== 'prem' &&
+      (centile === '99.6' || centile === '0.4')
+    ) {
+      return '  ' + addOrdinalSuffix(centile);
+    } else {
+      return addOrdinalSuffix(centile);
+    }
+  };
+
   useEffect(() => {
     getDomainsAndData(
       measurementsArray,
@@ -113,14 +131,7 @@ function MainChart({
       showCorrectedAge,
       showChronologicalAge,
     )
-      .then((results: Results) => {
-        setInternalData({
-          centileData: results.centileData,
-          domains: results.domains,
-          chartScaleType: results.chartScaleType,
-          pointsForCentileLabels: results.pointsForCentileLabels,
-        });
-      })
+      .then((results: Results) => setInternalData(results))
       .catch((error) => console.error(error.message));
   }, [
     sex,
@@ -142,10 +153,11 @@ function MainChart({
       <View style={chartContainerStyle}>
         <View style={titleContainerStyle}>
           <Text style={titleTextStyle}>{title}</Text>
+          <Text style={subtitleTextStyle}>{subtitle}</Text>
         </View>
         <VictoryChart
           width={chartStyle.width}
-          height={chartStyle.height - 50}
+          height={chartStyle.height - 40}
           padding={chartPaddingStyle}
           style={chartBackgroundStyle}
           domain={domains}>
@@ -285,16 +297,12 @@ function MainChart({
           }
           <VictoryScatter
             data={pointsForCentileLabels}
-            labels={({datum}) => addOrdinalSuffix(datum.centile)}
+            labels={centileLabelMaker}
             labelComponent={
               <VictoryLabel
                 dy={2}
-                dx={chartScaleType === 'prem' ? -15 : 14}
-                style={{
-                  fontSize: 10,
-                  fontFamily: 'Montserrat-Regular',
-                  fontWeight: '500',
-                }}
+                dx={chartScaleType === 'prem' ? -14 : 14}
+                style={centileLabelStyle}
               />
             }
             style={{
@@ -318,11 +326,7 @@ function MainChart({
                     data={[correctedAgeData]}
                     dataComponent={<XPoint />}
                     size={measurementStyle.measurementSize}
-                    style={{
-                      data: {
-                        fill: measurementStyle.measurementFill,
-                      },
-                    }}
+                    style={measurementPointStyle}
                   />
                 )}
                 {showChronologicalAge && (
@@ -330,23 +334,14 @@ function MainChart({
                     data={[chronologicalAgeData]}
                     symbol="circle"
                     size={measurementStyle.measurementSize}
-                    style={{
-                      data: {
-                        fill: measurementStyle.measurementFill,
-                      },
-                    }}
+                    style={measurementPointStyle}
                   />
                 )}
                 {showChronologicalAge &&
                   showCorrectedAge && ( // only show the line if both cross and dot are rendered
                     <VictoryLine
                       name="linkLine"
-                      style={{
-                        data: {
-                          stroke: measurementStyle.measurementFill,
-                          strokeWidth: 1.25,
-                        },
-                      }}
+                      style={measurementLineStyle}
                       data={[correctedAgeData, chronologicalAgeData]}
                     />
                   )}

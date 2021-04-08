@@ -28,7 +28,6 @@ function ChartScreen({route}: propTypes) {
   const sex = specificResults?.birth_data.sex;
 
   const customChartStyle = {
-    backgroundColour: null,
     width: containerWidth,
     height: extraDimensionsChartContainer.height - 90,
     padding: {left: 40, right: 40, top: 20, bottom: 50},
@@ -50,12 +49,23 @@ function ChartScreen({route}: propTypes) {
     },
   };
 
+  let referenceLabel = 'UK-WHO';
+  if (reference === 'trisomy-21') {
+    referenceLabel = "Down's Syndrome";
+  } else if (reference === 'turner') {
+    referenceLabel = "Turner's Syndrome";
+  }
+
+  const subtitleText = specificResults
+    ? `${sex === 'female' ? 'Female' : 'Male'} | ${referenceLabel}`
+    : '';
+
   return (
     <Screen renderBack>
       {specificResults ? (
         <MainChart
           title={`${userLabelNames[measurementType]} Chart`}
-          subtitle=""
+          subtitle={subtitleText}
           measurementMethod={measurementType}
           reference={reference}
           sex={sex}
@@ -115,14 +125,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'flex-start',
   },
-  openModalIcon: {
-    borderRadius: 5,
-    backgroundColor: colors.medium,
-    padding: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: 7,
-  },
   naText: {
     color: colors.black,
     fontSize: 25,
@@ -131,8 +133,7 @@ const styles = StyleSheet.create({
   naContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: '96%',
-    width: containerWidth,
+    flex: 1,
   },
 });
 
