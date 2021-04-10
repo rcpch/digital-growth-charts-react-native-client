@@ -1,6 +1,8 @@
 # digital-growth-charts-react-native-client
 
-A demo React Native client to render results from the digital growth charts api
+![Github Licence](https://img.shields.io/github/license/rcpch/digital-growth-charts-react-native-client)
+
+A demo React Native client to render results from the digital growth charts API
 
 ## Installation Instructions
 
