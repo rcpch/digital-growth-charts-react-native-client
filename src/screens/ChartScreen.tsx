@@ -30,7 +30,7 @@ function ChartScreen({route}: propTypes) {
   const customChartStyle = {
     width: containerWidth,
     height: extraDimensionsChartContainer.height - 90,
-    padding: {left: 40, right: 40, top: 20, bottom: 50},
+    padding: {left: 40, right: 40, top: 5, bottom: 50},
     termFill: '#D9D9D9',
     termStroke: 'black',
     infoBoxFill: colors.darkest,
@@ -88,10 +88,10 @@ function ChartScreen({route}: propTypes) {
 const customAxisStyle = {
   axisStroke: 'black',
   axisLabelTextStyle: {
-    name: 'Montserrat-Regular',
+    name: 'Montserrat-Bold',
     colour: 'black',
     size: 12,
-    weight: 'regular',
+    weight: 'bold',
   },
   tickLabelTextStyle: {
     name: 'Montserrat-Regular',

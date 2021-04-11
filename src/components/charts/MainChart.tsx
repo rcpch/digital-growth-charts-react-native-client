@@ -30,6 +30,7 @@ import {
   pubertyThresholds,
 } from './functions/DelayedPuberty';
 import CustomGridComponent from './subComponents/CustomGridComponent';
+import CorrectVsChron from './subComponents/CorrectVsChron';
 
 function MainChart({
   title,
@@ -157,7 +158,7 @@ function MainChart({
         </View>
         <VictoryChart
           width={chartStyle.width}
-          height={chartStyle.height - 40}
+          height={chartStyle.height - 60}
           padding={chartPaddingStyle}
           style={chartBackgroundStyle}
           domain={domains}>
@@ -349,80 +350,17 @@ function MainChart({
             );
           })}
         </VictoryChart>
+        <CorrectVsChron
+          titleTextStyle={titleTextStyle}
+          subtitleTextStyle={subtitleTextStyle}
+          showChronologicalAge={showChronologicalAge}
+          setShowChronologicalAge={setShowChronologicalAge}
+          showCorrectedAge={showCorrectedAge}
+          setShowCorrectedAge={setShowCorrectedAge}
+        />
       </View>
     );
   }
 }
 
 export default MainChart;
-
-// containerComponent={<VictoryZoomContainer />
-
-// const exampleChildMeasurements = [
-//   {
-//     birth_data: {
-//       birth_date: 'Tue, 24 Mar 2020 00:00:00 GMT',
-//       estimated_date_delivery: 'Tue, 12 May 2020 00:00:00 GMT',
-//       estimated_date_delivery_string: 'Tue 12 May, 2020',
-//       gestation_days: 0,
-//       gestation_weeks: 33,
-//       sex: 'male',
-//     },
-//     child_observation_value: {
-//       measurement_method: 'weight',
-//       observation_value: 9,
-//       observation_value_error: null,
-//     },
-//     measurement_calculated_values: {
-//       chronological_centile: 26,
-//       chronological_centile_band:
-//         'This weight measurement is on or near the 25th centile.',
-//       chronological_measurement_error: null,
-//       chronological_sds: -0.6330942999002411,
-//       corrected_centile: 39,
-//       corrected_centile_band:
-//         'This weight measurement is between the 25th and 50th centiles.',
-//       corrected_measurement_error: null,
-//       corrected_sds: -0.2620808918612426,
-//     },
-//     measurement_dates: {
-//       chronological_calendar_age: '1 year',
-//       chronological_decimal_age: 0.999315537303217,
-//       chronological_decimal_age_error: null,
-//       comments: {
-//         clinician_chronological_decimal_age_comment:
-//           'No correction has been made for gestational age.',
-//         clinician_corrected_decimal_age_comment:
-//           'Correction for gestational age has been made.',
-//         lay_chronological_decimal_age_comment:
-//           "This is your child's age without taking into account their gestation at birth.",
-//         lay_corrected_decimal_age_comment:
-//           'Because your child was born at 33+0 weeks gestation, an adjustment has been made to take this into account.',
-//       },
-//       corrected_calendar_age: '10 months, 1 week and 5 days',
-//       corrected_decimal_age: 0.865160848733744,
-//       corrected_decimal_age_error: null,
-//       corrected_gestational_age: {
-//         corrected_gestation_days: null,
-//         corrected_gestation_weeks: null,
-//       },
-//       observation_date: 'Wed, 24 Mar 2021 00:00:00 GMT',
-//     },
-//     plottable_data: {
-//       centile_data: {
-//         chronological_decimal_age_data: {x: 0.999315537303217, y: 9},
-//         corrected_decimal_age_data: {x: 0.865160848733744, y: 9},
-//       },
-//       sds_data: {
-//         chronological_decimal_age_data: {
-//           x: 0.999315537303217,
-//           y: -0.6330942999002411,
-//         },
-//         corrected_decimal_age_data: {
-//           x: 0.865160848733744,
-//           y: -0.2620808918612426,
-//         },
-//       },
-//     },
-//   },
-// ];

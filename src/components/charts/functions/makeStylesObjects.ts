@@ -81,6 +81,7 @@ function makeStylesObjects(
       padding: 25,
       color: axisStyle.axisLabelTextStyle?.colour || 'black',
       fontFamily: axisStyle.axisLabelTextStyle?.name || defaultSystemFont,
+      fontWeight: axisStyle.axisLabelTextStyle?.weight || 'bold',
     },
     ticks: {
       stroke: axisStyle.axisStroke,

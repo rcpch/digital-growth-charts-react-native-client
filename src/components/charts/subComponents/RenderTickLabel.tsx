@@ -30,7 +30,7 @@ function RenderTickLabel(props) {
             {textLabel}
           </Text>
           <Circle cx={x} cy={y - 22} r={8} stroke="black" fill="transparent" />
-          <Line x1={x} x2={x} y1={y - 5} y2={y - 14} stroke="black" />
+          <Line x1={x} x2={x} y1={y - 3} y2={y - 14} stroke="black" />
         </Svg>
       );
     } else {
