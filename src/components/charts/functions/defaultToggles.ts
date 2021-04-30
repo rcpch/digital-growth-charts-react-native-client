@@ -1,49 +1,57 @@
-import {PlottableMeasurement} from '../../../interfaces/RCPCHMeasurementObject';
+import {Measurement} from '../interfaces/RCPCHMeasurementObject';
 
 type returnObject = {
   defaultShowCorrected: boolean;
   defaultShowChronological: boolean;
+  showToggle: boolean;
 };
 
-function defaultToggles(
-  childMeasurements: PlottableMeasurement[],
-): returnObject {
-  if (!childMeasurements) {
-    return {defaultShowCorrected: false, defaultShowChronological: false};
+function defaultToggles(childMeasurements: Measurement[]): returnObject {
+  if (!childMeasurements || childMeasurements.length < 1) {
+    return {
+      defaultShowCorrected: false,
+      defaultShowChronological: false,
+      showToggle: false,
+    };
   }
   if (!childMeasurements[0].plottable_data) {
     throw new Error(
       'No plottable data found. Are you using the correct server version?',
     );
   }
-  // check for children under 2 weeks corrected age:
-  for (let measurement of childMeasurements) {
-    const correctedX =
-      measurement.plottable_data.centile_data.corrected_decimal_age_data.x;
-    if (correctedX < 0.038329911019849415) {
-      return {defaultShowCorrected: true, defaultShowChronological: false};
-    }
-  }
   // if >= 40 weeks, only show chronological:
   const gestWeeks = childMeasurements[0].birth_data.gestation_weeks;
   if (gestWeeks >= 40) {
-    return {defaultShowCorrected: false, defaultShowChronological: true};
+    return {
+      defaultShowCorrected: false,
+      defaultShowChronological: true,
+      showToggle: false,
+    };
   }
   // get max corrected age from  data:
-  let maxAge = -500;
+  const arrayOfCorrectedX = [];
   for (let measurement of childMeasurements) {
     const correctedX =
       measurement.plottable_data.centile_data.corrected_decimal_age_data.x;
-    if (maxAge < correctedX) {
-      maxAge = correctedX;
-    }
+    arrayOfCorrectedX.push(correctedX);
   }
-  // if older child, showing 2 points looks messy:
-  if (maxAge >= 2) {
-    return {defaultShowCorrected: true, defaultShowChronological: false};
+  const maxAge = Math.max(...arrayOfCorrectedX);
+  const averageAge =
+    arrayOfCorrectedX.reduce((a, b) => a + b, 0) / arrayOfCorrectedX.length;
+  // show 2 points if born prem, max age < 2 and average age >= 2 weeks corrected:
+  if (maxAge < 2 && averageAge >= 0.038329911019849415 && gestWeeks < 37) {
+    return {
+      defaultShowCorrected: true,
+      defaultShowChronological: true,
+      showToggle: true,
+    };
   }
-  // all other cases show both:
-  return {defaultShowCorrected: true, defaultShowChronological: true};
+  // all other cases show just corrected:
+  return {
+    defaultShowCorrected: true,
+    defaultShowChronological: false,
+    showToggle: true,
+  };
 }
 
 export default defaultToggles;

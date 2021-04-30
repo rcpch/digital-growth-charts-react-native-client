@@ -1,11 +1,10 @@
-import React from 'react';
-import {StyleSheet, View, TouchableOpacity} from 'react-native';
+import React, {useRef, useEffect} from 'react';
+import {Animated, StyleSheet, View, TouchableOpacity} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 
 import {containerWidth, colors} from '../config/';
 import AppText from './AppText';
 import MoreCentileInfo from './MoreCentileInfo';
-import LoadingOrText from './LoadingOrText';
 import AppIcon from './AppIcon';
 import {Measurement} from '../interfaces/RCPCHMeasurementObject';
 
@@ -35,6 +34,8 @@ const CentileOutput = ({
 }: propTypes) => {
   const navigation = useNavigation();
 
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+
   const specificResults: null | Measurement = centileResults[measurementType];
   const specificError = errors[measurementType];
 
@@ -42,8 +43,8 @@ const CentileOutput = ({
   let measurementValue: string | number = '';
   let renderChart = false;
 
-  if (measurementProvided && isLoading) {
-    defaultOutput = '';
+  if (isLoading && measurementProvided) {
+    defaultOutput = 'Loading...';
   } else if (measurementProvided && !isLoading) {
     if (specificError && typeof specificError === 'string') {
       defaultOutput = specificError;
@@ -65,7 +66,7 @@ const CentileOutput = ({
 
   let titleText = `${userLabelNames[measurementType]}`;
 
-  if (measurementProvided && specificResults) {
+  if (!isLoading && measurementProvided && specificResults) {
     switch (measurementType) {
       case 'weight':
         titleText = `Weight: ${measurementValue}kg`;
@@ -95,25 +96,54 @@ const CentileOutput = ({
     navigation.navigate('Chart', navObj);
   };
 
+  useEffect(() => {
+    if (measurementProvided) {
+      const fadeOut = Animated.timing(fadeAnim, {
+        toValue: 0.6,
+        duration: 600,
+        useNativeDriver: true,
+      });
+
+      const fadeIn = Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      });
+
+      const sequence = Animated.sequence([fadeOut, fadeIn]);
+      if (isLoading) {
+        Animated.loop(sequence).start();
+      } else if (!isLoading) {
+        Animated.loop(sequence).reset();
+        fadeAnim.setValue(1);
+      }
+      return () => {
+        Animated.loop(sequence).reset();
+        fadeAnim.setValue(1);
+      };
+    }
+  }, [isLoading, measurementProvided, fadeAnim]);
+
   return (
-    <View style={styles.outputContainer}>
-      <MoreCentileInfo specificResults={specificResults} />
+    <Animated.View style={{...styles.outputContainer, opacity: fadeAnim}}>
+      <MoreCentileInfo
+        specificResults={specificResults}
+        isLoading={isLoading}
+      />
       <View style={styles.outputTextBox}>
         <AppText style={styles.text}>{titleText}</AppText>
         <View>
-          <LoadingOrText style={styles.outputText}>
-            {defaultOutput}
-          </LoadingOrText>
+          <AppText style={styles.outputText}>{defaultOutput}</AppText>
         </View>
       </View>
-      <TouchableOpacity onPress={navigateChart}>
+      <TouchableOpacity disabled={isLoading} onPress={navigateChart}>
         <AppIcon
           name="chart-bell-curve-cumulative"
           size={30}
-          style={styles.gotToChartIcon}
+          style={styles.goToChartIcon}
         />
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
 };
 
@@ -121,7 +151,7 @@ export default CentileOutput;
 
 const styles = StyleSheet.create({
   outputContainer: {
-    backgroundColor: colors.dark,
+    backgroundColor: colors.darkMedium,
     borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
@@ -152,7 +182,7 @@ const styles = StyleSheet.create({
     color: colors.white,
     flexWrap: 'wrap',
   },
-  gotToChartIcon: {
+  goToChartIcon: {
     borderRadius: 5,
     backgroundColor: colors.medium,
     padding: 5,

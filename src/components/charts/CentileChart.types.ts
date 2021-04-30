@@ -1,4 +1,3 @@
-import {Domains} from './interfaces/Domains';
 import {
   AxisStyle,
   CentileStyle,
@@ -6,13 +5,15 @@ import {
   GridlineStyle,
   MeasurementStyle,
 } from './interfaces/StyleObjects';
-import {PlottableMeasurement} from './interfaces/RCPCHMeasurementObject';
+import {Measurement} from './interfaces/RCPCHMeasurementObject';
+import {Domains} from './interfaces/Domains';
 
-export type Results = {
+export type ComputedData = {
   centileData: null | any[];
-  domains: null | Domains;
+  computedDomains: null | Domains;
+  maxDomains: null | Domains;
   chartScaleType: 'prem' | 'infant' | 'smallChild' | 'biggerChild';
-  pointsForCentileLabels: any[];
+  pointsForCentileLabels: {x: number; y: number; centile: string}[];
 };
 
 export type MainChartProps = {
@@ -20,7 +21,7 @@ export type MainChartProps = {
   subtitle: string;
   measurementMethod: 'height' | 'weight' | 'ofc' | 'bmi';
   sex: 'male' | 'female';
-  measurementsArray: PlottableMeasurement[];
+  measurementsArray: Measurement[];
   reference: 'uk-who' | 'turner' | 'trisomy-21';
   chartStyle: ChartStyle;
   axisStyle: AxisStyle;

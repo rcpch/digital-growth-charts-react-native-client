@@ -1,7 +1,8 @@
-import React from 'react';
+import React, {useCallback, useState} from 'react';
+import {useFocusEffect} from '@react-navigation/core';
 import {StyleSheet, View} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {MainChart, Screen, AppText} from '../components';
+import {RCPCHChart, Screen, AppText} from '../components';
 
 import {colors, containerWidth, windowHeight} from '../config';
 
@@ -25,7 +26,19 @@ function ChartScreen({route}: propTypes) {
     height: windowHeight - insets.top - 30,
   };
 
+  const [showChart, setShowChart] = useState(false);
+
+  const makeChartVisible = showChart && specificResults ? true : false;
+
   const sex = specificResults?.birth_data.sex;
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!showChart) {
+        setShowChart(true);
+      }
+    }, [showChart]),
+  );
 
   const customChartStyle = {
     width: containerWidth,
@@ -62,8 +75,8 @@ function ChartScreen({route}: propTypes) {
 
   return (
     <Screen renderBack>
-      {specificResults ? (
-        <MainChart
+      {makeChartVisible ? (
+        <RCPCHChart
           title={`${userLabelNames[measurementType]} Chart`}
           subtitle={subtitleText}
           measurementMethod={measurementType}
@@ -78,7 +91,7 @@ function ChartScreen({route}: propTypes) {
         />
       ) : (
         <View style={styles.naContainer}>
-          <AppText style={styles.naText}>N/A</AppText>
+          {!specificResults && <AppText style={styles.naText}>N/A</AppText>}
         </View>
       )}
     </Screen>

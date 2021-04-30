@@ -1,3 +1,3 @@
-import MainChart from './MainChart';
+import RCPCHChart from './RCPCHChart';
 
-export default MainChart;
+export default RCPCHChart;

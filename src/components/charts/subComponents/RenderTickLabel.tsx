@@ -1,5 +1,5 @@
 import React from 'react';
-import {Circle, Line, Svg, Text} from 'react-native-svg';
+import {Circle, G, Line, Svg, Text} from 'react-native-svg';
 
 function RenderTickLabel(props) {
   const x = props.x;
@@ -17,20 +17,29 @@ function RenderTickLabel(props) {
     );
   };
   const LolliPop = ({textLabel}: {textLabel: number}) => {
+    const overrideX = textLabel === 11 ? x - 1 : x;
     if (text !== lowerX) {
       return (
         <Svg>
-          <Text
-            x={x}
-            y={y - 19}
-            textAnchor="middle"
-            fill="black"
-            fontSize={10}
-            fontFamily={style.axisLabelFont}>
-            {textLabel}
-          </Text>
-          <Circle cx={x} cy={y - 22} r={8} stroke="black" fill="transparent" />
-          <Line x1={x} x2={x} y1={y - 3} y2={y - 14} stroke="black" />
+          <G>
+            <Text
+              x={overrideX}
+              y={y - 19}
+              textAnchor="middle"
+              fill="black"
+              fontSize={11}
+              fontFamily={style.axisLabelFont}>
+              {textLabel}
+            </Text>
+            <Circle
+              cx={overrideX}
+              cy={y - 22}
+              r={9}
+              stroke="black"
+              fill="transparent"
+            />
+            <Line x1={x} x2={x} y1={y - 3} y2={y - 14} stroke="black" />
+          </G>
         </Svg>
       );
     } else {
@@ -40,16 +49,18 @@ function RenderTickLabel(props) {
   const PlainAxisLabel = ({textLabel}: {textLabel: number}) => {
     return (
       <Svg>
-        <Line x1={x} x2={x} y1={y - 5} y2={y - 3} stroke="black" />
-        <Text
-          x={x}
-          y={y + 10}
-          textAnchor="middle"
-          fill="black"
-          fontSize={11}
-          fontFamily={style.axisLabelFont}>
-          {textLabel}
-        </Text>
+        <G>
+          <Line x1={x} x2={x} y1={y - 5} y2={y - 3} stroke="black" />
+          <Text
+            x={x}
+            y={y + 10}
+            textAnchor="middle"
+            fill="black"
+            fontSize={11}
+            fontFamily={style.axisLabelFont}>
+            {textLabel}
+          </Text>
+        </G>
       </Svg>
     );
   };

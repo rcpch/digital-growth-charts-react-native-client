@@ -10,4 +10,4 @@ export {default as CentileOutput} from './CentileOutput';
 export {default as SubmitOrReset} from './SubmitOrReset';
 export {default as AppText} from './AppText';
 export {default as AgeButton} from './AgeButton';
-export {default as MainChart} from './charts';
+export {default as RCPCHChart} from './charts';

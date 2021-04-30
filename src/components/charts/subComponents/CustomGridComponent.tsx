@@ -3,6 +3,7 @@ import {LineSegment} from 'victory-native';
 
 type PropTypes = {
   datum?: number;
+  domains: any;
   chartScaleType: 'prem' | 'infant' | 'smallChild' | 'biggerChild';
 };
 
@@ -14,14 +15,19 @@ if rendered with week gridlines
 function CustomGridComponent({
   datum,
   chartScaleType,
+  domains,
   ...otherProps
 }: PropTypes) {
-  if (!datum) {
+  if (
+    (!datum && datum !== 0) ||
+    (datum === domains.x[0] && datum >= 0) ||
+    (datum === domains.x[1] && datum < 0)
+  ) {
     return null;
   } else {
     if (
-      Number.isInteger(Number((datum * 12).toFixed(2))) &&
-      datum < 1 &&
+      ((Number.isInteger(Number((datum * 12).toFixed(2))) && datum < 1) ||
+        (datum > 1 && Number.isInteger(Number((datum * 52.18).toFixed(2))))) &&
       (chartScaleType === 'prem' || chartScaleType === 'infant')
     ) {
       return null;

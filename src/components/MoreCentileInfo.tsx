@@ -10,6 +10,7 @@ import {Measurement} from '../interfaces/RCPCHMeasurementObject';
 
 type propTypes = {
   specificResults: Measurement | null;
+  isLoading: boolean;
 };
 
 const parseExactCentile = (exact: number | string) => {
@@ -26,7 +27,7 @@ const parseExactCentile = (exact: number | string) => {
   }
 };
 
-const MoreCentileInfo = ({specificResults}: propTypes) => {
+const MoreCentileInfo = ({specificResults, isLoading}: propTypes) => {
   const [modalVisible, setModalVisible] = useState(false);
   const gestWeeks = specificResults?.birth_data.gestation_weeks || 40;
   const correctionApplied = gestWeeks >= 40 ? false : true;
@@ -75,12 +76,13 @@ const MoreCentileInfo = ({specificResults}: propTypes) => {
 
   const modalMessage = `${noCorrectionMessage}The default answer follows RCPCH guidelines based on major centile lines (50th, 75th etc.): \n\n If a centile measurement is within 1/4 of the distance between 2 major centile lines, the measurement is considered to lie on or near the nearest major centile line. Otherwise it is either considered to lie between, above or below.`;
 
+  const handleButtonPress = () => {
+    setModalVisible(true);
+  };
+
   return (
     <React.Fragment>
-      <TouchableOpacity
-        onPress={() => {
-          setModalVisible(true);
-        }}>
+      <TouchableOpacity onPress={handleButtonPress} disabled={isLoading}>
         <AppIcon
           name="information-outline"
           size={30}

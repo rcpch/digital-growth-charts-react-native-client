@@ -11,7 +11,7 @@ function xAxislabel(
       if (upperX <= 0.038329911019849415) {
         return 'Gestation';
       } else {
-        return 'Gestation or postnatal weeks / months';
+        return 'Gestation or postnatal weeks';
       }
     case 'infant':
       if (lowerX < 0 && upperX >= 0) {

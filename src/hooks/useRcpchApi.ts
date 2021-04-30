@@ -54,12 +54,6 @@ const makeApiArgument = (
     throw new Error('No valid sex found');
   }
 
-  // const dobWithTimeStripped = new Date(formatDate(dob, true, true));
-  // const birthDate = dobWithTimeStripped.toISOString();
-  // const todayWithTimeStripped = new Date(formatDate(new Date(), true, true));
-  // const observationDate =
-  //   inputObject.dom.value?.toISOString() || todayWithTimeStripped.toISOString();
-
   const birthDate = formatDate(dob, true, true);
   const observationDate = formatDate(
     inputObject.dom.value || new Date(),
@@ -67,8 +61,9 @@ const makeApiArgument = (
     true,
   );
 
-  const gestationDays = gestationInDays % 7;
-  const gestationWeeks = Math.floor(gestationInDays / 7);
+  const gestationDays = gestationInDays > 294 ? 0 : gestationInDays % 7;
+  const gestationWeeks =
+    gestationInDays > 294 ? 42 : Math.floor(gestationInDays / 7);
   const observationValue = Number(measurement);
   return {
     birth_date: birthDate,
@@ -121,7 +116,7 @@ const getSingleCentileData = async (
   inputObject: globalStateType,
   measurementType: keyof globalStateType,
   workingErrorsObject: {[key: string]: string | boolean},
-  urlBase: string = 'local',
+  urlBase: 'local' | 'lan' | 'real' = 'local',
 ) => {
   // look for error message corresponding to measurement type, only proceed if no error message:
   if (!workingErrorsObject[measurementType]) {
@@ -184,7 +179,7 @@ function makeErrorState() {
   return errors;
 }
 
-const useRcpchApi = (url = 'local') => {
+const useRcpchApi = (url: 'local' | 'lan' | 'real') => {
   const {globalState} = useContext(GlobalStateContext);
   const [centileResults, setCentileResults] = useState(makeCentileState());
   const [errors, setErrors] = useState(makeErrorState());
@@ -230,7 +225,6 @@ const useRcpchApi = (url = 'local') => {
           bmi: bmi,
           ofc: ofc,
         });
-        // console.log(JSON.stringify(weight));
         setErrors(workingErrorsObject);
       }
     } catch (error) {
