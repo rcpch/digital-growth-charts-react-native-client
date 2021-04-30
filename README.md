@@ -39,3 +39,11 @@ The project should now be ready to run.
 ## Running
 
 For best results, run the app from within Xcode or Android Studio. Open ./ios/RCPCHGrowth.xcworkspace (**NOT** RCPCHGrowth.xcodeproj) for iOS and ./android/ folder from within Android Studio for Android.
+
+## Troubleshooting
+
+### Changes to environment variables are not reflected when the application is run
+
+Try resetting the metro cache:
+
+`npx react-native start --reset-cache`

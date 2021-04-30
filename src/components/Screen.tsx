@@ -38,7 +38,6 @@ const Screen = ({
               color={colors.black}
               style={styles.backButton}
             />
-            <AppText style={styles.backText}>Back</AppText>
           </TouchableOpacity>
         )}
         <View style={styles.titleContainer}>
@@ -54,7 +53,7 @@ const styles = StyleSheet.create({
   backButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: Platform.OS === 'ios' ? 6 : 0,
+    paddingBottom: Platform.OS === 'ios' ? 4 : 0,
   },
   banner: {
     marginBottom: 5,
@@ -70,7 +69,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingLeft: 5,
+    paddingLeft: 8,
   },
   titleContainer: {
     width: '100%',

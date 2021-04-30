@@ -1,11 +1,10 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {StyleSheet, View, TouchableOpacity} from 'react-native';
 
 import AppText from './AppText';
 import {colors, theme} from '../config/';
 import AppIcon from './AppIcon';
 import AppModal from './AppModal';
-import LoadingOrText from './LoadingOrText';
 
 type propTypes = {
   centileResults: {[key: string]: any};
@@ -31,94 +30,107 @@ function trimStringAge(stringAge: string): string {
   }
 }
 
+const modalHeading = 'Further Information:';
+
 const AgeButton = ({centileResults, errors, isLoading}: propTypes) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [outputString, setOutputString] = useState('Age:');
+  const [modalMessage, setModalMessage] = useState('N/A');
 
-  let outputString = 'Age: N/A';
-  const modalHeading = 'Further Information:';
-  let modalMessage = 'N/A';
-  let star = '';
-
-  if (isLoading) {
-    outputString = '';
-  } else if (!isLoading && !errors.serverErrors) {
-    for (const individualCentileResult of Object.values(centileResults)) {
-      if (individualCentileResult) {
-        try {
-          const birthGestationWeeks =
-            individualCentileResult.birth_data.gestation_weeks;
-          const birthGestationDays =
-            individualCentileResult.birth_data.gestation_days;
-          const correctedGestationWeeks =
-            individualCentileResult.measurement_dates.corrected_gestational_age
-              .corrected_gestation_weeks;
-          const correctedGestationDays =
-            individualCentileResult.measurement_dates.corrected_gestational_age
-              .corrected_gestation_days;
-          const chronologicalDecimalAge =
-            individualCentileResult.measurement_dates.chronological_decimal_age;
-          const correctedDecimalAge =
-            individualCentileResult.measurement_dates.corrected_decimal_age;
-          const chronologicalCalendarAge =
-            individualCentileResult.measurement_dates
-              .chronological_calendar_age;
-          const correctedCalendarAge =
-            individualCentileResult.measurement_dates.corrected_calendar_age;
-          const estimatedDateDelivery =
-            individualCentileResult.birth_data.estimated_date_delivery_string;
-          const correctionComment =
-            individualCentileResult.measurement_dates.comments
-              .clinician_corrected_decimal_age_comment;
-          //Born <37 weeks, less than 2 weeks corrected age and not birthday:
-          if (
-            birthGestationWeeks < 40 &&
-            correctedDecimalAge < 0.041 &&
-            chronologicalDecimalAge !== 0
-          ) {
-            // patient group is neonates:
-            outputString = `Corrected Gestation: ${correctedGestationWeeks}+${correctedGestationDays}`;
-            modalMessage = `${chronologicalCalendarAge} old\n\nEstimated Date of Delivery: ${estimatedDateDelivery}`;
-          } else if (chronologicalDecimalAge === 0) {
-            // patient group is infants at birth:
-            outputString = `Birth Gestation: ${birthGestationWeeks}+${birthGestationDays}`;
-            modalMessage = `Happy Birthday!\n\nEstimated Date of Delivery: ${estimatedDateDelivery}`;
-          } else {
-            // patient group is everyone else:
-            modalMessage = `${chronologicalCalendarAge} old.\n\nChild born at or after 40 weeks gestation, no gestational correction applied.`;
-            let appropriateStringAge = chronologicalCalendarAge;
-            if (birthGestationWeeks < 40) {
-              star = '*';
-              modalMessage =
-                `${correctedCalendarAge} old (corrected)\n\n${chronologicalCalendarAge} old (chronological)` +
-                `\n\n${correctionComment}`;
-              appropriateStringAge = correctedCalendarAge;
+  useEffect(() => {
+    let star = '';
+    if (!isLoading && !errors.serverErrors) {
+      for (const individualCentileResult of Object.values(centileResults)) {
+        if (individualCentileResult) {
+          try {
+            const birthGestationWeeks =
+              individualCentileResult.birth_data.gestation_weeks;
+            const birthGestationDays =
+              individualCentileResult.birth_data.gestation_days;
+            const correctedGestationWeeks =
+              individualCentileResult.measurement_dates
+                .corrected_gestational_age.corrected_gestation_weeks;
+            const correctedGestationDays =
+              individualCentileResult.measurement_dates
+                .corrected_gestational_age.corrected_gestation_days;
+            const chronologicalDecimalAge =
+              individualCentileResult.measurement_dates
+                .chronological_decimal_age;
+            const correctedDecimalAge =
+              individualCentileResult.measurement_dates.corrected_decimal_age;
+            const chronologicalCalendarAge =
+              individualCentileResult.measurement_dates
+                .chronological_calendar_age;
+            const correctedCalendarAge =
+              individualCentileResult.measurement_dates.corrected_calendar_age;
+            const estimatedDateDelivery =
+              individualCentileResult.birth_data.estimated_date_delivery_string;
+            const correctionComment =
+              individualCentileResult.measurement_dates.comments
+                .clinician_corrected_decimal_age_comment;
+            //Born <37 weeks, less than 2 weeks corrected age and not birthday:
+            if (
+              birthGestationWeeks < 40 &&
+              correctedDecimalAge < 0.041 &&
+              chronologicalDecimalAge !== 0
+            ) {
+              // patient group is neonates:
+              setOutputString(
+                `Corrected Gestation: ${correctedGestationWeeks}+${correctedGestationDays}`,
+              );
+              setModalMessage(
+                `${chronologicalCalendarAge} old\n\nEstimated Date of Delivery: ${estimatedDateDelivery}`,
+              );
+            } else if (chronologicalDecimalAge === 0) {
+              // patient group is infants at birth:
+              setOutputString(
+                `Birth Gestation: ${birthGestationWeeks}+${birthGestationDays}`,
+              );
+              setModalMessage(
+                `Happy Birthday!\n\nEstimated Date of Delivery: ${estimatedDateDelivery}`,
+              );
+            } else {
+              // patient group is everyone else:
+              setModalMessage(
+                `${chronologicalCalendarAge} old.\n\nChild born at or after 40 weeks gestation, no gestational correction applied.`,
+              );
+              let appropriateStringAge = chronologicalCalendarAge;
+              if (birthGestationWeeks < 40) {
+                star = '*';
+                setModalMessage(
+                  `${correctedCalendarAge} old (corrected)\n\n${chronologicalCalendarAge} old (chronological)` +
+                    `\n\n${correctionComment}`,
+                );
+                appropriateStringAge = correctedCalendarAge;
+              }
+              setOutputString(
+                `Age: ${trimStringAge(appropriateStringAge)}${star}`,
+              );
             }
-            outputString = `Age: ${trimStringAge(appropriateStringAge)}${star}`;
+          } catch (error) {
+            // if the api object changes, this should hopefully catch error here
+            console.error(error.message);
+            setOutputString('Age: N/A');
+            setOutputString('Error: failed to load');
           }
-        } catch (error) {
-          // if the api object changes, this should hopefully catch error here
-          console.error(error.message);
-          outputString = 'Age: N/A';
-          modalMessage = 'Error: failed to load';
+          break;
         }
-        break;
       }
+    } else if (!isLoading && errors.serverErrors) {
+      setOutputString('Age: N/A');
     }
-  }
-
-  const mainButtonTextStyle = isLoading ? {width: 110} : null;
+  }, [isLoading, errors, centileResults]);
 
   return (
     <React.Fragment>
       <TouchableOpacity
         onPress={() => {
           setModalVisible(true);
-        }}>
+        }}
+        disabled={isLoading}>
         <View style={styles.button}>
           <View style={styles.buttonContainer}>
-            <LoadingOrText style={mainButtonTextStyle}>
-              {outputString}
-            </LoadingOrText>
+            <AppText>{outputString}</AppText>
             <AppIcon
               size={25}
               name="information-outline"
@@ -133,9 +145,7 @@ const AgeButton = ({centileResults, errors, isLoading}: propTypes) => {
         <View style={styles.modalTextHeadingWrapper}>
           <AppText style={styles.modalTextHeadings}>{modalHeading}</AppText>
         </View>
-        <LoadingOrText style={styles.modalTextParagraph}>
-          {modalMessage}
-        </LoadingOrText>
+        <AppText style={styles.modalTextParagraph}>{modalMessage}</AppText>
       </AppModal>
     </React.Fragment>
   );

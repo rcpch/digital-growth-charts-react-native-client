@@ -1,4 +1,4 @@
-export const allXTickValues = [
+const allXTickValues = [
   -0.32580424366872,
   -0.3066392881587953,
   -0.2874743326488706,
@@ -56,6 +56,7 @@ export const allXTickValues = [
   0.9582477754962354,
   1,
   1.08333333333333333,
+  1.15331964407939766,
   1.16666666666666666,
   1.25,
   1.3333333333333333,
@@ -103,6 +104,54 @@ export const allXTickValues = [
   19.5,
   20,
 ];
+
+export function getTickValuesForChartScaling(
+  chartScaleType: 'prem' | 'infant' | 'smallChild' | 'biggerChild',
+) {
+  const tickValuesForChartScaling = [];
+  for (const element of allXTickValues) {
+    switch (chartScaleType) {
+      case 'prem':
+        tickValuesForChartScaling.push(element);
+        break;
+      case 'infant':
+        if (element < 1) {
+          if (
+            Number.isInteger(element) ||
+            Number.isInteger(Number((element * 12).toFixed(2))) === false
+          ) {
+            tickValuesForChartScaling.push(element);
+          }
+        } else {
+          tickValuesForChartScaling.push(element);
+        }
+        break;
+      case 'smallChild':
+        if (
+          Number.isInteger(element) ||
+          element === -0.32580424366872 ||
+          Number.isInteger(Number((element * 3).toFixed(2)))
+        ) {
+          tickValuesForChartScaling.push(element);
+        }
+        break;
+      case 'biggerChild':
+        if (
+          Number.isInteger(element) ||
+          element === -0.32580424366872 ||
+          Number.isInteger(element * 2)
+        ) {
+          tickValuesForChartScaling.push(element);
+        }
+        break;
+      default:
+        console.error(
+          'getTickValuesForChartScaling did not pick up a valid chartScaleType',
+        );
+    }
+  }
+  return tickValuesForChartScaling;
+}
 
 const premXTickValues = [];
 

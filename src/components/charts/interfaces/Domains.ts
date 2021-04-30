@@ -1,4 +1,1 @@
-export interface Domains {
-  x: number[];
-  y: number[];
-}
+export type Domains = {[key: string]: number[]};

@@ -9,9 +9,9 @@ For the purposes of working out age padding around points on a chart:
 
 const totalMinPadding = {
   prem: 0.1,
-  infant: 0.3,
-  smallChild: 1.6,
-  biggerChild: 4.5,
+  infant: 0.2,
+  smallChild: 0.9,
+  biggerChild: 3.9,
 };
 
 export default totalMinPadding;
