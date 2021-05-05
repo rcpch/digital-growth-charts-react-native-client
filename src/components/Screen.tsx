@@ -1,5 +1,11 @@
 import React from 'react';
-import {Platform, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  useColorScheme,
+} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
 
@@ -14,6 +20,8 @@ type propTypes = {
   backgroundColor?: string;
 };
 
+// top banner is 42px + any padding for safe area
+
 const Screen = ({
   children,
   title,
@@ -22,27 +30,39 @@ const Screen = ({
 }: propTypes) => {
   const insets = useSafeAreaInsets();
   const dynamicBannerStyle = {
-    height: insets.top + 30,
-    backgroundColor: backgroundColor || colors.light,
+    paddingTop: insets.top,
+    backgroundColor: backgroundColor || colors.darkest,
   };
   const navigation = useNavigation();
+  const scheme = useColorScheme();
   const goBack = () => navigation.goBack();
+  const darkBackground = {backgroundColor: 'black'};
   return (
-    <View style={styles.wholeScreen}>
+    <View
+      style={
+        scheme === 'dark'
+          ? {...styles.wholeScreen, ...darkBackground}
+          : styles.wholeScreen
+      }>
       <View style={[styles.banner, dynamicBannerStyle]}>
+        <View style={styles.titleContainer}>
+          <Image
+            style={styles.logo}
+            source={require('../assets/imgs/RCPCHStar.png')}
+            resizeMode="contain"
+          />
+          <AppText style={styles.titleText}>{title}</AppText>
+        </View>
         {renderBack && (
           <TouchableOpacity style={styles.touchableContainer} onPress={goBack}>
             <AppIcon
               name="chevron-left"
               size={30}
-              color={colors.black}
+              color={colors.white}
               style={styles.backButton}
             />
           </TouchableOpacity>
         )}
-        <View style={styles.titleContainer}>
-          <AppText style={styles.titleText}>{title}</AppText>
-        </View>
       </View>
       <View style={styles.view}>{children}</View>
     </View>
@@ -53,10 +73,8 @@ const styles = StyleSheet.create({
   backButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: Platform.OS === 'ios' ? 4 : 0,
   },
   banner: {
-    marginBottom: 5,
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'flex-start',
@@ -66,30 +84,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   touchableContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingLeft: 8,
+    left: 8,
+    bottom: 5,
+    position: 'absolute',
   },
   titleContainer: {
     width: '100%',
     alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
   },
   titleText: {
-    color: colors.black,
+    color: colors.white,
     textAlign: 'center',
     textAlignVertical: 'center',
-    height: 30,
-  },
-  backText: {
-    color: colors.black,
-    fontSize: 18,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-    height: 30,
   },
   wholeScreen: {
     flex: 1,
+  },
+  logo: {
+    height: 30,
+    width: 30,
+    marginBottom: 8,
+    marginTop: 4,
   },
 });
 

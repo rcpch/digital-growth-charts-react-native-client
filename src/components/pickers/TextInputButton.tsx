@@ -4,10 +4,12 @@ import {StyleSheet, View, TextInput} from 'react-native';
 import useCombined from '../../hooks/useCombined';
 import PickerButton from '../PickerButton';
 import {containerWidth, theme, colors} from '../../config';
+import {Names} from '../../interfaces/GlobalState';
+import {MakeSubState} from '../GlobalStateContext';
 
 type propTypes = {
   iconName: string;
-  name: string;
+  name: Names;
   unitsOfMeasurement: string;
   userLabel: string;
 };
@@ -40,7 +42,7 @@ const TextInputButton = ({
   }
 
   const cancelInput = () => {
-    combinedSetter(initialState[name]);
+    combinedSetter(MakeSubState(name));
   };
 
   const toggleTextInput = () => {
@@ -94,7 +96,7 @@ const styles = StyleSheet.create({
   inputBox: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.medium,
+    backgroundColor: colors.darkMedium,
     borderRadius: 5,
     flexDirection: 'row',
     height: 57,

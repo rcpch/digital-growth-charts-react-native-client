@@ -193,6 +193,6 @@ const styles = StyleSheet.create({
   button: {
     ...theme.button,
     justifyContent: 'center',
-    backgroundColor: colors.black,
+    backgroundColor: colors.pink,
   },
 });

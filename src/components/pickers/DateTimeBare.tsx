@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {Picker} from '@react-native-picker/picker';
 import {Platform, View, StyleSheet} from 'react-native';
+import produce from 'immer';
 
 import {theme} from '../../config';
 
@@ -143,14 +144,23 @@ const DateTimeBare = ({date, setDate, renderTime = false}: propTypes) => {
   };
   const [values, setValues] = useState(initialValues);
 
-  const handleChange = (newValue: string, measurement: string) => {
-    const newState = {...values, ...{[measurement]: newValue}};
+  const handleChange = (
+    newValue: string,
+    measurement: 'day' | 'month' | 'year' | 'hour' | 'minute',
+  ) => {
+    let newState = produce(values, (draft) => {
+      draft[measurement] = newValue;
+    });
     const dayArrayForNewMonth = monthDays(newState.year, newState.month);
     if (values.dayList.length !== dayArrayForNewMonth.length) {
-      newState.dayList = dayArrayForNewMonth;
+      newState = produce(newState, (draft) => {
+        draft.dayList = [...dayArrayForNewMonth];
+      });
       const newLastDay = dayArrayForNewMonth[dayArrayForNewMonth.length - 1];
-      if (newState.day > newLastDay) {
-        newState.day = newLastDay;
+      if (Number(newState.day) > Number(newLastDay)) {
+        newState = produce(newState, (draft) => {
+          draft.day = newLastDay;
+        });
       }
     }
     const {year, month, day, hour, minute} = newState;

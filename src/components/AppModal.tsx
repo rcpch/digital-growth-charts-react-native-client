@@ -40,7 +40,7 @@ const AppModal = ({
       visible={modalVisible}
       onRequestClose={handleRequestClose}>
       <View style={styles.centeredView}>
-        <View style={[styles.modalView, style]}>
+        <View style={{...styles.modalView, ...style}}>
           {renderCloseButton && (
             <TouchableOpacity onPress={handleRequestClose}>
               <View

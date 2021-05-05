@@ -126,23 +126,25 @@ const CentileOutput = ({
 
   return (
     <Animated.View style={{...styles.outputContainer, opacity: fadeAnim}}>
-      <MoreCentileInfo
-        specificResults={specificResults}
-        isLoading={isLoading}
-      />
       <View style={styles.outputTextBox}>
         <AppText style={styles.text}>{titleText}</AppText>
         <View>
           <AppText style={styles.outputText}>{defaultOutput}</AppText>
         </View>
       </View>
-      <TouchableOpacity disabled={isLoading} onPress={navigateChart}>
-        <AppIcon
-          name="chart-bell-curve-cumulative"
-          size={30}
-          style={styles.goToChartIcon}
+      <View style={styles.buttonContainer}>
+        <MoreCentileInfo
+          specificResults={specificResults}
+          isLoading={isLoading}
         />
-      </TouchableOpacity>
+        <TouchableOpacity disabled={isLoading} onPress={navigateChart}>
+          <AppIcon
+            name="chart-bell-curve-cumulative"
+            size={30}
+            style={styles.goToChartIcon}
+          />
+        </TouchableOpacity>
+      </View>
     </Animated.View>
   );
 };
@@ -150,8 +152,11 @@ const CentileOutput = ({
 export default CentileOutput;
 
 const styles = StyleSheet.create({
+  buttonContainer: {
+    flexDirection: 'row',
+  },
   outputContainer: {
-    backgroundColor: colors.darkMedium,
+    backgroundColor: colors.dark,
     borderRadius: 10,
     flexDirection: 'row',
     alignItems: 'center',
@@ -163,11 +168,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   outputTextBox: {
+    paddingLeft: 5,
     marginTop: 15,
     marginBottom: 15,
     textAlign: 'left',
     justifyContent: 'center',
-    width: containerWidth - 155,
+    width: containerWidth - 150,
   },
   text: {
     fontSize: 18,
@@ -184,7 +190,7 @@ const styles = StyleSheet.create({
   },
   goToChartIcon: {
     borderRadius: 5,
-    backgroundColor: colors.medium,
+    backgroundColor: colors.pink,
     padding: 5,
     alignItems: 'center',
     justifyContent: 'center',

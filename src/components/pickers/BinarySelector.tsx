@@ -6,9 +6,11 @@ import PickerButton from '../PickerButton';
 import useCombined from '../../hooks/useCombined';
 import {colors} from '../../config';
 import AcceptCancel from '../AcceptCancel';
+import {Names} from '../../interfaces/GlobalState';
+import {MakeSubState} from '../GlobalStateContext';
 
 type propTypes = {
-  name: string;
+  name: Names;
   trueValue: string;
   falseValue: string;
   userLabel: string;
@@ -25,7 +27,6 @@ const BinarySelector = ({
   const {
     combinedSetter,
     buttonState,
-    initialState,
     specificErrorMessage,
     showErrorMessages,
   } = useCombined(name);
@@ -54,7 +55,7 @@ const BinarySelector = ({
     if (showPicker) {
       combinedSetter({showPicker: false, workingValue: value});
     } else {
-      combinedSetter(initialState[name]);
+      combinedSetter(MakeSubState(name));
     }
   };
 
@@ -69,7 +70,7 @@ const BinarySelector = ({
       showErrorMessages={showErrorMessages}>
       {showPicker && (
         <UnitsSwitcher
-          backgroundColor={colors.medium}
+          backgroundColor={colors.darkMedium}
           trueUnits={trueValue}
           falseUnits={falseValue}
           workingUnits={workingValue}

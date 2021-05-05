@@ -15,7 +15,6 @@ import {
   xAxisLabel,
   yAxisLabel,
   getDomainsAndData,
-  makeStylesObjects,
   tailoredXTickValues,
 } from './functions';
 import RenderTickLabel from './subComponents/RenderTickLabel';
@@ -58,36 +57,8 @@ function CentileChart({
   reference,
   sex,
   measurementsArray,
-  chartStyle,
-  axisStyle,
-  gridlineStyle,
-  centileStyle,
-  measurementStyle,
+  styles,
 }: MainChartProps) {
-  // parse chart styles:
-  const {
-    chartContainerStyle,
-    chartPaddingStyle,
-    chartBackgroundStyle,
-    titleTextStyle,
-    titleContainerStyle,
-    subtitleTextStyle,
-    parsedAxisStyle,
-    tickLabelStyle,
-    dashedCentileStyle,
-    continuousCentileStyle,
-    measurementPointStyle,
-    measurementLineStyle,
-    termFillStyle,
-    centileLabelStyle,
-  } = makeStylesObjects(
-    axisStyle,
-    centileStyle,
-    chartStyle,
-    measurementStyle,
-    gridlineStyle,
-  );
-
   const {
     defaultShowCorrected,
     defaultShowChronological,
@@ -102,7 +73,10 @@ function CentileChart({
     defaultShowCorrected,
   );
 
-  const [pressedButtonArray, setPressedButtonArray] = useState([]);
+  const [pressedButtonArray, setPressedButtonArray]: [
+    any[],
+    Function,
+  ] = useState([]);
 
   const {
     computedDomains,
@@ -197,16 +171,16 @@ function CentileChart({
   };
 
   return (
-    <View style={chartContainerStyle}>
-      <View style={titleContainerStyle}>
-        <Text style={titleTextStyle}>{title}</Text>
-        <Text style={subtitleTextStyle}>{subtitle}</Text>
+    <View style={styles.chartContainerStyle}>
+      <View style={styles.titleContainerStyle}>
+        <Text style={styles.titleTextStyle}>{title}</Text>
+        <Text style={styles.subtitleTextStyle}>{subtitle}</Text>
       </View>
       <VictoryChart
-        width={chartStyle.width}
-        height={showToggle ? chartStyle.height - 60 : chartStyle.height}
-        padding={chartPaddingStyle}
-        style={chartBackgroundStyle}
+        width={styles.chartWidth}
+        height={showToggle ? styles.chartHeight - 60 : styles.chartHeight}
+        padding={styles.chartPadding}
+        style={styles.chartMisc}
         domain={computedDomains}
         containerComponent={
           <VictoryVoronoiContainer
@@ -220,7 +194,7 @@ function CentileChart({
         {
           /* Term child shaded area: */
           showTermArea && (
-            <VictoryArea style={termFillStyle} data={termShadedAreaData} />
+            <VictoryArea style={styles.termArea} data={termShadedAreaData} />
           )
         }
         {
@@ -228,27 +202,23 @@ function CentileChart({
           showTermArea && (
             <VictoryLine
               name="term-line"
-              style={{
-                data: {
-                  stroke: 'transparent',
-                },
-              }}
+              style={styles.termAreaLabel}
               data={termShadedAreaLineData}
               labels={({datum}) => datum.label}
-              labelComponent={<InfoPopup reverse />}
+              labelComponent={<InfoPopup reverse style={styles.label} />}
             />
           )
         }
         {/* Y axis: */}
         <VictoryAxis
           label={yAxisLabel(measurementMethod)}
-          style={parsedAxisStyle}
+          style={styles.yAxis}
           dependentAxis
         />
         {/* X axis: */}
         <VictoryAxis
           label={xAxisLabel(chartScaleType, computedDomains)}
-          style={parsedAxisStyle}
+          style={styles.xAxis}
           tickValues={tailoredXTickValues[chartScaleType]}
           gridComponent={
             <CustomGridComponent
@@ -258,7 +228,7 @@ function CentileChart({
           }
           tickLabelComponent={
             <RenderTickLabel
-              style={tickLabelStyle}
+              style={styles.label}
               chartScaleType={chartScaleType}
               domains={computedDomains}
             />
@@ -279,10 +249,12 @@ function CentileChart({
                   <VictoryLine
                     key={dataArray[0].x}
                     name="puberty-line"
-                    style={measurementLineStyle}
+                    style={styles.delayedPubertyThresholdLine}
                     data={dataArray}
                     labels={({datum}) => datum.label}
-                    labelComponent={<InfoPopup reverse={reverse} />}
+                    labelComponent={
+                      <InfoPopup reverse={reverse} style={styles.label} />
+                    }
                   />
                 );
               } else {
@@ -300,7 +272,7 @@ function CentileChart({
             <VictoryLabel
               dy={2}
               dx={chartScaleType === 'prem' ? -14 : 14}
-              style={centileLabelStyle}
+              style={styles.centileLabelStyle}
             />
           }
           style={{
@@ -313,13 +285,7 @@ function CentileChart({
             <VictoryArea
               data={delayedPubertyThreshold(sex)}
               y0={lowerPubertyBorder}
-              style={{
-                data: {
-                  stroke: centileStyle.delayedPubertyAreaFill,
-                  fill: centileStyle.delayedPubertyAreaFill,
-                  strokeWidth: centileStyle.centileStrokeWidth,
-                },
-              }}
+              style={styles.delayedPubertyArea}
               name="delayed-puberty"
             />
           )
@@ -343,7 +309,7 @@ function CentileChart({
                               key={centile.centile + '-' + centileIndex}
                               padding={{top: 5, bottom: 5}}
                               data={centile.data}
-                              style={dashedCentileStyle}
+                              style={styles.dashedCentile}
                             />
                           );
                         } else {
@@ -351,9 +317,9 @@ function CentileChart({
                           return (
                             <VictoryLine
                               key={centile.centile + '-' + centileIndex}
-                              padding={{top: 20, bottom: 60}}
+                              padding={{top: 5, bottom: 5}}
                               data={centile.data}
-                              style={continuousCentileStyle}
+                              style={styles.continuousCentile}
                               name={
                                 'victory' + centile.centile + '-' + centileIndex
                               }
@@ -383,8 +349,8 @@ function CentileChart({
                 <VictoryScatter // corrected age - a custom component that renders a cross
                   data={[correctedAgeData]}
                   dataComponent={<XPoint />}
-                  size={measurementStyle.measurementSize}
-                  style={measurementPointStyle}
+                  size={5}
+                  style={styles.measurementPoint}
                   name={`corrected_${index}`}
                 />
               )}
@@ -392,8 +358,8 @@ function CentileChart({
                 <VictoryScatter // chronological age
                   data={[chronologicalAgeData]}
                   symbol="circle"
-                  size={measurementStyle.measurementSize}
-                  style={measurementPointStyle}
+                  size={5}
+                  style={styles.measurementPoint}
                   name={`chronological_${index}`}
                 />
               )}
@@ -401,7 +367,7 @@ function CentileChart({
                 showCorrectedAge && ( // only show the line if both cross and dot are rendered
                   <VictoryLine
                     name="linkLine"
-                    style={measurementLineStyle}
+                    style={styles.measurementLinkLine}
                     data={[correctedAgeData, chronologicalAgeData]}
                   />
                 )}
@@ -413,15 +379,15 @@ function CentileChart({
         pressedButtonArray={pressedButtonArray}
         setPressedButtonArray={setPressedButtonArray}
         measurementMethod={measurementMethod}
+        customStyle={styles.modalStyle}
       />
       {showToggle && (
         <CorrectVsChron
-          titleTextStyle={titleTextStyle}
-          subtitleTextStyle={subtitleTextStyle}
           showChronologicalAge={showChronologicalAge}
           setShowChronologicalAge={setShowChronologicalAge}
           showCorrectedAge={showCorrectedAge}
           setShowCorrectedAge={setShowCorrectedAge}
+          customStyle={styles.modalStyle}
         />
       )}
     </View>

@@ -12,7 +12,7 @@ function RenderTickLabel(props) {
   const Dash = () => {
     return (
       <Svg>
-        <Line x1={x} x2={x} y1={y - 5} y2={y - 3} stroke="black" />
+        <Line x1={x} x2={x} y1={y - 5} y2={y - 3} stroke={style.fill} />
       </Svg>
     );
   };
@@ -26,8 +26,8 @@ function RenderTickLabel(props) {
               x={overrideX}
               y={y - 19}
               textAnchor="middle"
-              fill="black"
-              fontSize={11}
+              fill={style.fill}
+              fontSize={style.fontSize}
               fontFamily={style.axisLabelFont}>
               {textLabel}
             </Text>
@@ -35,10 +35,10 @@ function RenderTickLabel(props) {
               cx={overrideX}
               cy={y - 22}
               r={9}
-              stroke="black"
+              stroke={style.fill}
               fill="transparent"
             />
-            <Line x1={x} x2={x} y1={y - 3} y2={y - 14} stroke="black" />
+            <Line x1={x} x2={x} y1={y - 3} y2={y - 14} stroke={style.fill} />
           </G>
         </Svg>
       );
@@ -50,13 +50,13 @@ function RenderTickLabel(props) {
     return (
       <Svg>
         <G>
-          <Line x1={x} x2={x} y1={y - 5} y2={y - 3} stroke="black" />
+          <Line x1={x} x2={x} y1={y - 5} y2={y - 3} stroke={style.fill} />
           <Text
             x={x}
             y={y + 10}
             textAnchor="middle"
-            fill="black"
-            fontSize={11}
+            fill={style.fill}
+            fontSize={style.fontSize}
             fontFamily={style.axisLabelFont}>
             {textLabel}
           </Text>

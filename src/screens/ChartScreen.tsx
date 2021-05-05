@@ -1,10 +1,18 @@
-import React, {useCallback, useState} from 'react';
-import {useFocusEffect} from '@react-navigation/core';
-import {StyleSheet, View} from 'react-native';
+import React from 'react';
+import {StyleSheet, View, useColorScheme} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {RCPCHChart, Screen, AppText} from '../components';
 
-import {colors, containerWidth, windowHeight} from '../config';
+import {RCPCHChart, Screen, AppText} from '../components';
+import {colors, windowWidth, windowHeight, bannerHeight} from '../config';
+
+import {
+  AxisStyle,
+  CentileStyle,
+  ChartStyle,
+  GridlineStyle,
+  MeasurementStyle,
+  ModalStyle,
+} from '../components/charts/interfaces/StyleObjects';
 
 type propTypes = {
   route: {[key: string]: any};
@@ -19,48 +27,13 @@ function ChartScreen({route}: propTypes) {
   } = route.params;
 
   const insets = useSafeAreaInsets();
+  const scheme = useColorScheme();
+  const isDark = scheme === 'dark' ? true : false;
 
-  const extraDimensionsChartContainer = {
-    marginTop: insets.top,
-    marginBottom: insets.bottom,
-    height: windowHeight - insets.top - 30,
-  };
-
-  const [showChart, setShowChart] = useState(false);
-
-  const makeChartVisible = showChart && specificResults ? true : false;
+  const safeAreaHeight =
+    windowHeight - insets.top - insets.bottom - bannerHeight;
 
   const sex = specificResults?.birth_data.sex;
-
-  useFocusEffect(
-    useCallback(() => {
-      if (!showChart) {
-        setShowChart(true);
-      }
-    }, [showChart]),
-  );
-
-  const customChartStyle = {
-    width: containerWidth,
-    height: extraDimensionsChartContainer.height - 90,
-    padding: {left: 40, right: 40, top: 5, bottom: 50},
-    termFill: '#D9D9D9',
-    termStroke: 'black',
-    infoBoxFill: colors.darkest,
-    infoBoxStroke: 'black',
-    infoBoxTextStyle: {
-      name: 'Montserrat-Regular',
-      colour: 'white',
-      size: '14',
-      weight: 'bold',
-    },
-    toggleButtonInactiveColour: colors.medium,
-    toggleButtonActiveColour: colors.darkest,
-    toggleButtonTextColour: 'white',
-    titleStyle: {
-      name: 'Montserrat-Regular',
-    },
-  };
 
   let referenceLabel = 'UK-WHO';
   if (reference === 'trisomy-21') {
@@ -73,9 +46,63 @@ function ChartScreen({route}: propTypes) {
     ? `${sex === 'female' ? 'Female' : 'Male'} | ${referenceLabel}`
     : '';
 
+  const textColor = isDark ? 'white' : 'black';
+
+  const customChartStyle: ChartStyle = {
+    width: windowWidth,
+    height: safeAreaHeight,
+    padding: {left: 40, right: 40, top: 5, bottom: 40},
+    titleStyle: {
+      name: 'Montserrat-Bold',
+      weight: 'bold',
+      colour: textColor,
+    },
+    subTitleStyle: {
+      name: 'Montserrat-Bold',
+      weight: 'bold',
+      colour: textColor,
+    },
+    termFill: isDark ? '#252526' : undefined,
+    termStroke: isDark ? '#252526' : undefined,
+  };
+
+  const customAxisStyle: AxisStyle = {
+    axisStroke: textColor,
+    axisLabelTextStyle: {
+      name: 'Montserrat-Bold',
+      weight: 'bold',
+      colour: textColor,
+    },
+    tickLabelTextStyle: {
+      name: 'Montserrat-Regular',
+      colour: textColor,
+    },
+    buttonTextStyle: {
+      name: 'Montserrat-Bold',
+      weight: 'bold',
+    },
+  };
+
+  const customCentileStyle: CentileStyle = {
+    delayedPubertyAreaFill: isDark ? colors.dark : null,
+    continuous: {
+      centileStroke: isDark ? colors.light : null,
+    },
+  };
+
+  const customMeasurementStyle: MeasurementStyle = {
+    measurementFill: textColor,
+  };
+
+  const customGridlineStyle: GridlineStyle = {
+    gridlines: isDark ? false : true,
+  };
+
+  const naTextColor = {color: textColor};
+
   return (
     <Screen renderBack>
-      {makeChartVisible ? (
+      {specificResults ? (
         <RCPCHChart
           title={`${userLabelNames[measurementType]} Chart`}
           subtitle={subtitleText}
@@ -84,53 +111,29 @@ function ChartScreen({route}: propTypes) {
           sex={sex}
           measurementsArray={[specificResults]}
           chartStyle={customChartStyle}
+          modalStyle={customModalStyle}
           axisStyle={customAxisStyle}
+          centileStyle={isDark ? customCentileStyle : undefined}
           gridlineStyle={customGridlineStyle}
-          centileStyle={customCentileStyle}
           measurementStyle={customMeasurementStyle}
         />
       ) : (
         <View style={styles.naContainer}>
-          {!specificResults && <AppText style={styles.naText}>N/A</AppText>}
+          <AppText style={{...styles.naText, ...naTextColor}}>N/A</AppText>
         </View>
       )}
     </Screen>
   );
 }
 
-const customAxisStyle = {
-  axisStroke: 'black',
-  axisLabelTextStyle: {
+const customModalStyle: ModalStyle = {
+  titleStyle: {
     name: 'Montserrat-Bold',
-    colour: 'black',
-    size: 12,
     weight: 'bold',
   },
-  tickLabelTextStyle: {
+  subTitleStyle: {
     name: 'Montserrat-Regular',
-    colour: 'black',
-    size: 12,
-    weight: 'regular',
   },
-};
-
-const customCentileStyle = {
-  centileStroke: 'black',
-  centileStrokeWidth: 2,
-  delayedPubertyAreaFill: colors.medium,
-};
-
-const customMeasurementStyle = {
-  measurementFill: 'black',
-  measurementSize: 6,
-  measurementShape: 'circle',
-};
-
-const customGridlineStyle = {
-  gridlines: true,
-  stroke: '#D9D9D9',
-  strokeWidth: 1,
-  dashed: false,
 };
 
 const styles = StyleSheet.create({
@@ -139,9 +142,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
   },
   naText: {
-    color: colors.black,
     fontSize: 25,
     fontWeight: '500',
+    fontFamily: 'Montserrat-Bold',
   },
   naContainer: {
     alignItems: 'center',

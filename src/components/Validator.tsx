@@ -1,3 +1,4 @@
+import produce, {immerable} from 'immer';
 import React, {useState} from 'react';
 import {
   proformaObjectArgument,
@@ -125,20 +126,19 @@ const blankContext: {
   updateSingleValidation: Function;
   handleValidationReset: Function;
   validation: any;
-  handleSubmit: Function;
+  giveSubmitFunctionIfAllowed: Function;
   validationProforma: {[key: string]: proformaObjectArgument};
 } = {
   updateSingleValidation: () => {},
   handleValidationReset: () => {},
   validation: {},
-  handleSubmit: () => {},
+  giveSubmitFunctionIfAllowed: () => {},
   validationProforma: {},
 };
 
 const ValidatorContext = React.createContext(blankContext);
 
 // accurate javascript type checking
-
 const getType = (obj: any): string => {
   // get toPrototypeString() of obj (handles all types)
   if (obj == null) {
@@ -170,34 +170,19 @@ function isEmailValid(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-// class for creating tailored validator object:
-
-class Validator {
-  inputType: proformaObjectArgument['inputType'];
-  isRequired: proformaObjectArgument['isRequired'];
-  min: proformaObjectArgument['min'];
-  max: proformaObjectArgument['max'];
-  countCumulative: proformaObjectArgument['countCumulative'];
-  nullable: proformaObjectArgument['nullable'];
-  constructor(proformaObjectArgument: proformaObjectArgument) {
-    if (!proformaObjectArgument) {
-      throw new Error('Validator needs proformas for every measurement entry');
-    }
-    this.inputType = proformaObjectArgument.inputType;
-    this.isRequired = proformaObjectArgument.isRequired;
-    this.min = proformaObjectArgument.min;
-    this.max = proformaObjectArgument.max;
-    this.nullable = proformaObjectArgument.nullable;
-    this.countCumulative = proformaObjectArgument.countCumulative;
-  }
-  validate(value: any): returnValidatorObject {
+function makeValidator(validationProforma: proformaObjectArgument) {
+  const relevant: proformaObjectArgument = produce(
+    validationProforma,
+    () => {},
+  );
+  return function (value: any): returnValidatorObject {
     const outputObject = {
       errors: false,
       isRequiredError: '',
       minError: '',
       maxError: '',
       typeError: '',
-      count: this.countCumulative ? 1 : 0,
+      count: relevant.countCumulative ? 1 : 0,
     };
     let internalType = '';
     switch (getType(value)) {
@@ -220,135 +205,129 @@ class Validator {
         internalType = 'Date';
         break;
       case 'null':
-        if (this.nullable) {
-          internalType = this.inputType.param;
+        if (relevant.nullable) {
+          internalType = relevant.inputType.param;
         } else {
           internalType = 'null';
         }
         break;
       default:
-        outputObject.errors = true;
-        outputObject.typeError = 'Type entered not recognised by validator';
-        return outputObject;
+        return produce(outputObject, (mutable) => {
+          mutable.errors = true;
+          mutable.typeError = 'Type entered not recognised by validator';
+        });
     }
-    if (internalType !== this.inputType.param) {
+    if (internalType !== relevant.inputType.param) {
       // as type check for number in string classifies '' as number:
-      if (!(value === '' && this.inputType.param === 'string')) {
-        outputObject.errors = true;
-        outputObject.typeError =
-          this.inputType.message ||
-          `Invalid type entered. Should be ${this.inputType.param} and it was ${internalType}`;
-        return outputObject;
+      if (!(value === '' && relevant.inputType.param === 'string')) {
+        return produce(outputObject, (mutable) => {
+          mutable.errors = true;
+          mutable.typeError =
+            relevant.inputType.message ||
+            `Invalid type entered. Should be ${relevant.inputType.param} and it was ${internalType}`;
+        });
       }
     }
-    if (this.isRequired) {
+    if (relevant.isRequired) {
       if (!value) {
-        outputObject.errors = true;
-        outputObject.isRequiredError =
-          this.isRequired.message || 'No entry found.';
-        return outputObject;
+        return produce(outputObject, (mutable) => {
+          mutable.errors = true;
+          mutable.isRequiredError =
+            relevant.isRequired?.message || 'No entry found.';
+        });
       }
     }
-    if (this.countCumulative) {
+    if (relevant.countCumulative) {
       if (!value) {
-        outputObject.count = 0;
-        return outputObject;
+        return produce(outputObject, (mutable) => {
+          mutable.count = 0;
+        });
       }
     }
-    if (this.min) {
-      if (Number(value) < this.min.param) {
-        outputObject.errors = true;
-        outputObject.minError = this.min.message || 'Value too low.';
-        return outputObject;
+    if (relevant.min) {
+      if (Number(value) < relevant.min.param) {
+        return produce(outputObject, (mutable) => {
+          mutable.errors = true;
+          mutable.minError = relevant.min?.message || 'Value too low.';
+        });
       }
     }
-    if (this.max) {
-      if (Number(value) > this.max.param) {
-        outputObject.errors = true;
-        outputObject.maxError = this.max.message || 'Value too high.';
+    if (relevant.max) {
+      if (Number(value) > relevant.max.param) {
+        return produce(outputObject, (mutable) => {
+          mutable.errors = true;
+          mutable.maxError = relevant.max?.message || 'Value too high.';
+        });
       }
     }
     return outputObject;
+  };
+}
+
+// class to create validator state object:
+class ValidatorState {
+  cumulative: validatorStateType['cumulative'];
+  errorMessages: validatorStateType['errorMessages'];
+  proforma: validatorStateType['proforma'];
+  untouched: validatorStateType['untouched'];
+  showErrorMessages: validatorStateType['showErrorMessages'];
+  [immerable] = true;
+
+  constructor(proforma: {[key: string]: proformaObjectArgument}) {
+    this.cumulative = {};
+    this.errorMessages = {};
+    this.proforma = produce(proforma, () => {});
+    this.untouched = [];
+    this.showErrorMessages = false;
+
+    for (const [key, value] of Object.entries(proforma)) {
+      this.errorMessages[key] = '';
+      this.untouched.push(key);
+      if (value.countCumulative) {
+        this.cumulative[key] = 0;
+      }
+    }
   }
 }
 
-// react component:
-
-const ValidatorProvider = ({
-  children,
-  validationProforma,
-  customSubmitFunction,
-}: validatorProviderProps) => {
-  // class to create validator state object:
-  class ValidatorState {
-    cumulative: validatorStateType['cumulative'];
-    errorMessages: validatorStateType['errorMessages'];
-    proforma: validatorStateType['proforma'];
-    untouched: validatorStateType['untouched'];
-    showErrorMessages: validatorStateType['showErrorMessages'];
-
-    constructor(proforma: {[key: string]: proformaObjectArgument}) {
-      this.cumulative = {};
-      this.errorMessages = {};
-      this.proforma = proforma;
-      this.untouched = [];
-      this.showErrorMessages = false;
-
-      for (const [key, value] of Object.entries(proforma)) {
-        this.errorMessages[key] = '';
-        this.untouched.push(key);
-        if (value.countCumulative) {
-          this.cumulative[key] = 0;
-        }
+// checks to see if validation object contains sufficient validated values for cumulative threshold to have been reached:
+const cumulativeThresholdReached = (
+  validationObjectToCheck: validatorStateType,
+): boolean => {
+  let cumulativeCount = 0;
+  let minCountToCheck: null | number = null;
+  for (const subValue of Object.values(validationObjectToCheck.cumulative)) {
+    cumulativeCount += subValue;
+  }
+  for (const subValue of Object.values(validationObjectToCheck.proforma)) {
+    if (subValue.countCumulative?.minCount) {
+      if (minCountToCheck === null) {
+        minCountToCheck = subValue.countCumulative.minCount;
+      } else if (minCountToCheck !== subValue.countCumulative.minCount) {
+        throw new Error(
+          'For cumulative entry checking, each minCount should be identical in proforma',
+        );
       }
     }
   }
+  if (minCountToCheck === null) {
+    throw new Error('No valid minCount found in proforma');
+  }
+  if (cumulativeCount < minCountToCheck) {
+    return false;
+  }
+  return true;
+};
 
-  const [validation, setValidation] = useState(
-    new ValidatorState(validationProforma),
-  );
-
-  const handleValidationReset = () =>
-    setValidation(new ValidatorState(validationProforma));
-
-  // checks to see if validation object contains sufficient validated values for cumulative threshold to have been reached:
-  const cumulativeThresholdReached = (
-    validationObjectToCheck: validatorStateType,
-  ): boolean => {
-    let cumulativeCount = 0;
-    let minCountToCheck = null;
-    for (const subValue of Object.values(validationObjectToCheck.cumulative)) {
-      cumulativeCount += subValue;
-    }
-    for (const subValue of Object.values(validationObjectToCheck.proforma)) {
-      if (subValue.countCumulative?.minCount) {
-        if (minCountToCheck === null) {
-          minCountToCheck = subValue.countCumulative.minCount;
-        } else if (minCountToCheck !== subValue.countCumulative.minCount) {
-          throw new Error(
-            'For cumulative entry checking, each minCount should be identical in proforma',
-          );
-        }
-      }
-    }
-    if (minCountToCheck === null) {
-      throw new Error('No valid minCount found in proforma');
-    }
-    if (cumulativeCount < minCountToCheck) {
-      return false;
-    }
-    return true;
-  };
-
-  // updates validation based on new value being passed to it:
-  const updateValidationObject = (
-    oldValidation: validatorStateType,
-    currentName: string,
-    newValue: any,
-  ): validatorStateType => {
-    const specific = new Validator(oldValidation.proforma[currentName]);
-    const evaluation = specific.validate(newValue);
-    const mutable = {...oldValidation};
+// updates validation based on new value being passed to it:
+const updateValidationObject = (
+  oldValidation: validatorStateType,
+  currentName: string,
+  newValue: any,
+): validatorStateType => {
+  const customValidator = makeValidator(oldValidation.proforma[currentName]);
+  const evaluation = customValidator(newValue);
+  return produce(oldValidation, (mutable) => {
     if (evaluation.count) {
       mutable.cumulative[currentName] = evaluation.count;
     } else if (
@@ -371,14 +350,14 @@ const ValidatorProvider = ({
       (item) => item !== currentName,
     );
     mutable.untouched = newUntouchedArray;
-    return mutable;
-  };
+  });
+};
 
-  // uses cumlativeThresholdReached function and puts appropriate error messages in validation if errors found:
-  const checkForCumulative = (
-    validatorState: validatorStateType,
-  ): validatorStateType => {
-    const mutableState = {...validatorState};
+// uses cumlativeThresholdReached function and puts appropriate error messages in validation if errors found:
+const updateCumulative = (
+  validatorState: validatorStateType,
+): validatorStateType => {
+  return produce(validatorState, (mutableState) => {
     if (JSON.stringify(mutableState.cumulative) !== JSON.stringify({})) {
       const genericCumulativeErrorMessage =
         'Minimum threshold of entries not reached for specified fields';
@@ -399,52 +378,74 @@ const ValidatorProvider = ({
         }
       }
     }
-    return mutableState;
-  };
+  });
+};
+
+// handles submit. Shows errors if present, passes verified values to a custom submit function if no errors.
+const updateValidationBeforeSubmit = (
+  oldValidation: validatorStateType,
+  globalState: any,
+): validatorStateType => {
+  let validationState = produce(oldValidation, () => {});
+  //validate untouched values:
+  if (validationState.untouched.length > 0) {
+    const untouchedNames = [...validationState.untouched];
+    for (const valueName of untouchedNames) {
+      const inputValue = globalState[valueName].value;
+      validationState = updateValidationObject(
+        validationState,
+        valueName,
+        inputValue,
+      );
+    }
+  }
+  // check for any cumulative entry errors and update:
+  validationState = updateCumulative(validationState);
+  // Show errors if errors present:
+
+  validationState = produce(validationState, (mutable) => {
+    for (const individualError of Object.values(mutable.errorMessages)) {
+      if (individualError) {
+        mutable.showErrorMessages = true;
+        break;
+      } else {
+        mutable.showErrorMessages = false;
+      }
+    }
+  });
+
+  return validationState;
+};
+
+// react component:
+const ValidatorProvider = ({
+  children,
+  validationProforma,
+  customSubmitFunction,
+}: validatorProviderProps) => {
+  const [validation, setValidation]: [validatorStateType, Function] = useState(
+    new ValidatorState(validationProforma),
+  );
+
+  const handleValidationReset = () =>
+    setValidation(new ValidatorState(validationProforma));
 
   // updates validation object on single value passed to it:
   const updateSingleValidation = (name: string, value: any): void => {
     let newValidation = updateValidationObject(validation, name, value);
     if (newValidation.showErrorMessages) {
-      newValidation = checkForCumulative(newValidation);
+      newValidation = updateCumulative(newValidation);
     }
     setValidation(newValidation);
   };
 
-  // handles submit. Shows errors if present, passes verified values to a custom submit function if no errors.
-  const handleSubmit = (globalState: any): void => {
-    let mutableState = {...validation};
-    //validate untouched values:
-    if (mutableState.untouched.length > 0) {
-      const workingArray = validation.untouched;
-      for (let i = 0; i < workingArray.length; i++) {
-        const tempState = updateValidationObject(
-          mutableState,
-          workingArray[i],
-          globalState[workingArray[i]].value,
-        );
-        mutableState = {...mutableState, ...tempState};
-      }
-    }
-    // check if any cumulative entry errors:
-    mutableState = checkForCumulative(mutableState);
-    //Show errors if errors present:
-    for (const subValue of Object.values(mutableState.errorMessages)) {
-      if (subValue) {
-        mutableState.showErrorMessages = true;
-        break;
-      } else {
-        mutableState.showErrorMessages = false;
-      }
-    }
-    if (mutableState.showErrorMessages) {
-      setValidation(mutableState);
+  const giveSubmitFunctionIfAllowed = (globalState: any) => {
+    const newValidation = updateValidationBeforeSubmit(validation, globalState);
+    setValidation(newValidation);
+    if (newValidation.showErrorMessages === true) {
+      return null;
     } else {
-      customSubmitFunction(globalState);
-      setValidation({
-        ...mutableState,
-        ...{showErrorMessages: false},
-      });
+      return customSubmitFunction;
     }
   };
 
@@ -453,7 +454,7 @@ const ValidatorProvider = ({
       value={{
         updateSingleValidation,
         handleValidationReset,
-        handleSubmit,
+        giveSubmitFunctionIfAllowed,
         validation,
         validationProforma,
       }}>
@@ -462,4 +463,4 @@ const ValidatorProvider = ({
   );
 };
 
-export {ValidatorContext, ValidatorProvider, Validator, proformaTemplate};
+export {ValidatorContext, ValidatorProvider, proformaTemplate};

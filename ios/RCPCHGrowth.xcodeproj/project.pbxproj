@@ -17,7 +17,7 @@
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2DCD954D1E0B4F2C00145EB5 /* RCPCHGrowthTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* RCPCHGrowthTests.m */; };
-		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		56C3355A263EF8DD00C4EB84 /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 56C33559263EF8DD00C4EB84 /* BootSplash.storyboard */; };
 		86678353B6459F00973F3A7C /* libPods-RCPCHGrowth.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CF13A8F241146037549954DA /* libPods-RCPCHGrowth.a */; };
 		9F9FC19F4A74F643DB0E97E8 /* libPods-RCPCHGrowth-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0D4260B969D7FCA7F2C56C1B /* libPods-RCPCHGrowth-tvOS.a */; };
 		AED8428430894DCA9C92A065 /* Montserrat-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AB7FF8DAFB994534B6EB372C /* Montserrat-Bold.ttf */; };
@@ -58,11 +58,11 @@
 		1A9F794002C8CB3C49C5A668 /* Pods-RCPCHGrowth-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RCPCHGrowth-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-RCPCHGrowth-tvOS/Pods-RCPCHGrowth-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		2D02E47B1E0B4A5D006451C7 /* RCPCHGrowth-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RCPCHGrowth-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* RCPCHGrowth-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RCPCHGrowth-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		56C33559263EF8DD00C4EB84 /* BootSplash.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = BootSplash.storyboard; path = RCPCHGrowth/BootSplash.storyboard; sourceTree = "<group>"; };
 		5FB1C721A20E9CAF7BA6A47F /* libPods-RCPCHGrowth-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RCPCHGrowth-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FFA5A77EB37B963818C5AD7 /* Pods-RCPCHGrowth-RCPCHGrowthTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RCPCHGrowth-RCPCHGrowthTests.release.xcconfig"; path = "Target Support Files/Pods-RCPCHGrowth-RCPCHGrowthTests/Pods-RCPCHGrowth-RCPCHGrowthTests.release.xcconfig"; sourceTree = "<group>"; };
 		6B56952AA0C42408E8C7A758 /* Pods-RCPCHGrowth-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RCPCHGrowth-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-RCPCHGrowth-tvOSTests/Pods-RCPCHGrowth-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		7011EFFE3CC83119F4116603 /* libPods-RCPCHGrowth-RCPCHGrowthTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RCPCHGrowth-RCPCHGrowthTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = RCPCHGrowth/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		93EE490D857A68F02823740E /* Pods-RCPCHGrowth.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RCPCHGrowth.release.xcconfig"; path = "Target Support Files/Pods-RCPCHGrowth/Pods-RCPCHGrowth.release.xcconfig"; sourceTree = "<group>"; };
 		A0AE7166B6C547148B72E225 /* Montserrat-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Regular.ttf"; path = "../src/assets/fonts/Montserrat-Regular.ttf"; sourceTree = "<group>"; };
 		AB7FF8DAFB994534B6EB372C /* Montserrat-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Montserrat-Bold.ttf"; path = "../src/assets/fonts/Montserrat-Bold.ttf"; sourceTree = "<group>"; };
@@ -134,7 +134,7 @@
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
-				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
+				56C33559263EF8DD00C4EB84 /* BootSplash.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
 			);
 			name = RCPCHGrowth;
@@ -223,7 +223,6 @@
 				00E356EB1AD99517003FC87E /* Frameworks */,
 				00E356EC1AD99517003FC87E /* Resources */,
 				04ECFE9EA8F536AFE151B7BB /* [CP] Copy Pods Resources */,
-				0F15292A95DC1D0B11663C26 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -246,7 +245,6 @@
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				3DC27A04B0DD80654DFFC392 /* [CP] Copy Pods Resources */,
-				2D04C9040BB4C6F64350E9D0 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -356,7 +354,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				56C3355A263EF8DD00C4EB84 /* BootSplash.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				AED8428430894DCA9C92A065 /* Montserrat-Bold.ttf in Resources */,
 				020692967B114F348C55E245 /* Montserrat-Regular.ttf in Resources */,
@@ -467,24 +465,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		0F15292A95DC1D0B11663C26 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-RCPCHGrowth-RCPCHGrowthTests/Pods-RCPCHGrowth-RCPCHGrowthTests-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL/OpenSSL.framework/OpenSSL",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RCPCHGrowth-RCPCHGrowthTests/Pods-RCPCHGrowth-RCPCHGrowthTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		2D02E4CB1E0B4B27006451C7 /* Bundle React Native Code And Images */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -498,24 +478,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n../node_modules/react-native/scripts/react-native-xcode.sh";
-		};
-		2D04C9040BB4C6F64350E9D0 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-RCPCHGrowth/Pods-RCPCHGrowth-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/OpenSSL/OpenSSL.framework/OpenSSL",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/OpenSSL.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RCPCHGrowth/Pods-RCPCHGrowth-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
 		};
 		3DC27A04B0DD80654DFFC392 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -823,13 +785,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = "";
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = RCPCHGrowth/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.4.3;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -849,12 +811,12 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = RCPCHGrowth/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 0.3.0;
+				MARKETING_VERSION = 0.4.3;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

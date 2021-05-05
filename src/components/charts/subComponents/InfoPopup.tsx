@@ -9,9 +9,10 @@ type Proptypes = {
   y?: number;
   text?: number | string;
   reverse: boolean;
+  style: any;
 };
 
-function InfoPopup({x, y, text, reverse}: Proptypes) {
+function InfoPopup({x, y, text, reverse, style}: Proptypes) {
   if (x && y && text) {
     const xCoords = reverse ? x - 16 : x + 16;
     return (
@@ -20,7 +21,7 @@ function InfoPopup({x, y, text, reverse}: Proptypes) {
           x={xCoords}
           y={y + 20}
           textAnchor="middle"
-          fill="black"
+          fill={style.fill}
           fontSize={15}
           fontFamily={systemFont}
           fontWeight="bold">
@@ -30,7 +31,7 @@ function InfoPopup({x, y, text, reverse}: Proptypes) {
           cx={xCoords}
           cy={y + 15}
           r={12}
-          stroke="black"
+          stroke={style.fill}
           strokeWidth={2}
           fill="transparent"
         />

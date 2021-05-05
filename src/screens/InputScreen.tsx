@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {Alert} from 'react-native';
+import {Alert, StyleSheet} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {useNavigation} from '@react-navigation/native';
 
@@ -13,12 +13,14 @@ import {
   proformaTemplate,
   Screen,
   GlobalStateContext,
-  initialState,
   WheelPicker,
+  MakeInitialState,
+  MakeSubState,
 } from '../components';
 import {Zeit} from '../brains/';
 
 import {globalStateType} from '../interfaces/GlobalState';
+import produce from 'immer';
 
 const referenceArray = [
   {label: 'UK-WHO', value: 'uk-who'},
@@ -65,15 +67,15 @@ function InputScreen() {
   useEffect(() => {
     if (globalState.reference.value === 'turner' && !turnerSelected) {
       setGlobalState((old: globalStateType) => {
-        const mutable = {...old};
-        mutable.weight = initialState.weight;
-        mutable.ofc = initialState.ofc;
-        if (mutable.sex.value === 'Male') {
-          mutable.sex.value = 'Female';
-          mutable.sex.workingValue = 'Female';
-          mutable.sex.timeStamp = new Date();
-        }
-        return mutable;
+        return produce(old, (mutable) => {
+          mutable.weight = MakeSubState('weight');
+          mutable.ofc = MakeSubState('ofc');
+          if (mutable.sex.value === 'Male') {
+            mutable.sex.value = 'Female';
+            mutable.sex.workingValue = 'Female';
+            mutable.sex.timeStamp = new Date();
+          }
+        });
       });
       setTurnerSelected(true);
     } else if (turnerSelected && globalState.reference.value !== 'turner') {
@@ -86,7 +88,7 @@ function InputScreen() {
       <ValidatorProvider
         validationProforma={proformaTemplate}
         customSubmitFunction={submitFunction}>
-        <KeyboardAwareScrollView>
+        <KeyboardAwareScrollView style={styles.scrollView}>
           <DateInputButton dateName="dob" />
           <GestationInputButton />
           <BinarySelector
@@ -132,5 +134,11 @@ function InputScreen() {
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  scrollView: {
+    marginTop: 4,
+  },
+});
 
 export default InputScreen;

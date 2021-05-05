@@ -13,6 +13,7 @@ import {GlobalStateContext} from '../components';
 import {formatDate} from '../brains/';
 
 import {globalStateType} from '../interfaces/GlobalState';
+import produce from 'immer';
 
 type serverResponseType = {
   ok: boolean;
@@ -144,17 +145,28 @@ const getSingleCentileData = async (
         throw new Error(serverResponse.status);
       } else {
         const stringObject = await serverResponse.text();
-        return JSON.parse(stringObject);
+        return {
+          errors: produce(workingErrorsObject, () => {}),
+          result: JSON.parse(stringObject),
+        };
       }
     } catch (error) {
       const localError: string = error.message;
       const errorMessage =
         errorsObject[localError] || `Error: ${error.message}`;
-      workingErrorsObject[measurementType] = errorMessage;
-      workingErrorsObject.serverErrors = true;
+      return {
+        errors: produce(workingErrorsObject, (draft) => {
+          draft[measurementType] = errorMessage;
+          draft.serverErrors = true;
+        }),
+        result: null,
+      };
     }
   } else {
-    return null;
+    return {
+      errors: produce(workingErrorsObject, () => {}),
+      result: null,
+    };
   }
 };
 
@@ -187,45 +199,46 @@ const useRcpchApi = (url: 'local' | 'lan' | 'real') => {
   const getMultipleCentileResults = async (
     recordAnswer: boolean,
   ): Promise<void> => {
-    const workingErrorsObject = makeErrorState();
-    for (const measurementName of Object.keys(centileResults)) {
-      if (!globalState[measurementName]?.value) {
-        workingErrorsObject[measurementName] = 'No measurement given.';
+    const workingErrors = produce(makeErrorState(), (draft) => {
+      for (const measurementName of Object.keys(centileResults)) {
+        if (!globalState[measurementName]?.value) {
+          draft[measurementName] = 'No measurement given.';
+        }
       }
-    }
+    });
     try {
-      const height = await getSingleCentileData(
+      const heightAnswers = await getSingleCentileData(
         globalState,
         'height',
-        workingErrorsObject,
+        workingErrors,
         url,
       );
-      const weight = await getSingleCentileData(
+      const weightAnswers = await getSingleCentileData(
         globalState,
         'weight',
-        workingErrorsObject,
+        heightAnswers.errors,
         url,
       );
-      const bmi = await getSingleCentileData(
+      const bmiAnswers = await getSingleCentileData(
         globalState,
         'bmi',
-        workingErrorsObject,
+        weightAnswers.errors,
         url,
       );
-      const ofc = await getSingleCentileData(
+      const ofcAnswers = await getSingleCentileData(
         globalState,
         'ofc',
-        workingErrorsObject,
+        bmiAnswers.errors,
         url,
       );
       if (recordAnswer) {
         setCentileResults({
-          height: height,
-          weight: weight,
-          bmi: bmi,
-          ofc: ofc,
+          height: heightAnswers.result,
+          weight: weightAnswers.result,
+          bmi: bmiAnswers.result,
+          ofc: ofcAnswers.result,
         });
-        setErrors(workingErrorsObject);
+        setErrors(ofcAnswers.errors);
       }
     } catch (error) {
       // this will be a bug not a server error:

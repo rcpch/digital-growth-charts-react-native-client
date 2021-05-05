@@ -1,5 +1,11 @@
 import React, {useEffect, useState} from 'react';
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  useColorScheme,
+} from 'react-native';
 
 import {Screen, AppText, AgeButton, CentileOutput} from '../components';
 import {colors, theme} from '../config';
@@ -21,6 +27,12 @@ function ResultsScreen() {
   };
 
   const showRefresh = errors.serverErrors ? true : false;
+
+  const scheme = useColorScheme();
+
+  const backgroundColor = {
+    backgroundColor: scheme === 'dark' ? colors.light : colors.darkest,
+  };
 
   const centileOutputs = centileMeasurements.map((item) => {
     const measurementProvided = globalState[item]?.value ? true : false;
@@ -59,9 +71,11 @@ function ResultsScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLoading]);
 
+  // console.log(JSON.stringify(centileResults.weight));
+
   return (
     <Screen renderBack>
-      <View style={styles.referenceButton}>
+      <View style={{...styles.referenceButton, ...backgroundColor}}>
         <AppText>{`Reference: ${referenceTitle}`}</AppText>
       </View>
       <AgeButton
@@ -89,7 +103,8 @@ const styles = StyleSheet.create({
   referenceButton: {
     ...theme.button,
     justifyContent: 'center',
-    backgroundColor: colors.darkest,
+    backgroundColor: colors.light,
+    marginTop: 8,
   },
   backButtonText: {
     ...theme.text,

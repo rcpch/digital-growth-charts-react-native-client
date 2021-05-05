@@ -5,26 +5,44 @@ import {
   TouchableOpacity,
   View,
   TouchableWithoutFeedback,
+  TextStyle,
 } from 'react-native';
 
 import AppIcon from '../../AppIcon';
 import AppModal from '../../AppModal';
 
+type propTypes = {
+  showChronologicalAge: boolean;
+  setShowChronologicalAge: Function;
+  showCorrectedAge: boolean;
+  setShowCorrectedAge: Function;
+  customStyle: {
+    background: {
+      backgroundColor: string;
+    };
+    heading: TextStyle;
+    paragraph: TextStyle;
+    buttonBackground: {
+      backgroundColor: string;
+    };
+    buttonText: TextStyle;
+  };
+};
+
 function CorrectVsChron({
-  titleTextStyle,
-  subtitleTextStyle,
   showChronologicalAge,
   setShowChronologicalAge,
   showCorrectedAge,
   setShowCorrectedAge,
-}) {
+  customStyle,
+}: propTypes) {
   const [modalVisible, setModalVisible] = useState(false);
 
   const closeModal = () => setModalVisible(false);
 
   const buttonData = [
     {
-      label: 'Corrected age only',
+      label: 'Adjusted age only',
       onPress: () => {
         setShowCorrectedAge(true);
         setShowChronologicalAge(false);
@@ -33,7 +51,7 @@ function CorrectVsChron({
       visible: () => (showCorrectedAge && !showChronologicalAge ? true : false),
     },
     {
-      label: 'Chronological age only',
+      label: 'Unadjusted age only',
       onPress: () => {
         setShowChronologicalAge(true);
         setShowCorrectedAge(false);
@@ -42,7 +60,7 @@ function CorrectVsChron({
       visible: () => (showChronologicalAge && !showCorrectedAge ? true : false),
     },
     {
-      label: 'Both corrected and chronological',
+      label: 'Both ages',
       onPress: () => {
         setShowCorrectedAge(true);
         setShowChronologicalAge(true);
@@ -59,10 +77,16 @@ function CorrectVsChron({
         <View style={styles.selectionContainer}>
           <View style={styles.tickSelector}>
             {isVisible && (
-              <AppIcon color="black" size={25} name="check-circle" />
+              <AppIcon
+                color={customStyle.heading.color}
+                size={25}
+                name="check-circle"
+              />
             )}
           </View>
-          <Text style={styles.selectionText}>{item.label}</Text>
+          <Text style={{...customStyle.heading, ...styles.selectionText}}>
+            {item.label}
+          </Text>
         </View>
       </TouchableWithoutFeedback>
     );
@@ -72,17 +96,19 @@ function CorrectVsChron({
     <>
       <TouchableOpacity
         onPress={() => setModalVisible(true)}
-        style={styles.littleButton}>
-        <Text style={subtitleTextStyle}>Points Plotted...</Text>
+        style={{...customStyle.buttonBackground, ...styles.littleButton}}>
+        <Text style={customStyle.buttonText}>Points Plotted...</Text>
       </TouchableOpacity>
       <AppModal
         modalVisible={modalVisible}
         cancelInput={closeModal}
-        style={styles.modalView}
+        style={customStyle.background}
         renderCloseButton={false}>
         {selections}
-        <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
-          <Text style={styles.closeButtonText}>Done</Text>
+        <TouchableOpacity
+          onPress={closeModal}
+          style={{...customStyle.buttonBackground, ...styles.closeButton}}>
+          <Text style={customStyle.buttonText}>Done</Text>
         </TouchableOpacity>
       </AppModal>
     </>
@@ -93,26 +119,13 @@ export default CorrectVsChron;
 
 const styles = StyleSheet.create({
   littleButton: {
-    backgroundColor: '#D9D9D9',
     padding: 8,
     borderRadius: 10,
-    borderColor: 'black',
-    borderWidth: 1,
-  },
-  modalView: {
-    backgroundColor: '#D9D9D9',
   },
   closeButton: {
     marginTop: 10,
-    backgroundColor: 'black',
     padding: 8,
     borderRadius: 10,
-  },
-  closeButtonText: {
-    fontFamily: 'Montserrat-Regular',
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
   selectionContainer: {
     flexDirection: 'row',
@@ -121,10 +134,6 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   selectionText: {
-    fontFamily: 'Montserrat-Regular',
-    color: 'black',
-    fontSize: 16,
-    fontWeight: 'normal',
     textAlign: 'left',
   },
   tickSelector: {
@@ -133,7 +142,7 @@ const styles = StyleSheet.create({
     margin: 2,
     marginRight: 8,
     borderRadius: 15,
-    borderColor: 'black',
+    borderColor: 'white',
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
