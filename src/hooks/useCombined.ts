@@ -177,11 +177,11 @@ const useCombined = (name?: keyof globalStateType) => {
     if (customSubmitFunction) {
       //create bmi:
       if (globalState.weight.value && globalState.height.value) {
-        const bmiValue = calculateBMI(
-          workingState.weight.value,
-          workingState.height.value,
-        );
         workingState = produce(workingState, (mutable) => {
+          const bmiValue = calculateBMI(
+            mutable.weight.value,
+            mutable.height.value,
+          );
           mutable.bmi = {...mutable.weight};
           mutable.bmi.value = '' + bmiValue;
           mutable.bmi.value = '' + bmiValue;

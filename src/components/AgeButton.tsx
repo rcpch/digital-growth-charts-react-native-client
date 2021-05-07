@@ -98,7 +98,7 @@ const AgeButton = ({centileResults, errors, isLoading}: propTypes) => {
               if (birthGestationWeeks < 40) {
                 star = '*';
                 setModalMessage(
-                  `${correctedCalendarAge} old (corrected)\n\n${chronologicalCalendarAge} old (chronological)` +
+                  `${correctedCalendarAge} old (adjusted)\n\n${chronologicalCalendarAge} old (unadjusted)` +
                     `\n\n${correctionComment}`,
                 );
                 appropriateStringAge = correctedCalendarAge;

@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, Platform} from 'react-native';
 import {colors} from '../config';
 import AppText from './AppText';
 
@@ -22,7 +22,8 @@ const styles = StyleSheet.create({
     color: colors.danger,
     fontSize: 16,
     width: '98%',
-    fontWeight: '500',
+    fontFamily: 'Montserrat-Bold',
+    fontWeight: Platform.OS === 'ios' ? 'bold' : 'normal',
   },
 });
 

@@ -1,5 +1,5 @@
 import React, {useState, useMemo} from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, Image, StyleSheet} from 'react-native';
 import {
   VictoryChart,
   VictoryGroup,
@@ -172,13 +172,21 @@ function CentileChart({
 
   return (
     <View style={styles.chartContainerStyle}>
-      <View style={styles.titleContainerStyle}>
-        <Text style={styles.titleTextStyle}>{title}</Text>
-        <Text style={styles.subtitleTextStyle}>{subtitle}</Text>
+      <View style={additionalStyles.topContainer}>
+        <Image
+          source={require('../../assets/imgs/RCPCH_badge.png')}
+          resizeMode="contain"
+          style={additionalStyles.rcpchImage}
+        />
+        <View style={styles.titleContainerStyle}>
+          <Text style={styles.titleTextStyle}>{title}</Text>
+          <Text style={styles.subtitleTextStyle}>{subtitle}</Text>
+        </View>
       </View>
+
       <VictoryChart
         width={styles.chartWidth}
-        height={showToggle ? styles.chartHeight - 60 : styles.chartHeight}
+        height={showToggle ? styles.chartHeight - 50 : styles.chartHeight}
         padding={styles.chartPadding}
         style={styles.chartMisc}
         domain={computedDomains}
@@ -393,5 +401,18 @@ function CentileChart({
     </View>
   );
 }
+
+const additionalStyles = StyleSheet.create({
+  rcpchImage: {
+    height: 50,
+    width: 50,
+    marginRight: 10,
+  },
+  topContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
 
 export default CentileChart;

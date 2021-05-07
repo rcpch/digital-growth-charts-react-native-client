@@ -1,5 +1,5 @@
 import React from 'react';
-import {StyleSheet, View, useColorScheme} from 'react-native';
+import {StyleSheet, View, useColorScheme, Platform} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import {RCPCHChart, Screen, AppText} from '../components';
@@ -29,6 +29,7 @@ function ChartScreen({route}: propTypes) {
   const insets = useSafeAreaInsets();
   const scheme = useColorScheme();
   const isDark = scheme === 'dark' ? true : false;
+  const isIos = Platform.OS === 'ios' ? true : false;
 
   const safeAreaHeight =
     windowHeight - insets.top - insets.bottom - bannerHeight;
@@ -54,13 +55,17 @@ function ChartScreen({route}: propTypes) {
     padding: {left: 40, right: 40, top: 5, bottom: 40},
     titleStyle: {
       name: 'Montserrat-Bold',
-      weight: 'bold',
+      weight: isIos ? 'bold' : 'normal',
       colour: textColor,
     },
     subTitleStyle: {
       name: 'Montserrat-Bold',
-      weight: 'bold',
+      weight: isIos ? 'bold' : 'normal',
       colour: textColor,
+    },
+    buttonTextStyle: {
+      name: 'Montserrat-Bold',
+      weight: isIos ? 'bold' : 'normal',
     },
     termFill: isDark ? '#252526' : undefined,
     termStroke: isDark ? '#252526' : undefined,
@@ -70,23 +75,19 @@ function ChartScreen({route}: propTypes) {
     axisStroke: textColor,
     axisLabelTextStyle: {
       name: 'Montserrat-Bold',
-      weight: 'bold',
+      weight: isIos ? 'bold' : 'normal',
       colour: textColor,
     },
     tickLabelTextStyle: {
       name: 'Montserrat-Regular',
       colour: textColor,
     },
-    buttonTextStyle: {
-      name: 'Montserrat-Bold',
-      weight: 'bold',
-    },
   };
 
   const customCentileStyle: CentileStyle = {
-    delayedPubertyAreaFill: isDark ? colors.dark : null,
+    delayedPubertyAreaFill: isDark ? colors.dark : undefined,
     continuous: {
-      centileStroke: isDark ? colors.light : null,
+      centileStroke: isDark ? colors.light : undefined,
     },
   };
 

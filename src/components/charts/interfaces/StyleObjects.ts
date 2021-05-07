@@ -7,13 +7,13 @@ export interface ChartStyle {
     name?: string;
     colour?: string;
     size?: number;
-    weight?: 'bold' | 'italic' | 'regular';
+    weight?: 'bold' | 'italic' | 'normal';
   };
   subTitleStyle?: {
     name?: string;
     colour?: string;
     size?: number;
-    weight?: 'bold' | 'italic' | 'regular';
+    weight?: 'bold' | 'italic' | 'normal';
   };
   termFill?: string;
   termStroke?: string;
@@ -22,7 +22,7 @@ export interface ChartStyle {
     name?: string;
     colour?: string;
     size?: number;
-    weight?: 'bold' | 'italic' | 'regular';
+    weight?: 'bold' | 'italic' | 'normal';
   };
 }
 
@@ -32,13 +32,13 @@ export interface ModalStyle {
     name?: string;
     colour?: string;
     size?: number;
-    weight?: 'bold' | 'italic' | 'regular';
+    weight?: 'bold' | 'italic' | 'normal';
   };
   subTitleStyle?: {
     name?: string;
     colour?: string;
     size?: number;
-    weight?: 'bold' | 'italic' | 'regular';
+    weight?: 'bold' | 'italic' | 'normal';
     backgroundColour?: string;
   };
 }
@@ -71,12 +71,12 @@ export interface AxisStyle {
     name?: string;
     colour?: string;
     size?: number;
-    weight?: 'bold' | 'italic' | 'regular';
+    weight?: 'bold' | 'italic' | 'normal';
   };
   tickLabelTextStyle?: {
     name?: string;
     colour?: string;
     size?: number;
-    weight?: 'bold' | 'italic' | 'regular';
+    weight?: 'bold' | 'italic' | 'normal';
   };
 }

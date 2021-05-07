@@ -141,7 +141,7 @@ function makeAllStyles(
         padding: 5,
         fill: axisStyle?.tickLabelTextStyle?.colour ?? black,
         color: axisStyle?.tickLabelTextStyle?.colour ?? black,
-        fontFamily: axisStyle?.axisLabelTextStyle?.name ?? defaultSystemFont,
+        fontFamily: axisStyle?.tickLabelTextStyle?.name ?? defaultSystemFont,
       },
       grid: {
         ...newGridlineStyle,
@@ -178,7 +178,7 @@ function makeAllStyles(
         fontSize: axisStyle?.tickLabelTextStyle?.size ?? 10,
         padding: 5,
         fill: axisStyle?.tickLabelTextStyle?.colour ?? black,
-        fontFamily: axisStyle?.axisLabelTextStyle?.name ?? defaultSystemFont,
+        fontFamily: axisStyle?.tickLabelTextStyle?.name ?? defaultSystemFont,
       },
       grid: {
         ...newGridlineStyle,

@@ -1,11 +1,6 @@
-import produce, {immerable} from 'immer';
+import produce from 'immer';
 import React, {useState} from 'react';
-import {
-  dateStore,
-  globalStateType,
-  numberStore,
-  textStore,
-} from '../interfaces/GlobalState';
+import {globalStateType} from '../interfaces/GlobalState';
 
 type propTypes = {
   children: React.ReactNode;

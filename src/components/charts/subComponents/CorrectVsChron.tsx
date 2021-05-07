@@ -119,8 +119,12 @@ export default CorrectVsChron;
 
 const styles = StyleSheet.create({
   littleButton: {
-    padding: 8,
+    height: 40,
     borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 8,
+    marginVertical: 5,
   },
   closeButton: {
     marginTop: 10,
