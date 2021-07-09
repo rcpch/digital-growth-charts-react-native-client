@@ -1,7 +1,5 @@
-
-/* eslint-disable */
-
-export const turnerData = {
+import {Reference} from '../interfaces/CentilesObject'
+export const turnerData: Reference = {
   turner: {
     female: {
       bmi: [
