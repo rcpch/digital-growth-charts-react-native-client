@@ -1,6 +1,6 @@
 import produce from 'immer';
 import React, {useState} from 'react';
-import {globalStateType} from '../interfaces/GlobalState';
+import {dateStore, globalStateType, numberStore, textStore} from '../interfaces/GlobalState';
 
 type propTypes = {
   children: React.ReactNode;
@@ -9,93 +9,70 @@ type propTypes = {
 const blankContext: {
   globalState: any;
   setGlobalState: Function;
-  setSingleGlobalState: Function;
 } = {
   globalState: {},
   setGlobalState: () => null,
-  setSingleGlobalState: () => null,
 };
 
 const GlobalStateContext = React.createContext(blankContext);
 
+const textStoreTemplate: textStore = {
+  showPicker: false,
+  value: '',
+  timeStamp: null,
+  workingValue: '',
+};
+
+const dateStoreTemplate: dateStore = {
+  showPicker: false,
+  value: null,
+  timeStamp: null,
+  workingValue: null,
+};
+
+const numberStoreTemplate: numberStore = {
+  showPicker: false,
+  value: 280,
+  timeStamp: null,
+  workingValue: 280,
+};
+
 function MakeInitialState() {
-  const list = {
-    height: {workingValue: ''},
-    weight: {workingValue: ''},
-    bmi: {workingValue: ''},
-    ofc: {workingValue: ''},
-    gestationInDays: {workingValue: 280},
-    sex: {workingValue: ''},
-    dob: {workingValue: null},
-    dom: {workingValue: null},
-    reference: {workingValue: 'uk-who'},
+  return {
+    height: produce(textStoreTemplate, () => {}),
+    weight: produce(textStoreTemplate, () => {}),
+    bmi: produce(textStoreTemplate, () => {}),
+    ofc: produce(textStoreTemplate, () => {}),
+    gestationInDays: produce(numberStoreTemplate, () => {}),
+    sex: produce(textStoreTemplate, () => {}),
+    dob: produce(dateStoreTemplate, () => {}),
+    dom: produce(dateStoreTemplate, () => {}),
+    reference: produce(textStoreTemplate, (draft) => {
+      draft.value = 'uk-who';
+      draft.workingValue = 'uk-who';
+    }),
+    devMode: produce(textStoreTemplate, (draft) => {
+      draft.value = 'local';
+      draft.workingValue = 'local';
+    }),
   };
-  return produce(list, (workingObject) => {
-    const blank = {
-      showPicker: false,
-      timeStamp: null,
-    };
-    for (const [key, subValue] of Object.entries(list)) {
-      workingObject[key] = {
-        ...blank,
-        ...subValue,
-        ...{value: subValue.workingValue},
-      };
-    }
-  });
 }
 
 function MakeSubState(name: keyof globalStateType) {
-  const list = {
-    height: {workingValue: ''},
-    weight: {workingValue: ''},
-    bmi: {workingValue: ''},
-    ofc: {workingValue: ''},
-    gestationInDays: {workingValue: 280},
-    sex: {workingValue: ''},
-    dob: {workingValue: null},
-    dom: {workingValue: null},
-    reference: {workingValue: 'uk-who'},
-  };
-  const blank = {
-    showPicker: false,
-    timeStamp: null,
-  };
-  return {
-    ...blank,
-    value: list[name].workingValue,
-    workingValue: list[name].workingValue,
-  };
+  const tempBlankState = MakeInitialState();
+  return tempBlankState[name];
 }
 
-const initialState: globalStateType = MakeInitialState();
+const initialState = MakeInitialState();
 
 const GlobalStateProvider = ({children}: propTypes) => {
   const [globalState, setGlobalState] = useState(MakeInitialState());
-
-  const setSingleGlobalState = (
-    name: keyof globalStateType,
-    value: any,
-    timeStamp = 'add',
-  ): void => {
-    setGlobalState((oldState: globalStateType) => {
-      const mutableState = {...oldState};
-      mutableState[name].value = value;
-      if (timeStamp === 'add') {
-        mutableState[name].timeStamp = new Date();
-      } else if (timeStamp === 'remove') {
-        mutableState[name].timeStamp = null;
-      }
-      return mutableState;
-    });
-  };
 
   return (
     <GlobalStateContext.Provider
       value={{
         globalState,
         setGlobalState,
-        setSingleGlobalState,
       }}>
       {children}
     </GlobalStateContext.Provider>

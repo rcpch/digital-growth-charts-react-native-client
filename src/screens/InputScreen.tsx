@@ -27,6 +27,12 @@ const referenceArray = [
   {label: "Turner's Syndrome", value: 'turner'},
 ];
 
+const devModeArray = [
+  {label: 'Local', value: 'local'},
+  {label: 'LAN', value: 'lan'},
+  {label: 'Real', value: 'real'},
+];
+
 function InputScreen() {
   const navigation = useNavigation();
   const {globalState, setGlobalState} = useContext(GlobalStateContext);
@@ -120,6 +126,14 @@ function InputScreen() {
             userLabel="Reference"
             pickerArray={referenceArray}
           />
+          {__DEV__ && (
+            <WheelPicker
+              iconName="dev-to"
+              name="devMode"
+              userLabel="***Dev*** Server"
+              pickerArray={devModeArray}
+            />
+          )}
           <SubmitOrReset reset>Reset</SubmitOrReset>
           <SubmitOrReset submit>Calculate Centiles</SubmitOrReset>
         </KeyboardAwareScrollView>

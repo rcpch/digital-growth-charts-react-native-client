@@ -24,7 +24,7 @@ type measurementTypes = 'weight' | 'height' | 'bmi' | 'ofc';
 
 const allPossibleMeasurements: measurementTypes[] = ['weight', 'height', 'bmi', 'ofc'];
 
-if (!API_LOCAL_BASE_ANDROID || !API_LOCAL_BASE_IOS) {
+if (__DEV__ && (!API_LOCAL_BASE_ANDROID || !API_LOCAL_BASE_IOS)) {
   console.error(
     'Environment variables not found for local server. Please check the environment variables needed in useRcpchApi',
   );
@@ -100,7 +100,6 @@ const urlLookup: {[index: string]: string} = {
 const getSingleCentileData = async (
   inputObject: globalStateType,
   measurementType: measurementTypes,
-  urlBase: 'local' | 'lan' | 'real',
 ) => {
   let errors = '';
   if (!inputObject[measurementType]?.value) {
@@ -108,12 +107,21 @@ const getSingleCentileData = async (
   }
   // only proceed if measurement present:
   if (!errors) {
-    const finalUrl = `${urlLookup[urlBase]}/${inputObject.reference.value}/calculation`;
+    let urlBaseString = urlLookup.real;
+    let isReal = true;
+    if (__DEV__) {
+      const currentMode = inputObject.devMode.value;
+      if (currentMode !== 'real') {
+        isReal = false;
+      }
+      urlBaseString = urlLookup[currentMode];
+    }
+    const finalUrl = `${urlBaseString}/${inputObject.reference.value}/calculation`;
     const headersObject: {[index: string]: string} = {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache',
     };
-    if (urlBase === 'real') {
+    if (isReal) {
       headersObject['Subscription-Key'] = API_KEY;
     }
     const apiArgument = makeApiArgument(inputObject, measurementType);
@@ -176,7 +184,7 @@ function makeErrorState() {
   };
 }
 
-const useRcpchApi = (url: 'local' | 'lan' | 'real') => {
+const useRcpchApi = () => {
   const {globalState} = useContext(GlobalStateContext);
   const [state, setState] = useState({
     results: makeCentileState(),
@@ -188,7 +196,7 @@ const useRcpchApi = (url: 'local' | 'lan' | 'real') => {
       try {
         const answersInArray = await Promise.all(
           allPossibleMeasurements.map((measurement: measurementTypes) =>
-            getSingleCentileData(globalState, measurement, url),
+            getSingleCentileData(globalState, measurement),
           ),
         );
         if (recordAnswer) {
@@ -216,7 +224,7 @@ const useRcpchApi = (url: 'local' | 'lan' | 'real') => {
         throw new Error(error.message);
       }
     },
-    [globalState, url],
+    [globalState],
   );
 
   return {
