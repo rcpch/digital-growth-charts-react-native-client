@@ -6,23 +6,26 @@ const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
 const containerWidth = windowWidth - 10;
 
+// does not include any safe area padding:
+const bannerHeight = 42;
+
 const styles = StyleSheet.create({
   button: {
     width: containerWidth,
     alignItems: 'center',
-    backgroundColor: colors.darkMedium,
+    backgroundColor: colors.dark,
     borderRadius: 5,
     color: 'white',
     flexDirection: 'row',
     height: windowWidth > 350 ? 54 : 48,
-    margin: 5,
+    margin: 4,
     paddingLeft: 8,
   },
   buttonTextBox: {
     flexDirection: 'row',
     alignItems: 'center',
     width: containerWidth - 45,
-    height: 57,
+    height: windowWidth > 350 ? 54 : 48,
   },
   text: {
     fontFamily: 'Montserrat-Regular',
@@ -35,4 +38,4 @@ const styles = StyleSheet.create({
 });
 
 export default styles;
-export {containerWidth, windowWidth, windowHeight};
+export {containerWidth, windowWidth, windowHeight, bannerHeight};

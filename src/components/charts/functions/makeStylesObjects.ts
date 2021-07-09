@@ -1,4 +1,5 @@
 import {Platform} from 'react-native';
+import {colors} from '../../../config';
 
 const defaultSystemFont = Platform.OS === 'ios' ? 'System' : 'Roboto';
 
@@ -105,7 +106,7 @@ function makeStylesObjects(
   };
   const dashedCentileStyle = {
     data: {
-      stroke: centileStyle.centileStroke,
+      stroke: colors.dark || centileStyle.centileStroke,
       strokeWidth: centileStyle.centileStrokeWidth,
       strokeLinecap: 'round',
       strokeDasharray: '5 5',
@@ -113,7 +114,7 @@ function makeStylesObjects(
   };
   const continuousCentileStyle = {
     data: {
-      stroke: centileStyle.centileStroke,
+      stroke: colors.pink || centileStyle.centileStroke,
       strokeWidth: centileStyle.centileStrokeWidth,
       strokeLinecap: 'round',
     },

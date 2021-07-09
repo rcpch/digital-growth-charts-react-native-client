@@ -7,6 +7,7 @@ import {globalStateType} from '../../interfaces/GlobalState';
 import {formatDate} from '../../brains';
 import useCombined from '../../hooks/useCombined';
 import PickerButton from '../PickerButton';
+import {MakeSubState} from '../GlobalStateContext';
 
 const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
   const makeRefreshNotCancel = dateName === 'dob' ? false : true;
@@ -14,7 +15,6 @@ const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
   const {
     combinedSetter,
     buttonState,
-    initialState,
     specificErrorMessage,
     showErrorMessages,
   } = useCombined(dateName);
@@ -42,7 +42,7 @@ const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
     combinedSetter(workingObject);
   };
   const cancelInput = () => {
-    combinedSetter(initialState[dateName]);
+    combinedSetter(MakeSubState(dateName));
   };
   const onChangeDate = (event: any, selected: Date | undefined) => {
     let workingObject: any = {};

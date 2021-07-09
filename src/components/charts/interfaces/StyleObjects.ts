@@ -7,44 +7,55 @@ export interface ChartStyle {
     name?: string;
     colour?: string;
     size?: number;
-    weight?: 'bold' | 'italic' | 'regular';
+    weight?: 'bold' | 'italic' | 'normal';
   };
   subTitleStyle?: {
     name?: string;
     colour?: string;
     size?: number;
-    weight?: 'bold' | 'italic' | 'regular';
-  };
-  tooltipBackgroundColour?: string;
-  tooltipStroke?: string;
-  tooltipTextStyle?: {
-    name?: string;
-    colour?: string;
-    size?: number;
-    weight?: 'bold' | 'italic' | 'regular';
+    weight?: 'bold' | 'italic' | 'normal';
   };
   termFill?: string;
   termStroke?: string;
-  infoBoxFill?: string;
-  infoBoxStroke?: string;
-  infoBoxTextStyle?: {
+  buttonFill?: string;
+  buttonTextStyle?: {
     name?: string;
     colour?: string;
     size?: number;
-    weight?: 'bold' | 'italic' | 'regular';
+    weight?: 'bold' | 'italic' | 'normal';
   };
-  toggleButtonInactiveColour: string; // relates to the toggle buttons present if age correction is necessary
-  toggleButtonActiveColour: string;
-  toggleButtonTextColour: string;
+}
+export interface ModalStyle {
+  backgroundColour?: string;
+  titleStyle?: {
+    name?: string;
+    colour?: string;
+    size?: number;
+    weight?: 'bold' | 'italic' | 'normal';
+  };
+  subTitleStyle?: {
+    name?: string;
+    colour?: string;
+    size?: number;
+    weight?: 'bold' | 'italic' | 'normal';
+    backgroundColour?: string;
+  };
 }
 export interface MeasurementStyle {
   measurementFill?: string;
   measurementSize?: number; // this is an svg size
 }
 export interface CentileStyle {
-  centileStroke?: string;
-  centileStrokeWidth?: number;
+  continuous?: {
+    centileStroke?: string;
+    centileStrokeWidth?: number;
+  };
+  dashed?: {
+    centileStroke?: string;
+    centileStrokeWidth?: number;
+  };
   delayedPubertyAreaFill?: string;
+  delayedPubertyStrokeWidth?: number;
 }
 
 export interface GridlineStyle {
@@ -59,12 +70,12 @@ export interface AxisStyle {
     name?: string;
     colour?: string;
     size?: number;
-    weight?: 'bold' | 'italic' | 'regular';
+    weight?: 'bold' | 'italic' | 'normal';
   };
   tickLabelTextStyle?: {
     name?: string;
     colour?: string;
     size?: number;
-    weight?: 'bold' | 'italic' | 'regular';
+    weight?: 'bold' | 'italic' | 'normal';
   };
 }

@@ -1,5 +1,5 @@
-import React, {useContext, useEffect, useState} from 'react';
-import {Alert} from 'react-native';
+import React, {useContext, useState} from 'react';
+import {Alert, StyleSheet} from 'react-native';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {useNavigation} from '@react-navigation/native';
 
@@ -13,12 +13,13 @@ import {
   proformaTemplate,
   Screen,
   GlobalStateContext,
-  initialState,
   WheelPicker,
+  MakeSubState,
 } from '../components';
-import {Zeit} from '../brains/';
+import {zeit} from '../brains/';
 
 import {globalStateType} from '../interfaces/GlobalState';
+import produce from 'immer';
 
 const referenceArray = [
   {label: 'UK-WHO', value: 'uk-who'},
@@ -33,60 +34,54 @@ function InputScreen() {
   const [turnerSelected, setTurnerSelected] = useState(false);
 
   const submitFunction = () => {
-    const ageObject = new Zeit(
+    const ageCalc = zeit(
       globalState.dob.value,
       globalState.dom.value,
       globalState.gestationInDays.value,
     );
-    const ageInYears = ageObject.calculate('years', true, false);
+    const ageInYears = ageCalc('years', true, false);
     if (ageInYears < 0) {
-      const uncorrected = ageObject.calculate('years', false);
+      const uncorrected = ageCalc('years', false);
       if (uncorrected < 0) {
-        Alert.alert(
-          'Time Travelling Patient',
-          'Please check the dates entered',
-          [{text: 'OK', onPress: () => {}}],
-        );
+        Alert.alert('Time Travelling Patient', 'Please check the dates entered', [
+          {text: 'OK', onPress: () => {}},
+        ]);
       } else {
         navigation.navigate('Results');
       }
     } else if (ageInYears > 20) {
-      Alert.alert(
-        'Patient Too Old',
-        'This calculator can only be used under 20 years of age',
-        [{text: 'OK', onPress: () => {}}],
-      );
+      Alert.alert('Patient Too Old', 'This calculator can only be used under 20 years of age', [
+        {text: 'OK', onPress: () => {}},
+      ]);
     } else {
       navigation.navigate('Results');
     }
   };
 
   // disables input for measurements not available with turner:
-  useEffect(() => {
-    if (globalState.reference.value === 'turner' && !turnerSelected) {
-      setGlobalState((old: globalStateType) => {
-        const mutable = {...old};
-        mutable.weight = initialState.weight;
-        mutable.ofc = initialState.ofc;
+  if (globalState.reference.value === 'turner' && !turnerSelected) {
+    setGlobalState((old: globalStateType) => {
+      return produce(old, (mutable) => {
+        mutable.weight = MakeSubState('weight');
+        mutable.ofc = MakeSubState('ofc');
         if (mutable.sex.value === 'Male') {
           mutable.sex.value = 'Female';
           mutable.sex.workingValue = 'Female';
           mutable.sex.timeStamp = new Date();
         }
-        return mutable;
       });
-      setTurnerSelected(true);
-    } else if (turnerSelected && globalState.reference.value !== 'turner') {
-      setTurnerSelected(false);
-    }
-  }, [globalState, setGlobalState, turnerSelected]);
+    });
+    setTurnerSelected(true);
+  } else if (turnerSelected && globalState.reference.value !== 'turner') {
+    setTurnerSelected(false);
+  }
 
   return (
     <Screen title="Enter Measurements:">
       <ValidatorProvider
         validationProforma={proformaTemplate}
         customSubmitFunction={submitFunction}>
-        <KeyboardAwareScrollView>
+        <KeyboardAwareScrollView style={styles.scrollView}>
           <DateInputButton dateName="dob" />
           <GestationInputButton />
           <BinarySelector
@@ -132,5 +127,11 @@ function InputScreen() {
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  scrollView: {
+    marginTop: 4,
+  },
+});
 
 export default InputScreen;

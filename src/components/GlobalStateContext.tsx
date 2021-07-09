@@ -1,3 +1,4 @@
+import produce from 'immer';
 import React, {useState} from 'react';
 import {globalStateType} from '../interfaces/GlobalState';
 
@@ -17,35 +18,57 @@ const blankContext: {
 
 const GlobalStateContext = React.createContext(blankContext);
 
-const list = {
-  height: {workingValue: ''},
-  weight: {workingValue: ''},
-  bmi: {workingValue: 0},
-  ofc: {workingValue: ''},
-  gestationInDays: {workingValue: 280},
-  sex: {workingValue: ''},
-  dob: {workingValue: null},
-  dom: {workingValue: null},
-  reference: {workingValue: 'uk-who'},
-};
-const blank = {
-  showPicker: false,
-  timeStamp: null,
-};
-
 function MakeInitialState() {
-  let workingObject: any = {};
-  for (const [key, subValue] of Object.entries(list)) {
-    workingObject[key] = {
-      ...blank,
-      ...subValue,
-      ...{value: subValue.workingValue},
+  const list = {
+    height: {workingValue: ''},
+    weight: {workingValue: ''},
+    bmi: {workingValue: ''},
+    ofc: {workingValue: ''},
+    gestationInDays: {workingValue: 280},
+    sex: {workingValue: ''},
+    dob: {workingValue: null},
+    dom: {workingValue: null},
+    reference: {workingValue: 'uk-who'},
+  };
+  return produce(list, (workingObject) => {
+    const blank = {
+      showPicker: false,
+      timeStamp: null,
     };
-  }
-  return workingObject;
+    for (const [key, subValue] of Object.entries(list)) {
+      workingObject[key] = {
+        ...blank,
+        ...subValue,
+        ...{value: subValue.workingValue},
+      };
+    }
+  });
 }
 
-const initialState = MakeInitialState();
+function MakeSubState(name: keyof globalStateType) {
+  const list = {
+    height: {workingValue: ''},
+    weight: {workingValue: ''},
+    bmi: {workingValue: ''},
+    ofc: {workingValue: ''},
+    gestationInDays: {workingValue: 280},
+    sex: {workingValue: ''},
+    dob: {workingValue: null},
+    dom: {workingValue: null},
+    reference: {workingValue: 'uk-who'},
+  };
+  const blank = {
+    showPicker: false,
+    timeStamp: null,
+  };
+  return {
+    ...blank,
+    value: list[name].workingValue,
+    workingValue: list[name].workingValue,
+  };
+}
+
+const initialState: globalStateType = MakeInitialState();
 
 const GlobalStateProvider = ({children}: propTypes) => {
   const [globalState, setGlobalState] = useState(MakeInitialState());
@@ -79,4 +102,4 @@ const GlobalStateProvider = ({children}: propTypes) => {
   );
 };
 
-export {GlobalStateContext, GlobalStateProvider, initialState};
+export {GlobalStateContext, GlobalStateProvider, initialState, MakeInitialState, MakeSubState};

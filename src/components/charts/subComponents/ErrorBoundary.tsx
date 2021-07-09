@@ -1,17 +1,19 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, TextStyle} from 'react-native';
 
 type PropTypes = {
   children: React.ReactNode;
-  height: number;
-  width: number;
+  titleText: TextStyle;
+  subTitleText: TextStyle;
 };
 
 class ErrorBoundary extends React.Component {
   state: {hasError: boolean};
+  props: PropTypes;
   constructor(props: PropTypes) {
     super(props);
     this.state = {hasError: false};
+    this.props = props;
   }
 
   static getDerivedStateFromError() {
@@ -19,17 +21,17 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    console.log({error: error.message, errorInfo: errorInfo});
+    console.error({error: error.message, errorInfo: errorInfo});
   }
 
   render() {
     if (this.state.hasError) {
       return (
         <View style={styles.errorContainer}>
-          <Text style={styles.textHeading}>
-            Woops! The chart encountered an error
+          <Text style={{...this.props.titleText, ...styles.textHeading}}>
+            The chart cannot be displayed
           </Text>
-          <Text style={styles.textMessage}>
+          <Text style={{...this.props.subTitleText, ...styles.textMessage}}>
             Please navigate away from the chart and try again
           </Text>
         </View>
@@ -48,14 +50,12 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   textHeading: {
-    fontFamily: 'Montserrat-Regular',
     fontSize: 22,
     textAlign: 'center',
     flexWrap: 'wrap',
   },
   textMessage: {
     paddingTop: 15,
-    fontFamily: 'Montserrat-Regular',
     fontSize: 16,
     textAlign: 'center',
     flexWrap: 'wrap',

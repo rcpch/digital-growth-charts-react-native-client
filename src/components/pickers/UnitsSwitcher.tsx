@@ -81,12 +81,12 @@ const styles = StyleSheet.create({
   container: {
     ...theme.button,
     justifyContent: 'space-evenly',
-    backgroundColor: colors.dark,
+    backgroundColor: colors.medium,
   },
   itemContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.darkest,
+    backgroundColor: colors.dark,
     padding: 6,
     paddingLeft: 15,
     paddingRight: 15,

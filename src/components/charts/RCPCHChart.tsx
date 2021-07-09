@@ -1,7 +1,8 @@
 import React from 'react';
 
 import CentileChart from './CentileChart';
-import {MainChartProps} from './CentileChart.types';
+import makeAllStyles from './functions/makeAllStyles';
+import {RCPCHChartProps} from './RCPCHChart.types';
 import ErrorBoundary from './subComponents/ErrorBoundary';
 
 function RCPCHChart({
@@ -12,13 +13,22 @@ function RCPCHChart({
   sex,
   measurementsArray,
   chartStyle,
+  modalStyle,
   axisStyle,
   gridlineStyle,
   centileStyle,
   measurementStyle,
-}: MainChartProps) {
+}: RCPCHChartProps) {
+  const styles = makeAllStyles(
+    chartStyle,
+    axisStyle,
+    gridlineStyle,
+    centileStyle,
+    measurementStyle,
+    modalStyle,
+  );
   return (
-    <ErrorBoundary>
+    <ErrorBoundary titleText={styles.titleTextStyle} subTitleText={styles.subtitleTextStyle}>
       <CentileChart
         title={title}
         subtitle={subtitle}
@@ -26,11 +36,7 @@ function RCPCHChart({
         reference={reference}
         sex={sex}
         measurementsArray={measurementsArray}
-        chartStyle={chartStyle}
-        axisStyle={axisStyle}
-        gridlineStyle={gridlineStyle}
-        centileStyle={centileStyle}
-        measurementStyle={measurementStyle}
+        styles={styles}
       />
     </ErrorBoundary>
   );

@@ -8,6 +8,7 @@ import PickerButton from '../PickerButton';
 import AppModal from '../AppModal';
 import {globalStateType} from '../../interfaces/GlobalState';
 import AcceptCancel from '../AcceptCancel';
+import {MakeSubState} from '../GlobalStateContext';
 
 type propTypes = {
   name: keyof globalStateType;
@@ -15,6 +16,18 @@ type propTypes = {
   userLabel: string;
   iconName: string;
 };
+
+function findRelevantIndexFromPickerArray(
+  pickerArray: {label: string; value: number | string}[],
+  value: string | number,
+) {
+  for (let i = 0; i < pickerArray.length; i++) {
+    if (pickerArray[i].value === value) {
+      return i;
+    }
+  }
+  throw new Error('Picker array index finder should always find an index');
+}
 
 const WheelPicker = ({name, pickerArray, userLabel, iconName}: propTypes) => {
   const ios = Platform.OS === 'ios' ? true : false;
@@ -35,21 +48,12 @@ const WheelPicker = ({name, pickerArray, userLabel, iconName}: propTypes) => {
 
   const {showPicker, workingValue, value} = buttonState;
 
-  function findRelevantIndexFromPickerArray() {
-    for (let i = 0; i < pickerArray.length; i++) {
-      if (pickerArray[i].value === value) {
-        return i;
-      }
-    }
-    throw new Error('Picker array index finder should always find an index');
-  }
-
   let buttonLabel;
   if (!value) {
     buttonLabel = userLabel;
   } else {
     buttonLabel = `${userLabel}: ${
-      pickerArray[findRelevantIndexFromPickerArray()].label
+      pickerArray[findRelevantIndexFromPickerArray(pickerArray, value)].label
     }`;
   }
 
@@ -73,7 +77,7 @@ const WheelPicker = ({name, pickerArray, userLabel, iconName}: propTypes) => {
         workingValue: value,
       });
     } else {
-      combinedSetter(initialState[name]);
+      combinedSetter(MakeSubState(name));
     }
   };
 

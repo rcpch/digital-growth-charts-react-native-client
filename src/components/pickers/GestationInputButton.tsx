@@ -1,13 +1,13 @@
 import React from 'react';
-import {Platform, StyleSheet, View, TouchableOpacity} from 'react-native';
+import {Platform, StyleSheet, View} from 'react-native';
 import {Picker} from '@react-native-picker/picker';
 
 import {colors, theme} from '../../config';
 import useCombined from '../../hooks/useCombined';
 import PickerButton from '../PickerButton';
 import AppModal from '../AppModal';
-import AppIcon from '../AppIcon';
 import AcceptCancel from '../AcceptCancel';
+import {MakeSubState} from '../GlobalStateContext';
 
 const weekLabels = [];
 for (let i = 23; i < 43; i++) {
@@ -70,7 +70,7 @@ const GestationInputButton = () => {
         workingValue: value,
       });
     } else {
-      combinedSetter(initialState.gestationInDays);
+      combinedSetter(MakeSubState('gestationInDays'));
     }
   };
 

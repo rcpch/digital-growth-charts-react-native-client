@@ -97,7 +97,7 @@ const MoreCentileInfo = ({specificResults, isLoading}: propTypes) => {
         <View style={styles.infoContainer}>
           <View style={styles.modalTextHeadingWrapper}>
             {correctionApplied && (
-              <AppText style={styles.modalTextHeadings}>Corrected:</AppText>
+              <AppText style={styles.modalTextHeadings}>Adjusted:</AppText>
             )}
             <AppText style={styles.modalTextInfo}>
               {centileCorrectedAnswer}
@@ -107,9 +107,7 @@ const MoreCentileInfo = ({specificResults, isLoading}: propTypes) => {
           {correctionApplied && (
             <React.Fragment>
               <View style={styles.modalTextHeadingWrapper}>
-                <AppText style={styles.modalTextHeadings}>
-                  Chronological:
-                </AppText>
+                <AppText style={styles.modalTextHeadings}>Unadjusted:</AppText>
                 <AppText style={styles.modalTextInfo}>
                   {centileChronologicalAnswer}
                 </AppText>
@@ -131,7 +129,7 @@ export default MoreCentileInfo;
 const styles = StyleSheet.create({
   openModalIcon: {
     borderRadius: 5,
-    backgroundColor: colors.medium,
+    backgroundColor: colors.pink,
     padding: 5,
     alignItems: 'center',
     justifyContent: 'center',

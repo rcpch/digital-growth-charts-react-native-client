@@ -10,17 +10,14 @@ import AcceptCancel from '../AcceptCancel';
 import PickerButton from '../PickerButton';
 import AppModal from '../AppModal';
 import DateTimeBare from './DateTimeBare';
+import {MakeSubState} from '../GlobalStateContext';
 
 const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
   const makeRefreshNotCancel = dateName === 'dob' ? false : true;
 
-  const {
-    combinedSetter,
-    buttonState,
-    initialState,
-    specificErrorMessage,
-    showErrorMessages,
-  } = useCombined(dateName);
+  const {combinedSetter, buttonState, specificErrorMessage, showErrorMessages} = useCombined(
+    dateName,
+  );
 
   const {value, workingValue, showPicker} = buttonState;
 
@@ -43,7 +40,7 @@ const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
         workingValue: value,
       });
     } else if (!showPicker) {
-      combinedSetter(initialState[dateName]);
+      combinedSetter(MakeSubState(dateName));
     }
   };
 
@@ -52,8 +49,7 @@ const DateInputButton = ({dateName}: {dateName: keyof globalStateType}) => {
     if (showPicker) {
       if (
         dateName === 'dob' ||
-        (dateName === 'dom' &&
-          formatDate(workingValue) !== formatDate(new Date()))
+        (dateName === 'dom' && formatDate(workingValue) !== formatDate(new Date()))
       ) {
         workingObject.value = workingValue;
       }

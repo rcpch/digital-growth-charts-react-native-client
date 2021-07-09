@@ -29,9 +29,7 @@ function giveRange(z: number): string {
     arrayForOrdering.push(majorCentileLines[i]);
   }
   arrayForOrdering.push([z, 'childZ']);
-  arrayForOrdering.sort(
-    (a: [number, string], b: [number, string]) => a[0] - b[0],
-  );
+  arrayForOrdering.sort((a: [number, string], b: [number, string]) => a[0] - b[0]);
   const measurementPosition = arrayForOrdering.findIndex(
     (element: [number, string]) => element[0] === z,
   );
@@ -53,18 +51,14 @@ function giveRange(z: number): string {
     const lower = arrayForOrdering[measurementPosition - 1][0];
     const upper = arrayForOrdering[measurementPosition + 1][0];
     if (z - lower <= (upper - lower) / 4) {
-      return `On or near the ${
-        arrayForOrdering[measurementPosition - 1][1]
-      } centile.`;
+      return `On or near the ${arrayForOrdering[measurementPosition - 1][1]} centile.`;
     }
     if (upper - z <= (upper - lower) / 4) {
-      return `On or near the ${
-        arrayForOrdering[measurementPosition + 1][1]
-      } centile.`;
+      return `On or near the ${arrayForOrdering[measurementPosition + 1][1]} centile.`;
     } else {
-      return `Between the ${
-        arrayForOrdering[measurementPosition - 1][1]
-      } and the ${arrayForOrdering[measurementPosition + 1][1]} centiles.`;
+      return `Between the ${arrayForOrdering[measurementPosition - 1][1]} and the ${
+        arrayForOrdering[measurementPosition + 1][1]
+      } centiles.`;
     }
   }
 }

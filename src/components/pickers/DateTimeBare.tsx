@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {Picker} from '@react-native-picker/picker';
 import {Platform, View, StyleSheet} from 'react-native';
+import produce from 'immer';
 
 import {theme} from '../../config';
 
@@ -36,8 +37,7 @@ const customDateObject = (dateObject = new Date()) => {
     const year = `${dateObject.getFullYear()}`;
     const intHour = dateObject.getHours();
     const intMinute = dateObject.getMinutes();
-    const hour =
-      intHour < 10 ? `0${dateObject.getHours()}` : `${dateObject.getHours()}`;
+    const hour = intHour < 10 ? `0${dateObject.getHours()}` : `${dateObject.getHours()}`;
     const minute = `${Math.floor(intMinute / 15) * 15}`;
     return {
       day: day,
@@ -143,14 +143,23 @@ const DateTimeBare = ({date, setDate, renderTime = false}: propTypes) => {
   };
   const [values, setValues] = useState(initialValues);
 
-  const handleChange = (newValue: string, measurement: string) => {
-    const newState = {...values, ...{[measurement]: newValue}};
+  const handleChange = (
+    newValue: string,
+    measurement: 'day' | 'month' | 'year' | 'hour' | 'minute',
+  ) => {
+    let newState = produce(values, (draft) => {
+      draft[measurement] = newValue;
+    });
     const dayArrayForNewMonth = monthDays(newState.year, newState.month);
     if (values.dayList.length !== dayArrayForNewMonth.length) {
-      newState.dayList = dayArrayForNewMonth;
+      newState = produce(newState, (draft) => {
+        draft.dayList = [...dayArrayForNewMonth];
+      });
       const newLastDay = dayArrayForNewMonth[dayArrayForNewMonth.length - 1];
-      if (newState.day > newLastDay) {
-        newState.day = newLastDay;
+      if (Number(newState.day) > Number(newLastDay)) {
+        newState = produce(newState, (draft) => {
+          draft.day = newLastDay;
+        });
       }
     }
     const {year, month, day, hour, minute} = newState;
@@ -162,11 +171,7 @@ const DateTimeBare = ({date, setDate, renderTime = false}: propTypes) => {
     <Picker.Item label={element} value={element} key={element} />
   ));
   const selectMonth = values.monthList.map((element) => (
-    <Picker.Item
-      label={element.string}
-      value={element.value}
-      key={element.value}
-    />
+    <Picker.Item label={element.string} value={element.value} key={element.value} />
   ));
   const selectYear = values.yearList.map((element) => (
     <Picker.Item label={`${element}`} value={element} key={element} />
@@ -220,9 +225,7 @@ const DateTimeBare = ({date, setDate, renderTime = false}: propTypes) => {
           <Picker
             style={ios ? styles.iosPickerDate : styles.androidPickerDate}
             itemStyle={theme.text}
-            onValueChange={(newValue: string) =>
-              handleChange(newValue, 'minute')
-            }
+            onValueChange={(newValue: string) => handleChange(newValue, 'minute')}
             selectedValue={values.minute}>
             {selectMinute}
           </Picker>

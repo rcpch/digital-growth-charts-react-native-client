@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {ScrollView, StyleSheet, TouchableOpacity, View, useColorScheme} from 'react-native';
 
 import {Screen, AppText, AgeButton, CentileOutput} from '../components';
 import {colors, theme} from '../config';
@@ -9,18 +9,19 @@ const centileMeasurements = ['weight', 'height', 'bmi', 'ofc'];
 
 function ResultsScreen() {
   const [isLoading, setIsLoading] = useState(true);
-  const {
-    getMultipleCentileResults,
-    centileResults,
-    errors,
-    globalState,
-  } = useRcpchApi('local');
+  const {getMultipleCentileResults, centileResults, errors, globalState} = useRcpchApi('local');
 
   const reset = () => {
     setIsLoading(true);
   };
 
   const showRefresh = errors.serverErrors ? true : false;
+
+  const scheme = useColorScheme();
+
+  const backgroundColor = {
+    backgroundColor: scheme === 'dark' ? colors.light : colors.darkest,
+  };
 
   const centileOutputs = centileMeasurements.map((item) => {
     const measurementProvided = globalState[item]?.value ? true : false;
@@ -49,26 +50,25 @@ function ResultsScreen() {
   useEffect(() => {
     let recordAnswer = true;
     if (isLoading) {
-      getMultipleCentileResults(recordAnswer).then(() => {
-        setIsLoading(false);
-      });
+      getMultipleCentileResults(recordAnswer)
+        .then(() => {
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          throw new Error(error.message);
+        });
     }
     return () => {
       recordAnswer = false;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoading]);
+  }, [isLoading, getMultipleCentileResults]);
 
   return (
     <Screen renderBack>
-      <View style={styles.referenceButton}>
+      <View style={{...styles.referenceButton, ...backgroundColor}}>
         <AppText>{`Reference: ${referenceTitle}`}</AppText>
       </View>
-      <AgeButton
-        centileResults={centileResults}
-        errors={errors}
-        isLoading={isLoading}
-      />
+      <AgeButton centileResults={centileResults} errors={errors} isLoading={isLoading} />
       {showRefresh && (
         <TouchableOpacity style={styles.refreshButton} onPress={reset}>
           <AppText>Try again</AppText>
@@ -89,7 +89,8 @@ const styles = StyleSheet.create({
   referenceButton: {
     ...theme.button,
     justifyContent: 'center',
-    backgroundColor: colors.darkest,
+    backgroundColor: colors.light,
+    marginTop: 8,
   },
   backButtonText: {
     ...theme.text,

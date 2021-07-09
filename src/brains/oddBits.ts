@@ -1,8 +1,3 @@
-import {Alert} from 'react-native';
-
-import {globalStateType} from '../interfaces/GlobalState';
-import {proformaObjectArgument} from '../interfaces/Validator';
-
 // input a number and outputs a string with ordinal suffix attached
 const addOrdinalSuffix = (inputNumber: number | string): string => {
   const answerNumber = inputNumber;
@@ -40,29 +35,6 @@ const calculateBMI = (weight: number | string, heightInCm: number | string) => {
   }
   const height = Number(heightInCm) / 100;
   return Number(weight) / (height * height);
-};
-
-// check timestamps of measurements from global state. Can change how many mins old the threshold is
-const checkTimeStamps = (
-  globalObject: globalStateType,
-  validationProforma: {[key: string]: proformaObjectArgument},
-  minsAgo = 2,
-) => {
-  const nameArray = [];
-  const now = new Date();
-  for (const [key, value] of Object.entries(globalObject)) {
-    for (const validationName of Object.keys(validationProforma)) {
-      if (value.timeStamp && key === validationName) {
-        const timeStamp = value.timeStamp;
-        const millisecondDifference = now.getTime() - timeStamp.getTime();
-        if (millisecondDifference > minsAgo * 1000 * 60) {
-          nameArray.push(key);
-        }
-        break;
-      }
-    }
-  }
-  return nameArray;
 };
 
 // simple give 's' if number is plural
@@ -130,66 +102,6 @@ const formatTime = (inputTime: Date, accurate = false) => {
   return [hours, minutes].join(':');
 };
 
-// handles old measurements if the timestamp is considered old by the checkTimeStamps function. Submits if all OK.
-const checkForOldValues = (
-  submitFunction: Function,
-  setGlobalStats: Function,
-  globalValues: globalStateType,
-  validationProforma: {[key: string]: proformaObjectArgument},
-) => {
-  const oldValueArray = checkTimeStamps(globalValues, validationProforma);
-  if (oldValueArray.length > 0) {
-    const nameLookup = {
-      height: 'Height / Length',
-      weight: 'Weight',
-      ofc: 'Head Circumference',
-      sex: 'Sex',
-      gestationInDays: 'Birth Gestation',
-      dob: 'Date of Birth',
-      dom: 'Date of Measurement',
-      reference: 'Reference',
-    };
-    let oldValuesString = '';
-    for (let i = 0; i < oldValueArray.length; i++) {
-      for (const [nameKey, nameValue] of Object.entries(nameLookup)) {
-        if (oldValueArray[i] === nameKey) {
-          const ending = i === oldValueArray.length - 1 ? '.' : ', ';
-          oldValuesString = oldValuesString + nameValue + ending;
-        }
-      }
-    }
-    const finalSubmitFunction = () => {
-      const mutableObject: any = {...globalValues};
-      const now = new Date();
-      for (let i = 0; i < oldValueArray.length; i++) {
-        mutableObject[oldValueArray[i]].timeStamp = now;
-      }
-      setGlobalStats(mutableObject);
-      submitFunction(globalValues);
-    };
-    Alert.alert(
-      'Are all measurements still valid?',
-      `\nThe following measurements were entered more than 2 minutes ago: ${oldValuesString}\n\nDo you still want to continue?`,
-      [
-        {
-          text: 'No',
-          style: 'cancel',
-          onPress: () => {},
-        },
-        {
-          text: 'Yes',
-          onPress: () => {
-            finalSubmitFunction();
-          },
-        },
-      ],
-      {cancelable: false},
-    );
-  } else {
-    submitFunction(globalValues);
-  }
-};
-
 const timeout = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
@@ -200,7 +112,5 @@ export {
   pluralSuffix,
   formatDate,
   formatTime,
-  checkTimeStamps,
-  checkForOldValues,
   timeout,
 };

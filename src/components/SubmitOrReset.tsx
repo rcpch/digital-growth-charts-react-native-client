@@ -1,5 +1,10 @@
 import React from 'react';
-import {Alert, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  Alert,
+  StyleSheet,
+  TouchableOpacity,
+  useColorScheme,
+} from 'react-native';
 import {colors, theme} from '../config';
 import useCombined from '../hooks/useCombined';
 import AppText from './AppText';
@@ -12,15 +17,20 @@ type propTypes = {
 
 function SubmitOrReset({submit, reset, children}: propTypes) {
   const {handleFinalSubmit, combinedReset} = useCombined();
+  const scheme = useColorScheme();
 
   let handlePress = () => {};
-  let backgroundColor = {backgroundColor: colors.darkMedium};
+  let otherStyles = {
+    backgroundColor: colors.darkest,
+  };
 
   if (submit) {
     handlePress = () => {
       handleFinalSubmit();
     };
-    backgroundColor = {backgroundColor: colors.black};
+    otherStyles = {
+      backgroundColor: colors.pink,
+    };
   }
   if (reset) {
     handlePress = () => {
@@ -35,12 +45,14 @@ function SubmitOrReset({submit, reset, children}: propTypes) {
         },
       ]);
     };
-    backgroundColor = {backgroundColor: colors.dark};
+    otherStyles = {
+      backgroundColor: scheme === 'dark' ? colors.light : colors.darkest,
+    };
   }
 
   return (
     <TouchableOpacity
-      style={[styles.container, backgroundColor]}
+      style={[styles.container, otherStyles]}
       onPress={handlePress}>
       <AppText>{children}</AppText>
     </TouchableOpacity>
