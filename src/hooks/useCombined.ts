@@ -3,14 +3,10 @@ import {useContext} from 'react';
 import produce from 'immer';
 
 import {calculateBMI} from '../brains';
-import {
-  GlobalStateContext,
-  initialState,
-  MakeInitialState,
-} from '../components/GlobalStateContext';
+import {GlobalStateContext, initialState, MakeInitialState} from '../components/GlobalStateContext';
 import {ValidatorContext} from '../components/Validator';
 
-import {globalStateType, Names} from '../interfaces/GlobalState';
+import {dateStore, globalStateType, Names, numberStore, textStore} from '../interfaces/GlobalState';
 import {proformaObjectArgument} from '../interfaces/Validator';
 
 type NameArray = Names[];
@@ -22,19 +18,21 @@ const checkTimeStamps = (
   minsAgo = 2,
 ): NameArray => {
   const nameArray: NameArray = [];
-  const now = new Date();
+  const allTimeStamps: {name: Names; timeStamp: Date}[] = [];
   for (const [key, value] of Object.entries(globalObject)) {
-    for (const validationName of Object.keys(validationProforma)) {
-      if (value.timeStamp && key === validationName) {
-        const timeStamp = value.timeStamp;
-        const millisecondDifference = now.getTime() - timeStamp.getTime();
-        if (millisecondDifference > minsAgo * 1000 * 60) {
-          nameArray.push(key);
-        }
-        break;
-      }
+    if (value.timeStamp) {
+      allTimeStamps.push({name: key as Names, timeStamp: value.timeStamp});
     }
   }
+  const now = new Date();
+  allTimeStamps.forEach((element) => {
+    if (validationProforma[element.name] !== undefined) {
+      const millisecondDifference = now.getTime() - element.timeStamp.getTime();
+      if (millisecondDifference > minsAgo * 1000 * 60) {
+        nameArray.push(element.name);
+      }
+    }
+  });
   return nameArray;
 };
 
@@ -49,14 +47,11 @@ const nameLookup = {
   reference: 'Reference',
 };
 
-const returnUpdatedGlobalState = (
-  globalValues: globalStateType,
-  oldValueArray: NameArray,
-) => {
+const updateAllTimeStampsToNow = (globalValues: globalStateType, oldValueArray: NameArray) => {
   return produce(globalValues, (mutableObject) => {
     const now = new Date();
-    for (let i = 0; i < oldValueArray.length; i++) {
-      mutableObject[oldValueArray[i]].timeStamp = now;
+    for (const oldValueName of oldValueArray) {
+      mutableObject[oldValueName].timeStamp = now;
     }
   });
 };
@@ -91,10 +86,7 @@ const checkForOldValuesAndFinalSubmit = (
         {
           text: 'Yes',
           onPress: () => {
-            const updatedGlobalState = returnUpdatedGlobalState(
-              globalValues,
-              oldValueArray,
-            );
+            const updatedGlobalState = updateAllTimeStampsToNow(globalValues, oldValueArray);
             setGlobalState(updatedGlobalState);
             finalSubmitFunction(updatedGlobalState);
           },
@@ -112,9 +104,7 @@ const useCombined = (name?: keyof globalStateType) => {
   const {
     globalState,
     setGlobalState,
-  }: {globalState: globalStateType; setGlobalState: Function} = useContext(
-    GlobalStateContext,
-  );
+  }: {globalState: globalStateType; setGlobalState: Function} = useContext(GlobalStateContext);
   const {
     updateSingleValidation,
     handleValidationReset,
@@ -123,18 +113,17 @@ const useCombined = (name?: keyof globalStateType) => {
     validationProforma,
   } = useContext(ValidatorContext);
 
-  let buttonState = initialState.weight;
+  const buttonState = name ? globalState[name] : null;
   let specificErrorMessage = '';
   let showErrorMessages = false;
   if (name) {
-    buttonState = globalState[name];
     specificErrorMessage = validation.errorMessages[name];
     showErrorMessages = validation.showErrorMessages;
   }
 
   const combinedSetter = (inputState: {[key: string]: any}): void => {
-    let localState = produce(inputState, () => {});
     if (name) {
+      let localState = produce(inputState, () => {});
       // due to the way the android date picker works, logic has been moved here to put workingValue into value:
       localState = produce(localState, (draft) => {
         if (
@@ -146,13 +135,12 @@ const useCombined = (name?: keyof globalStateType) => {
         }
       });
       // update state:
-      setGlobalState((oldState: globalStateType) => {
+      setGlobalState((oldState: {[key: string]: any}) => {
         const oldStateForMerge = produce(oldState, () => {});
-        let merge = {...oldStateForMerge[name], ...localState};
+        let merge: textStore | dateStore | numberStore = {...oldStateForMerge[name], ...localState};
         if (localState.value !== undefined) {
           merge = produce(merge, (draft) => {
-            draft.timeStamp =
-              initialState[name].value === draft.value ? null : new Date();
+            draft.timeStamp = initialState[name].value === draft.value ? null : new Date();
           });
         }
         return produce(oldStateForMerge, (draft) => {
@@ -171,27 +159,21 @@ const useCombined = (name?: keyof globalStateType) => {
     handleValidationReset();
   };
 
-  const handleFinalSubmit = () => {
+  const handleFinalSubmit = (): void => {
     let workingState = produce(globalState, () => {});
     const customSubmitFunction = giveSubmitFunctionIfAllowed(workingState);
     if (customSubmitFunction) {
       //create bmi:
       if (globalState.weight.value && globalState.height.value) {
         workingState = produce(workingState, (mutable) => {
-          const bmiValue = calculateBMI(
-            mutable.weight.value,
-            mutable.height.value,
-          );
+          const bmiValue = calculateBMI(mutable.weight.value, mutable.height.value);
           mutable.bmi = {...mutable.weight};
           mutable.bmi.value = '' + bmiValue;
           mutable.bmi.value = '' + bmiValue;
         });
       }
       // remove bmi if previously entered and valid measurements not there:
-      else if (
-        globalState.bmi.value &&
-        (!globalState.weight.value || !globalState.height.value)
-      ) {
+      else if (globalState.bmi.value && (!globalState.weight.value || !globalState.height.value)) {
         workingState = produce(workingState, (mutable) => {
           mutable.bmi = {...initialState.bmi};
         });
