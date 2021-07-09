@@ -6,6 +6,7 @@ import totalMinPadding from './totalMinPadding';
 import {getTickValuesForChartScaling} from './tailoredXTickValues';
 import {Measurement} from '../interfaces/RCPCHMeasurementObject';
 import {Domains} from '../interfaces/Domains';
+import deepCopy from './deepCopy';
 
 import {IPlottedCentileMeasurement} from '../interfaces/CentilesObject';
 
@@ -28,6 +29,53 @@ type ExtremeValues = {
   highestYForX: null | CentileLabelValues;
 };
 
+const blankDataset = [
+  [
+    {centile: 0.4, data: [], sds: -2.67},
+    {centile: 2, data: [], sds: -2},
+    {centile: 9, data: [], sds: -1.33},
+    {centile: 25, data: [], sds: -0.67},
+    {centile: 50, data: [], sds: 0},
+    {centile: 75, data: [], sds: 0.67},
+    {centile: 91, data: [], sds: 1.33},
+    {centile: 98, data: [], sds: 2},
+    {centile: 99.6, data: [], sds: 2.67},
+  ],
+  [
+    {centile: 0.4, data: [], sds: -2.67},
+    {centile: 2, data: [], sds: -2},
+    {centile: 9, data: [], sds: -1.33},
+    {centile: 25, data: [], sds: -0.67},
+    {centile: 50, data: [], sds: 0},
+    {centile: 75, data: [], sds: 0.67},
+    {centile: 91, data: [], sds: 1.33},
+    {centile: 98, data: [], sds: 2},
+    {centile: 99.6, data: [], sds: 2.67},
+  ],
+  [
+    {centile: 0.4, data: [], sds: -2.67},
+    {centile: 2, data: [], sds: -2},
+    {centile: 9, data: [], sds: -1.33},
+    {centile: 25, data: [], sds: -0.67},
+    {centile: 50, data: [], sds: 0},
+    {centile: 75, data: [], sds: 0.67},
+    {centile: 91, data: [], sds: 1.33},
+    {centile: 98, data: [], sds: 2},
+    {centile: 99.6, data: [], sds: 2.67},
+  ],
+  [
+    {centile: 0.4, data: [], sds: -2.67},
+    {centile: 2, data: [], sds: -2},
+    {centile: 9, data: [], sds: -1.33},
+    {centile: 25, data: [], sds: -0.67},
+    {centile: 50, data: [], sds: 0},
+    {centile: 75, data: [], sds: 0.67},
+    {centile: 91, data: [], sds: 1.33},
+    {centile: 98, data: [], sds: 2},
+    {centile: 99.6, data: [], sds: 2.67},
+  ],
+];
+
 // analyses whole child measurement array to work out top and bottom x and y
 function childMeasurementRanges(
   childMeasurements: Measurement[],
@@ -43,26 +91,23 @@ function childMeasurementRanges(
   let gestationInDays: null | number = null;
   let dateOfBirth: null | string = null;
   let internalSex: null | 'male' | 'female' = null;
-  let internalMeasurementMethod:
-    | null
-    | 'height'
-    | 'weight'
-    | 'bmi'
-    | 'ofc' = null;
-  for (let measurement of childMeasurements) {
+  let internalMeasurementMethod: null | 'height' | 'weight' | 'bmi' | 'ofc' = null;
+  let workingMeasurement: null | string = null;
+  for (const measurement of childMeasurements) {
+    if (workingMeasurement === JSON.stringify(measurement)) {
+      throw new Error('Duplicate measurement entries detected.');
+    }
+    workingMeasurement = JSON.stringify(measurement);
     if (!measurement.plottable_data) {
-      throw new Error(
-        'No plottable data found. Are you using the correct server version?',
-      );
+      throw new Error('No plottable data found. Are you using the correct server version?');
     }
     const tempGestDays =
-      measurement.birth_data.gestation_weeks * 7 +
-      measurement.birth_data.gestation_days;
+      measurement.birth_data.gestation_weeks * 7 + measurement.birth_data.gestation_days;
     if (gestationInDays === null) {
       gestationInDays = tempGestDays;
     } else if (gestationInDays !== tempGestDays) {
       throw new Error(
-        'Measurement entries with different gestations detected. Measurements from only one patient at one time are supported',
+        'Measurement entries with different gestations detected. Measurements from only one patient at one time are supported.',
       );
     }
     const tempDob = measurement.birth_data.birth_date;
@@ -70,7 +115,7 @@ function childMeasurementRanges(
       dateOfBirth = tempDob;
     } else if (dateOfBirth !== tempDob) {
       throw new Error(
-        'Measurement entries with different date of births detected. Measurements from only one patient at one time are supported',
+        'Measurement entries with different date of births detected. Measurements from only one patient at one time are supported.',
       );
     }
     const tempSex = measurement.birth_data.sex;
@@ -90,8 +135,7 @@ function childMeasurementRanges(
         'Sex supplied by chart props does not match sex supplied in measurements array.',
       );
     }
-    const tempMeasurementMethod =
-      measurement.child_observation_value.measurement_method;
+    const tempMeasurementMethod = measurement.child_observation_value.measurement_method;
     if (internalMeasurementMethod === null) {
       internalMeasurementMethod = tempMeasurementMethod;
       if (internalMeasurementMethod !== measurementMethod) {
@@ -108,18 +152,15 @@ function childMeasurementRanges(
         'Measurement method supplied by chart props does not match measurement method supplied in measurements array.',
       );
     }
-    let correctedX =
-      measurement.plottable_data.centile_data.corrected_decimal_age_data.x;
-    let chronologicalX =
-      measurement.plottable_data.centile_data.chronological_decimal_age_data.x;
-    let correctedY =
-      measurement.plottable_data.centile_data.corrected_decimal_age_data.y;
-    let chronologicalY =
-      measurement.plottable_data.centile_data.chronological_decimal_age_data.y;
-    const errorsPresent = measurement.measurement_calculated_values
-      .chronological_measurement_error
-      ? true
-      : false;
+    let correctedX = measurement.plottable_data.centile_data.corrected_decimal_age_data.x;
+    let chronologicalX = measurement.plottable_data.centile_data.chronological_decimal_age_data.x;
+    let correctedY = measurement.plottable_data.centile_data.corrected_decimal_age_data.y;
+    let chronologicalY = measurement.plottable_data.centile_data.chronological_decimal_age_data.y;
+    const errorsPresent =
+      measurement.measurement_calculated_values.corrected_measurement_error ||
+      measurement.measurement_calculated_values.chronological_measurement_error
+        ? true
+        : false;
     if (!errorsPresent) {
       if (showCorrected && !showChronological) {
         chronologicalX = correctedX;
@@ -148,7 +189,7 @@ function childMeasurementRanges(
       }
     } else {
       console.warn(
-        'Measurements considered invalid by the API given to the chart. The chart will not use them to calculate scaling.',
+        'Measurements considered invalid by the API given to the chart. The chart will ignore them.',
       );
     }
   }
@@ -209,9 +250,7 @@ function makeCentileLabels(
       });
     }
   } else if (extremeValues.highestYForX) {
-    for (const [key, miniObject] of Object.entries(
-      extremeValues.highestYForX,
-    )) {
+    for (const [key, miniObject] of Object.entries(extremeValues.highestYForX)) {
       pointsForCentileLabels.push({
         x: highestXForDomain,
         centile: key,
@@ -263,7 +302,7 @@ function filterData(
   extremeValues?: {[key: string]: any},
   native?: boolean,
 ) {
-  const filtered = data.filter(
+  return data.filter(
     (
       d: IPlottedCentileMeasurement,
       currentIndex: number,
@@ -291,7 +330,6 @@ function filterData(
       }
     },
   );
-  return filtered;
 }
 
 // loops through data sets with filterData function:
@@ -334,52 +372,7 @@ function getRelevantDataSets(
   lowestChildX: number,
   highestChildX: number,
 ) {
-  const blankDataset = [
-    [
-      {centile: 0.4, data: [], sds: -2.67},
-      {centile: 2, data: [], sds: -2},
-      {centile: 9, data: [], sds: -1.33},
-      {centile: 25, data: [], sds: -0.67},
-      {centile: 50, data: [], sds: 0},
-      {centile: 75, data: [], sds: 0.67},
-      {centile: 91, data: [], sds: 1.33},
-      {centile: 98, data: [], sds: 2},
-      {centile: 99.6, data: [], sds: 2.67},
-    ],
-    [
-      {centile: 0.4, data: [], sds: -2.67},
-      {centile: 2, data: [], sds: -2},
-      {centile: 9, data: [], sds: -1.33},
-      {centile: 25, data: [], sds: -0.67},
-      {centile: 50, data: [], sds: 0},
-      {centile: 75, data: [], sds: 0.67},
-      {centile: 91, data: [], sds: 1.33},
-      {centile: 98, data: [], sds: 2},
-      {centile: 99.6, data: [], sds: 2.67},
-    ],
-    [
-      {centile: 0.4, data: [], sds: -2.67},
-      {centile: 2, data: [], sds: -2},
-      {centile: 9, data: [], sds: -1.33},
-      {centile: 25, data: [], sds: -0.67},
-      {centile: 50, data: [], sds: 0},
-      {centile: 75, data: [], sds: 0.67},
-      {centile: 91, data: [], sds: 1.33},
-      {centile: 98, data: [], sds: 2},
-      {centile: 99.6, data: [], sds: 2.67},
-    ],
-    [
-      {centile: 0.4, data: [], sds: -2.67},
-      {centile: 2, data: [], sds: -2},
-      {centile: 9, data: [], sds: -1.33},
-      {centile: 25, data: [], sds: -0.67},
-      {centile: 50, data: [], sds: 0},
-      {centile: 75, data: [], sds: 0.67},
-      {centile: 91, data: [], sds: 1.33},
-      {centile: 98, data: [], sds: 2},
-      {centile: 99.6, data: [], sds: 2.67},
-    ],
-  ];
+  const blankSubSet = deepCopy(blankDataset[0]);
   if (reference === 'uk-who') {
     const dataSetRanges = [
       [-0.33, 0.0383],
@@ -404,9 +397,7 @@ function getRelevantDataSets(
       }
     }
     const allData: any = [
-      measurementMethod !== 'bmi'
-        ? ukwhoData.uk90_preterm[sex][measurementMethod]
-        : blankDataset[0],
+      measurementMethod !== 'bmi' ? ukwhoData.uk90_preterm[sex][measurementMethod] : blankSubSet,
       ukwhoData.uk_who_infant[sex][measurementMethod],
       ukwhoData.uk_who_child[sex][measurementMethod],
       ukwhoData.uk90_child[sex][measurementMethod],
@@ -414,32 +405,22 @@ function getRelevantDataSets(
     if (startingGroup === 0 && endingGroup === 3) {
       return allData;
     } else {
-      let returnArray = blankDataset;
+      let returnArray = deepCopy(blankDataset);
       for (let i = startingGroup; i <= endingGroup; i++) {
         returnArray.splice(i, 1, allData[i]);
       }
       return returnArray;
     }
   } else if (reference === 'trisomy-21') {
-    return [
-      trisomy21Data.trisomy21[sex][measurementMethod],
-      blankDataset[0],
-      blankDataset[1],
-      blankDataset[2],
-    ];
+    return [trisomy21Data.trisomy21[sex][measurementMethod], blankSubSet, blankSubSet, blankSubSet];
   } else if (reference === 'turner') {
     if (sex !== 'female' && measurementMethod !== 'height') {
-      console.warn(
+      console.error(
         'No centile lines have rendered, as only height data is supported for turner reference.',
       );
-      return blankDataset;
+      return deepCopy(blankDataset);
     }
-    return [
-      turnerData.turner.female.height,
-      blankDataset[0],
-      blankDataset[1],
-      blankDataset[2],
-    ];
+    return [turnerData.turner.female.height, blankSubSet, blankSubSet, blankSubSet];
   } else {
     throw new Error('No valid reference given to getRelevantDataSets');
   }
@@ -456,12 +437,11 @@ function getDomainsAndData(
   native = true,
 ) {
   // variables initialised to chart for bigger child:
-  let internalChartScaleType: 'prem' | 'infant' | 'smallChild' | 'biggerChild' =
-    'biggerChild';
+  let internalChartScaleType: 'prem' | 'infant' | 'smallChild' | 'biggerChild' = 'biggerChild';
   const twoWeeksPostnatal = 0.038329911019849415;
   const gestWeeks37 = -0.057494866529774126;
-  const gestWeeks24 = -0.306639288158795;
-  const gestWeeks22 = -0.33;
+  const gestWeeks25 = -0.2874743326488706;
+  const gestWeeks23 = -0.32580424366872;
   let absoluteBottomX = twoWeeksPostnatal;
   let absoluteHighX = 20.05;
   let agePadding = totalMinPadding.biggerChild;
@@ -491,7 +471,7 @@ function getDomainsAndData(
   }
 
   if (reference === 'turner') {
-    absoluteBottomX = 0.97;
+    absoluteBottomX = 0.99;
   }
 
   let lowestXForDomain = absoluteBottomX;
@@ -508,35 +488,33 @@ function getDomainsAndData(
       sex,
       measurementMethod,
     );
-    let setDomainsOnMeasurementValues = true;
+    let errorFree = true;
     for (const value of Object.values(childCoordinates)) {
       if (Math.abs(value) === 500) {
-        setDomainsOnMeasurementValues = false;
+        errorFree = false;
         break;
       }
     }
-    if (setDomainsOnMeasurementValues) {
-      const {
-        lowestChildX,
-        highestChildX,
-        lowestChildY,
-        highestChildY,
-      } = childCoordinates;
+    if (errorFree) {
+      const {lowestChildX, highestChildX, lowestChildY, highestChildY} = childCoordinates;
       lowestYFromMeasurements = lowestChildY;
       highestYFromMeasurements = highestChildY;
       const difference = highestChildX - lowestChildX;
 
-      const birthGestationWeeks =
-        childMeasurements[0].birth_data.gestation_weeks;
+      const birthGestationWeeks = childMeasurements[0].birth_data.gestation_weeks;
 
       // set appropriate chart scale based on data:
-      if (birthGestationWeeks < 37 && highestChildX <= twoWeeksPostnatal) {
+      if (
+        birthGestationWeeks < 37 &&
+        highestChildX <= twoWeeksPostnatal &&
+        reference === 'uk-who'
+      ) {
         // prem:
-        absoluteBottomX = gestWeeks22;
+        absoluteBottomX = gestWeeks23;
         agePadding = totalMinPadding.prem;
         absoluteHighX = twoWeeksPostnatal;
         if (measurementMethod === 'height') {
-          absoluteBottomX = gestWeeks24;
+          absoluteBottomX = gestWeeks25;
         }
         if (difference > totalMinPadding.prem) {
           internalChartScaleType = 'infant';
@@ -546,11 +524,14 @@ function getDomainsAndData(
       } else if (highestChildX <= 1) {
         //infant:
         agePadding = totalMinPadding.infant;
-        if (lowestChildX >= gestWeeks37 && lowestChildX < twoWeeksPostnatal) {
+        if (
+          lowestChildX >= gestWeeks37 &&
+          lowestChildX < twoWeeksPostnatal &&
+          reference === 'uk-who'
+        ) {
           absoluteBottomX = gestWeeks37;
         } else if (lowestChildX < gestWeeks37) {
-          absoluteBottomX =
-            measurementMethod === 'height' ? gestWeeks24 : gestWeeks22;
+          absoluteBottomX = measurementMethod === 'height' ? gestWeeks25 : gestWeeks23;
         }
         if (difference > totalMinPadding.infant) {
           internalChartScaleType = 'smallChild';
@@ -569,15 +550,10 @@ function getDomainsAndData(
       let unroundedLowestX = 0;
       let unroundedHighestX = 0;
       if (agePadding <= difference) {
-        // add padding:
         unroundedLowestX =
-          absoluteBottomX > lowestChildX * 0.99
-            ? absoluteBottomX
-            : lowestChildX * 0.99;
+          absoluteBottomX > lowestChildX - 0.01 ? absoluteBottomX : lowestChildX - 0.01;
         unroundedHighestX =
-          absoluteHighX < highestChildX * 1.01
-            ? absoluteHighX
-            : highestChildX * 1.01;
+          absoluteHighX < highestChildX + 0.01 ? absoluteHighX : highestChildX + 0.01;
       } else {
         const leftOverAgePadding = agePadding - difference;
         let addToHighest = 0;
@@ -591,8 +567,7 @@ function getDomainsAndData(
         const candidateHighX = highestChildX + leftOverAgePadding / 2;
         if (candidateHighX > absoluteHighX) {
           unroundedHighestX = absoluteHighX;
-          unroundedLowestX =
-            unroundedLowestX - (candidateHighX - absoluteHighX);
+          unroundedLowestX = unroundedLowestX - (candidateHighX - absoluteHighX);
         } else {
           unroundedHighestX = candidateHighX + addToHighest;
         }
@@ -603,27 +578,33 @@ function getDomainsAndData(
       const xTickValues = getTickValuesForChartScaling(internalChartScaleType);
 
       if (lowestXForDomain !== absoluteBottomX) {
-        let arrayForOrdering = xTickValues.map((element: number) => element);
+        const arrayForOrdering = [...xTickValues];
         arrayForOrdering.push(unroundedLowestX);
         arrayForOrdering.sort((a: number, b: number) => a - b);
         const lowestXIndex = arrayForOrdering.findIndex(
           (element: number) => element === unroundedLowestX,
         );
-        lowestXForDomain =
-          arrayForOrdering[lowestXIndex - 1] || lowestXForDomain;
+        lowestXForDomain = arrayForOrdering[lowestXIndex - 1] || lowestXForDomain;
       }
 
       highestXForDomain = unroundedHighestX;
 
       if (highestXForDomain !== absoluteHighX) {
-        let arrayForOrdering = xTickValues.map((element: number) => element);
+        const arrayForOrdering = [...xTickValues];
         arrayForOrdering.push(unroundedHighestX);
         arrayForOrdering.sort((a: number, b: number) => a - b);
         const highestXIndex = arrayForOrdering.findIndex(
           (element: number) => element === unroundedHighestX,
         );
-        highestXForDomain =
-          arrayForOrdering[highestXIndex + 1] || highestXForDomain;
+        highestXForDomain = arrayForOrdering[highestXIndex + 1] || highestXForDomain;
+      }
+    } else {
+      let errorString = 'No valid measurements entered. Error message from the server: ';
+      for (const measurement of childMeasurements) {
+        if (measurement.measurement_calculated_values.corrected_measurement_error) {
+          errorString += ` ${measurement.measurement_calculated_values.corrected_measurement_error}`;
+          throw new Error(errorString);
+        }
       }
     }
   }
@@ -659,63 +640,23 @@ function getDomainsAndData(
   let prePaddingLowestY = lowestDataY;
   if (childMeasurements.length > 0 && lowestYFromMeasurements !== null) {
     prePaddingLowestY =
-      lowestYFromMeasurements < lowestDataY
-        ? lowestYFromMeasurements
-        : lowestDataY;
+      lowestYFromMeasurements < lowestDataY ? lowestYFromMeasurements : lowestDataY;
   }
 
   let prePaddingHighestY = highestDataY;
   if (childMeasurements.length > 0 && highestYFromMeasurements !== null) {
     prePaddingHighestY =
-      highestYFromMeasurements > highestDataY
-        ? highestYFromMeasurements
-        : highestDataY;
+      highestYFromMeasurements > highestDataY ? highestYFromMeasurements : highestDataY;
   }
 
   // to give a bit of space in vertical axis:
-  const candidatefinalLowestY =
-    prePaddingLowestY - (prePaddingHighestY - prePaddingLowestY) * 0.06;
+  const candidatefinalLowestY = prePaddingLowestY - (prePaddingHighestY - prePaddingLowestY) * 0.07;
   const finalLowestY = candidatefinalLowestY < 0 ? 0 : candidatefinalLowestY;
-  const finalHighestY =
-    prePaddingHighestY + (prePaddingHighestY - prePaddingLowestY) * 0.06;
+  const finalHighestY = prePaddingHighestY + (prePaddingHighestY - prePaddingLowestY) * 0.06;
 
   internalDomains = {
     x: [lowestXForDomain, highestXForDomain],
     y: [finalLowestY, finalHighestY],
-  };
-
-  let highestPossibleDataY = 400;
-  switch (measurementMethod) {
-    case 'weight':
-      highestPossibleDataY = 120;
-      break;
-    case 'bmi':
-      highestPossibleDataY = 40;
-      break;
-    case 'ofc':
-      highestPossibleDataY = 65;
-      break;
-    case 'height':
-      highestPossibleDataY = 210;
-      break;
-    default:
-      console.error(
-        'getDomainsAndData did not pick up a valid measurementMethod for axis scaling',
-      );
-  }
-
-  if (highestYFromMeasurements === null) {
-    highestYFromMeasurements = 0;
-  }
-
-  const maxDomains = {
-    x: [absoluteBottomX, absoluteHighX],
-    y: [
-      0,
-      highestPossibleDataY > highestYFromMeasurements
-        ? highestPossibleDataY
-        : highestYFromMeasurements,
-    ],
   };
 
   if (native) {
@@ -730,7 +671,6 @@ function getDomainsAndData(
   return {
     centileData: finalCentileData,
     computedDomains: internalDomains,
-    maxDomains: maxDomains,
     chartScaleType: internalChartScaleType,
     pointsForCentileLabels: pointsForCentileLabels,
   };
@@ -746,9 +686,8 @@ function getVisibleData(
   if (!domains) {
     return null;
   }
-  let chartScaleType: 'prem' | 'infant' | 'smallChild' | 'biggerChild' =
-    'biggerChild';
-  let pointsForCentileLabels: any[] = [];
+  let chartScaleType: 'prem' | 'infant' | 'smallChild' | 'biggerChild' = 'biggerChild';
+  let pointsForCentileLabels = [];
   const extremeValues = native ? makeExtremeValues(native) : null;
   const lowestX = domains.x[0];
   const highestX = domains.x[1];
@@ -773,13 +712,7 @@ function getVisibleData(
   );
   let centileData = [];
   for (let referenceSet of relevantDataSets) {
-    const truncated = truncate(
-      referenceSet,
-      lowestX,
-      highestX,
-      extremeValues,
-      native,
-    );
+    const truncated = truncate(referenceSet, lowestX, highestX, extremeValues, native);
     centileData.push(truncated);
   }
   if (native && extremeValues) {

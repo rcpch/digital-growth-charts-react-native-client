@@ -1,7 +1,6 @@
 import React from 'react';
 
 import CentileChart from './CentileChart';
-import {MainChartProps} from './CentileChart.types';
 import makeAllStyles from './functions/makeAllStyles';
 import {RCPCHChartProps} from './RCPCHChart.types';
 import ErrorBoundary from './subComponents/ErrorBoundary';
@@ -29,9 +28,7 @@ function RCPCHChart({
     modalStyle,
   );
   return (
-    <ErrorBoundary
-      titleText={styles.titleTextStyle}
-      subTitleText={styles.subtitleTextStyle}>
+    <ErrorBoundary titleText={styles.titleTextStyle} subTitleText={styles.subtitleTextStyle}>
       <CentileChart
         title={title}
         subtitle={subtitle}

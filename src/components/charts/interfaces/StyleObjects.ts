@@ -25,7 +25,6 @@ export interface ChartStyle {
     weight?: 'bold' | 'italic' | 'normal';
   };
 }
-
 export interface ModalStyle {
   backgroundColour?: string;
   titleStyle?: {

@@ -25,18 +25,24 @@ function makeAllStyles(
   modalStyle?: ModalStyle,
 ) {
   let newGridlineStyle = {
-    stroke: 'transparent',
+    stroke: lightGrey,
     strokeWidth: 1,
     strokeDasharray: '',
   };
-  if (gridlineStyle?.gridlines) {
+  if (gridlineStyle?.gridlines === true) {
     newGridlineStyle = {
       stroke: gridlineStyle.stroke ?? lightGrey,
       strokeWidth: gridlineStyle.strokeWidth ?? 1,
       strokeDasharray: gridlineStyle.dashed ? '5 5' : '',
     };
+  } else if (gridlineStyle?.gridlines === false) {
+    newGridlineStyle = {
+      stroke: 'transparent',
+      strokeWidth: 0,
+      strokeDasharray: '',
+    };
   }
-  const styles = {
+  return {
     titleContainerStyle: {
       height: 60,
       justifyContent: 'center',
@@ -278,7 +284,6 @@ function makeAllStyles(
       },
     },
   };
-  return styles;
 }
 
 export default makeAllStyles;

@@ -11,12 +11,7 @@ import {
   VictoryVoronoiContainer,
 } from 'victory-native';
 
-import {
-  xAxisLabel,
-  yAxisLabel,
-  getDomainsAndData,
-  tailoredXTickValues,
-} from './functions';
+import {xAxisLabel, yAxisLabel, getDomainsAndData, tailoredXTickValues} from './functions';
 import RenderTickLabel from './subComponents/RenderTickLabel';
 import XPoint from './subComponents/XPoint';
 
@@ -25,10 +20,7 @@ import {ICentile} from './interfaces/CentilesObject';
 import {MainChartProps} from './CentileChart.types';
 import defaultToggles from './functions/defaultToggles';
 import addOrdinalSuffix from './functions/addOrdinalSuffix';
-import {
-  delayedPubertyThreshold,
-  makePubertyThresholds,
-} from './functions/DelayedPuberty';
+import {delayedPubertyThreshold, makePubertyThresholds} from './functions/DelayedPuberty';
 import CustomGridComponent from './subComponents/CustomGridComponent';
 import CorrectVsChron from './subComponents/CorrectVsChron';
 import InfoPopup from './subComponents/InfoPopup';
@@ -59,31 +51,17 @@ function CentileChart({
   measurementsArray,
   styles,
 }: MainChartProps) {
-  const {
-    defaultShowCorrected,
-    defaultShowChronological,
-    showToggle,
-  } = defaultToggles(measurementsArray);
-
-  const [showChronologicalAge, setShowChronologicalAge] = useState(
-    defaultShowChronological,
+  const {defaultShowCorrected, defaultShowChronological, showToggle} = defaultToggles(
+    measurementsArray,
   );
 
-  const [showCorrectedAge, setShowCorrectedAge] = useState(
-    defaultShowCorrected,
-  );
+  const [showChronologicalAge, setShowChronologicalAge] = useState(defaultShowChronological);
 
-  const [pressedButtonArray, setPressedButtonArray]: [
-    any[],
-    Function,
-  ] = useState([]);
+  const [showCorrectedAge, setShowCorrectedAge] = useState(defaultShowCorrected);
 
-  const {
-    computedDomains,
-    chartScaleType,
-    centileData,
-    pointsForCentileLabels,
-  } = useMemo(
+  const [pressedButtonArray, setPressedButtonArray]: [any[], Function] = useState([]);
+
+  const {computedDomains, chartScaleType, centileData, pointsForCentileLabels} = useMemo(
     () =>
       getDomainsAndData(
         measurementsArray,
@@ -94,21 +72,11 @@ function CentileChart({
         showChronologicalAge,
         true,
       ),
-    [
-      measurementsArray,
-      sex,
-      measurementMethod,
-      reference,
-      showCorrectedAge,
-      showChronologicalAge,
-    ],
+    [measurementsArray, sex, measurementMethod, reference, showCorrectedAge, showChronologicalAge],
   );
 
   const lowerPubertyBorder = (d: any) => {
-    if (
-      (sex === 'male' && d.x >= 9 && d.x <= 14) ||
-      (sex === 'female' && d.x >= 9 && d.x <= 13)
-    ) {
+    if ((sex === 'male' && d.x >= 9 && d.x <= 14) || (sex === 'female' && d.x >= 9 && d.x <= 13)) {
       return d.y0;
     } else {
       return null;
@@ -201,9 +169,7 @@ function CentileChart({
         }>
         {
           /* Term child shaded area: */
-          showTermArea && (
-            <VictoryArea style={styles.termArea} data={termShadedAreaData} />
-          )
+          showTermArea && <VictoryArea style={styles.termArea} data={termShadedAreaData} />
         }
         {
           /* Touchable component for term area explanation */
@@ -218,21 +184,14 @@ function CentileChart({
           )
         }
         {/* Y axis: */}
-        <VictoryAxis
-          label={yAxisLabel(measurementMethod)}
-          style={styles.yAxis}
-          dependentAxis
-        />
+        <VictoryAxis label={yAxisLabel(measurementMethod)} style={styles.yAxis} dependentAxis />
         {/* X axis: */}
         <VictoryAxis
           label={xAxisLabel(chartScaleType, computedDomains)}
           style={styles.xAxis}
           tickValues={tailoredXTickValues[chartScaleType]}
           gridComponent={
-            <CustomGridComponent
-              chartScaleType={chartScaleType}
-              domains={computedDomains}
-            />
+            <CustomGridComponent chartScaleType={chartScaleType} domains={computedDomains} />
           }
           tickLabelComponent={
             <RenderTickLabel
@@ -247,12 +206,8 @@ function CentileChart({
           reference === 'uk-who' &&
             measurementMethod === 'height' &&
             pubertyThresholds.map((dataArray) => {
-              if (
-                dataArray[0].x > computedDomains.x[0] &&
-                dataArray[1].x <= computedDomains.x[1]
-              ) {
-                const reverse =
-                  dataArray[0].x === computedDomains.x[1] ? true : false;
+              if (dataArray[0].x > computedDomains.x[0] && dataArray[1].x <= computedDomains.x[1]) {
+                const reverse = dataArray[0].x === computedDomains.x[1] ? true : false;
                 return (
                   <VictoryLine
                     key={dataArray[0].x}
@@ -260,9 +215,7 @@ function CentileChart({
                     style={styles.delayedPubertyThresholdLine}
                     data={dataArray}
                     labels={({datum}) => datum.label}
-                    labelComponent={
-                      <InfoPopup reverse={reverse} style={styles.label} />
-                    }
+                    labelComponent={<InfoPopup reverse={reverse} style={styles.label} />}
                   />
                 );
               } else {
@@ -305,37 +258,31 @@ function CentileChart({
               if (referenceSet.length > 0) {
                 return (
                   <VictoryGroup key={`centile-${indexSet}`}>
-                    {referenceSet.map(
-                      (centile: ICentile, centileIndex: number) => {
-                        if (centileIndex % 2 === 0) {
-                          // even index - centile is dashed
-                          return (
-                            <VictoryLine
-                              name={
-                                'victory' + centile.centile + '-' + centileIndex
-                              }
-                              key={centile.centile + '-' + centileIndex}
-                              padding={{top: 5, bottom: 5}}
-                              data={centile.data}
-                              style={styles.dashedCentile}
-                            />
-                          );
-                        } else {
-                          // uneven index - centile is continuous
-                          return (
-                            <VictoryLine
-                              key={centile.centile + '-' + centileIndex}
-                              padding={{top: 5, bottom: 5}}
-                              data={centile.data}
-                              style={styles.continuousCentile}
-                              name={
-                                'victory' + centile.centile + '-' + centileIndex
-                              }
-                            />
-                          );
-                        }
-                      },
-                    )}
+                    {referenceSet.map((centile: ICentile, centileIndex: number) => {
+                      if (centileIndex % 2 === 0) {
+                        // even index - centile is dashed
+                        return (
+                          <VictoryLine
+                            name={'victory' + centile.centile + '-' + centileIndex}
+                            key={centile.centile + '-' + centileIndex}
+                            padding={{top: 5, bottom: 5}}
+                            data={centile.data}
+                            style={styles.dashedCentile}
+                          />
+                        );
+                      } else {
+                        // uneven index - centile is continuous
+                        return (
+                          <VictoryLine
+                            key={centile.centile + '-' + centileIndex}
+                            padding={{top: 5, bottom: 5}}
+                            data={centile.data}
+                            style={styles.continuousCentile}
+                            name={'victory' + centile.centile + '-' + centileIndex}
+                          />
+                        );
+                      }
+                    })}
                   </VictoryGroup>
                 );
               }
@@ -346,11 +293,9 @@ function CentileChart({
         }
         {measurementsArray.map((childMeasurement: any, index) => {
           const chronologicalAgeData =
-            childMeasurement.plottable_data.centile_data
-              .chronological_decimal_age_data;
+            childMeasurement.plottable_data.centile_data.chronological_decimal_age_data;
           const correctedAgeData =
-            childMeasurement.plottable_data.centile_data
-              .corrected_decimal_age_data;
+            childMeasurement.plottable_data.centile_data.corrected_decimal_age_data;
           return (
             <VictoryGroup key={'measurement' + index}>
               {showCorrectedAge && (
