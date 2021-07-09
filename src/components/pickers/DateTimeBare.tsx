@@ -37,8 +37,7 @@ const customDateObject = (dateObject = new Date()) => {
     const year = `${dateObject.getFullYear()}`;
     const intHour = dateObject.getHours();
     const intMinute = dateObject.getMinutes();
-    const hour =
-      intHour < 10 ? `0${dateObject.getHours()}` : `${dateObject.getHours()}`;
+    const hour = intHour < 10 ? `0${dateObject.getHours()}` : `${dateObject.getHours()}`;
     const minute = `${Math.floor(intMinute / 15) * 15}`;
     return {
       day: day,
@@ -172,11 +171,7 @@ const DateTimeBare = ({date, setDate, renderTime = false}: propTypes) => {
     <Picker.Item label={element} value={element} key={element} />
   ));
   const selectMonth = values.monthList.map((element) => (
-    <Picker.Item
-      label={element.string}
-      value={element.value}
-      key={element.value}
-    />
+    <Picker.Item label={element.string} value={element.value} key={element.value} />
   ));
   const selectYear = values.yearList.map((element) => (
     <Picker.Item label={`${element}`} value={element} key={element} />
@@ -230,9 +225,7 @@ const DateTimeBare = ({date, setDate, renderTime = false}: propTypes) => {
           <Picker
             style={ios ? styles.iosPickerDate : styles.androidPickerDate}
             itemStyle={theme.text}
-            onValueChange={(newValue: string) =>
-              handleChange(newValue, 'minute')
-            }
+            onValueChange={(newValue: string) => handleChange(newValue, 'minute')}
             selectedValue={values.minute}>
             {selectMinute}
           </Picker>

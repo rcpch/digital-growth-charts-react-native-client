@@ -102,10 +102,4 @@ const GlobalStateProvider = ({children}: propTypes) => {
   );
 };
 
-export {
-  GlobalStateContext,
-  GlobalStateProvider,
-  initialState,
-  MakeInitialState,
-  MakeSubState,
-};
+export {GlobalStateContext, GlobalStateProvider, initialState, MakeInitialState, MakeSubState};

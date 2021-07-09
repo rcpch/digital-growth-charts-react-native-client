@@ -21,7 +21,7 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    console.log({error: error.message, errorInfo: errorInfo});
+    console.error({error: error.message, errorInfo: errorInfo});
   }
 
   render() {
@@ -29,7 +29,7 @@ class ErrorBoundary extends React.Component {
       return (
         <View style={styles.errorContainer}>
           <Text style={{...this.props.titleText, ...styles.textHeading}}>
-            Woops! The chart encountered an error
+            The chart cannot be displayed
           </Text>
           <Text style={{...this.props.subTitleText, ...styles.textMessage}}>
             Please navigate away from the chart and try again
