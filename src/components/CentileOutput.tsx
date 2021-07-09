@@ -43,24 +43,21 @@ const CentileOutput = ({
   let measurementValue: string | number = '';
   let renderChart = false;
 
-  if (isLoading && measurementProvided) {
+  if (isLoading) {
     defaultOutput = 'Loading...';
   } else if (measurementProvided && !isLoading) {
     if (specificError && typeof specificError === 'string') {
       defaultOutput = specificError;
     } else if (specificResults) {
-      defaultOutput =
-        specificResults.measurement_calculated_values.corrected_centile_band;
+      defaultOutput = specificResults.measurement_calculated_values.corrected_centile_band;
       renderChart = true;
       if (!defaultOutput) {
         defaultOutput =
-          specificResults.measurement_calculated_values
-            .corrected_measurement_error ||
+          specificResults.measurement_calculated_values.corrected_measurement_error ||
           'Server did not respond with a recognised answer. Has the API changed?';
         renderChart = false;
       }
-      measurementValue =
-        specificResults.child_observation_value.observation_value;
+      measurementValue = specificResults.child_observation_value.observation_value;
     }
   }
 
@@ -97,32 +94,30 @@ const CentileOutput = ({
   };
 
   useEffect(() => {
-    if (measurementProvided) {
-      const fadeOut = Animated.timing(fadeAnim, {
-        toValue: 0.6,
-        duration: 600,
-        useNativeDriver: true,
-      });
+    const fadeOut = Animated.timing(fadeAnim, {
+      toValue: 0.6,
+      duration: 600,
+      useNativeDriver: true,
+    });
 
-      const fadeIn = Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      });
+    const fadeIn = Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    });
 
-      const sequence = Animated.sequence([fadeOut, fadeIn]);
-      if (isLoading) {
-        Animated.loop(sequence).start();
-      } else if (!isLoading) {
-        Animated.loop(sequence).reset();
-        fadeAnim.setValue(1);
-      }
-      return () => {
-        Animated.loop(sequence).reset();
-        fadeAnim.setValue(1);
-      };
+    const sequence = Animated.sequence([fadeOut, fadeIn]);
+    if (isLoading) {
+      Animated.loop(sequence).start();
+    } else if (!isLoading) {
+      Animated.loop(sequence).reset();
+      fadeAnim.setValue(1);
     }
-  }, [isLoading, measurementProvided, fadeAnim]);
+    return () => {
+      Animated.loop(sequence).reset();
+      fadeAnim.setValue(1);
+    };
+  }, [isLoading, fadeAnim]);
 
   return (
     <Animated.View style={{...styles.outputContainer, opacity: fadeAnim}}>
@@ -133,16 +128,9 @@ const CentileOutput = ({
         </View>
       </View>
       <View style={styles.buttonContainer}>
-        <MoreCentileInfo
-          specificResults={specificResults}
-          isLoading={isLoading}
-        />
+        <MoreCentileInfo specificResults={specificResults} isLoading={isLoading} />
         <TouchableOpacity disabled={isLoading} onPress={navigateChart}>
-          <AppIcon
-            name="chart-bell-curve-cumulative"
-            size={30}
-            style={styles.goToChartIcon}
-          />
+          <AppIcon name="chart-bell-curve-cumulative" size={30} style={styles.goToChartIcon} />
         </TouchableOpacity>
       </View>
     </Animated.View>

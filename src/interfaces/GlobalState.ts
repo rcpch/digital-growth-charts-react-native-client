@@ -27,7 +27,8 @@ export type Names =
   | 'gestationInDays'
   | 'dob'
   | 'dom'
-  | 'reference';
+  | 'reference'
+  | 'devMode';
 
 export type globalStateType = {
   bmi: textStore;
@@ -39,4 +40,5 @@ export type globalStateType = {
   dob: dateStore;
   dom: dateStore;
   reference: textStore;
+  devMode: textStore;
 };

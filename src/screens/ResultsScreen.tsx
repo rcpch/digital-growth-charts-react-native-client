@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {ScrollView, StyleSheet, TouchableOpacity, View, useColorScheme} from 'react-native';
+import {timeout} from '../brains';
 
 import {Screen, AppText, AgeButton, CentileOutput} from '../components';
 import {colors, theme} from '../config';
@@ -9,7 +10,7 @@ const centileMeasurements = ['weight', 'height', 'bmi', 'ofc'];
 
 function ResultsScreen() {
   const [isLoading, setIsLoading] = useState(true);
-  const {getMultipleCentileResults, centileResults, errors, globalState} = useRcpchApi('local');
+  const {getMultipleCentileResults, centileResults, errors, globalState} = useRcpchApi();
 
   const reset = () => {
     setIsLoading(true);
@@ -50,7 +51,8 @@ function ResultsScreen() {
   useEffect(() => {
     let recordAnswer = true;
     if (isLoading) {
-      getMultipleCentileResults(recordAnswer)
+      timeout(1000)
+        .then(() => getMultipleCentileResults(recordAnswer))
         .then(() => {
           setIsLoading(false);
         })

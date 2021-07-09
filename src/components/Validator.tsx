@@ -120,6 +120,11 @@ const proformaTemplate = {
       param: 'string',
     },
   },
+  devMode: {
+    inputType: {
+      param: 'string',
+    },
+  },
 };
 
 const blankContext: {
@@ -145,10 +150,7 @@ const getType = (obj: any): string => {
     return (obj + '').toLowerCase();
   } // implicit toString() conversion
 
-  const deepType = Object.prototype.toString
-    .call(obj)
-    .slice(8, -1)
-    .toLowerCase();
+  const deepType = Object.prototype.toString.call(obj).slice(8, -1).toLowerCase();
   if (deepType === 'generatorfunction') {
     return 'function';
   }
@@ -157,9 +159,7 @@ const getType = (obj: any): string => {
   // Account for functionish Regexp (Android <=2.3), functionish <object> element (Chrome <=57, Firefox <=52), etc.
   // String.prototype.match is universally supported.
 
-  return deepType.match(
-    /^(array|bigint|date|error|function|generator|regexp|symbol)$/,
-  )
+  return deepType.match(/^(array|bigint|date|error|function|generator|regexp|symbol)$/)
     ? deepType
     : typeof obj === 'object' || typeof obj === 'function'
     ? 'object'
@@ -171,10 +171,7 @@ function isEmailValid(email: string) {
 }
 
 function makeValidator(validationProforma: proformaObjectArgument) {
-  const relevant: proformaObjectArgument = produce(
-    validationProforma,
-    () => {},
-  );
+  const relevant: proformaObjectArgument = produce(validationProforma, () => {});
   return function (value: any): returnValidatorObject {
     const outputObject = {
       errors: false,
@@ -232,8 +229,7 @@ function makeValidator(validationProforma: proformaObjectArgument) {
       if (!value) {
         return produce(outputObject, (mutable) => {
           mutable.errors = true;
-          mutable.isRequiredError =
-            relevant.isRequired?.message || 'No entry found.';
+          mutable.isRequiredError = relevant.isRequired?.message || 'No entry found.';
         });
       }
     }
@@ -291,9 +287,7 @@ class ValidatorState {
 }
 
 // checks to see if validation object contains sufficient validated values for cumulative threshold to have been reached:
-const cumulativeThresholdReached = (
-  validationObjectToCheck: validatorStateType,
-): boolean => {
+const cumulativeThresholdReached = (validationObjectToCheck: validatorStateType): boolean => {
   let cumulativeCount = 0;
   let minCountToCheck: null | number = null;
   for (const subValue of Object.values(validationObjectToCheck.cumulative)) {
@@ -330,10 +324,7 @@ const updateValidationObject = (
   return produce(oldValidation, (mutable) => {
     if (evaluation.count) {
       mutable.cumulative[currentName] = evaluation.count;
-    } else if (
-      !evaluation.count &&
-      mutable.cumulative[currentName] !== undefined
-    ) {
+    } else if (!evaluation.count && mutable.cumulative[currentName] !== undefined) {
       mutable.cumulative[currentName] = 0;
     }
     if (evaluation.errors) {
@@ -346,17 +337,13 @@ const updateValidationObject = (
     } else {
       mutable.errorMessages[currentName] = '';
     }
-    const newUntouchedArray = mutable.untouched.filter(
-      (item) => item !== currentName,
-    );
+    const newUntouchedArray = mutable.untouched.filter((item) => item !== currentName);
     mutable.untouched = newUntouchedArray;
   });
 };
 
 // uses cumlativeThresholdReached function and puts appropriate error messages in validation if errors found:
-const updateCumulative = (
-  validatorState: validatorStateType,
-): validatorStateType => {
+const updateCumulative = (validatorState: validatorStateType): validatorStateType => {
   return produce(validatorState, (mutableState) => {
     if (JSON.stringify(mutableState.cumulative) !== JSON.stringify({})) {
       const genericCumulativeErrorMessage =
@@ -392,11 +379,7 @@ const updateValidationBeforeSubmit = (
     const untouchedNames = [...validationState.untouched];
     for (const valueName of untouchedNames) {
       const inputValue = globalState[valueName].value;
-      validationState = updateValidationObject(
-        validationState,
-        valueName,
-        inputValue,
-      );
+      validationState = updateValidationObject(validationState, valueName, inputValue);
     }
   }
   // check for any cumulative entry errors and update:
@@ -427,8 +410,7 @@ const ValidatorProvider = ({
     new ValidatorState(validationProforma),
   );
 
-  const handleValidationReset = () =>
-    setValidation(new ValidatorState(validationProforma));
+  const handleValidationReset = () => setValidation(new ValidatorState(validationProforma));
 
   // updates validation object on single value passed to it:
   const updateSingleValidation = (name: string, value: any): void => {
